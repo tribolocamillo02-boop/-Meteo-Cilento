@@ -19,6 +19,29 @@ select{width:90%;margin:15px 5%;padding:15px;border-radius:12px;font-size:17px}
 .hour{min-width:95px;text-align:center;background:#204966;padding:12px;border-radius:12px;line-height:2}
 .day{display:flex;justify-content:space-between;gap:8px;padding:14px 0;border-bottom:1px solid #45617a}
 #map{height:350px;border-radius:12px}
+  .menu-principale {
+display: flex;
+gap: 6px;
+justify-content: space-between;
+margin: 12px 0;
+position: sticky;
+top: 0;
+z-index: 1000;
+background: #123b59;
+padding: 10px 4px;
+border-radius: 12px;
+}
+
+.menu-principale button {
+flex: 1;
+border: none;
+border-radius: 9px;
+padding: 12px 3px;
+background: #204966;
+color: white;
+font-size: 12px;
+font-weight: bold;
+}
 </style>
 </head>
 <body>
@@ -27,7 +50,14 @@ select{width:90%;margin:15px 5%;padding:15px;border-radius:12px;font-size:17px}
 <h1>🌤️ METEO CILENTO</h1>
 <p>Il meteo del nostro territorio</p>
 </header>
-
+  <nav class="menu-principale">
+  <button onclick="mostraSezione('meteo')">🏠 Meteo</button>
+  <button onclick="mostraSezione('mare')">🌊 Mare</button>
+  <button onclick="mostraSezione('radar')">🌧️ Radar</button>
+  <button onclick="mostraSezione('allerte')">🚨 Allerte</button>
+</nav>
+  
+<section id="sezione-meteo">
 <select id="city" onchange="loadWeather()">
 <option value="40.191,15.112">Casal Velino</option>
 <option value="40.349,14.994">Agropoli</option>
@@ -62,14 +92,15 @@ select{width:90%;margin:15px 5%;padding:15px;border-radius:12px;font-size:17px}
 <h2>📅 PREVISIONI 7 GIORNI</h2>
 <div id="days">Caricamento...</div>
 </div>
-
+</section>
+<section id="sezione-radar">
 <div class="card">
 <h2>🛰️ RADAR PRECIPITAZIONI</h2>
 <p>Osservazione delle precipitazioni sulla zona</p>
 <div id="map"></div>
 <p id="radarStatus">Caricamento radar...</p>
 </div>
-
+</section>
 <footer style="text-align:center;padding:25px">
 METEO CILENTO · Dati Open-Meteo
 </footer>
@@ -178,7 +209,7 @@ loadRadar();
      CONSULTA LE ALLERTE UFFICIALI
   </a>
 </section>
-  <section style="background:#123b59;color:white;padding:18px;margin:20px 10px;border-radius:15px;">
+ <section id="sezione-mare" style="background:#123b59;color:white;padding:18px;margin:20px 10px;border-radius:15px;">
   <h2>🌊 METEO MARE – CASAL VELINO</h2>
   <p style="color:#b8d9ed">Condizioni del mare aggiornate</p>
 
@@ -243,6 +274,20 @@ async function caricaMare() {
 }
 
 caricaMare();
+  function mostraSezione(sezione) {
+  document.getElementById("sezione-meteo").style.display = "none";
+  document.getElementById("sezione-mare").style.display = "none";
+  document.getElementById("sezione-radar").style.display = "none";
+  document.getElementById("sezione-allerte").style.display = "none";
+
+  document.getElementById("sezione-" + sezione).style.display = "block";
+
+  if (sezione === "radar" && typeof map !== "undefined") {
+    setTimeout(() => map.invalidateSize(), 200);
+  }
+}
+
+mostraSezione("meteo");
 </script>
 </body>
 </html>
