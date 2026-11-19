@@ -217,6 +217,21 @@ const d=await r.json();
 const c=d.current;
 
 temp.textContent=Math.round(c.temperature_2m)+"°";
+  let minmax = document.getElementById("minmax");
+
+if(!minmax){
+minmax = document.createElement("div");
+minmax.id = "minmax";
+minmax.style.textAlign = "center";
+minmax.style.fontSize = "22px";
+minmax.style.fontWeight = "bold";
+minmax.style.margin = "5px 0 15px";
+temp.insertAdjacentElement("afterend", minmax);
+}
+
+minmax.textContent =
+"MIN " + Math.round(d.daily.temperature_2m_min[0]) +
+"°  |  MAX " + Math.round(d.daily.temperature_2m_max[0]) + "°";
 description.textContent=weather(c.weather_code);
 feels.textContent=Math.round(c.apparent_temperature)+"°";
 humidity.textContent=c.relative_humidity_2m+"%";
