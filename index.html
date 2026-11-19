@@ -3,51 +3,29 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="theme-color" content="#102b49">
 <title>METEO CILENTO</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 <style>
-body {
-  margin: 0;
-  font-family: Arial, sans-serif;
-  background: linear-gradient(180deg,#102b49,#176b87);
-  color: white;
-  text-align: center;
-}
-header { padding: 25px 10px; }
-h1 { font-size: 28px; letter-spacing: 2px; }
-select {
-  padding: 14px;
-  border-radius: 12px;
-  width: 85%;
-  font-size: 17px;
-}
-.card {
-  background: rgba(255,255,255,.13);
-  margin: 18px;
-  padding: 22px;
-  border-radius: 18px;
-}
-.temp { font-size: 65px; font-weight: bold; }
-.info { font-size: 18px; line-height: 2; }
-.hourly {
-  display: flex;
-  overflow-x: auto;
-  gap: 12px;
-  padding: 15px;
-}
-.hour {
-  min-width: 90px;
-  background: rgba(255,255,255,.15);
-  border-radius: 14px;
-  padding: 12px;
-}
+*{box-sizing:border-box}
+body{margin:0;background:#091d35;color:white;font-family:Arial}
+header{text-align:center;padding:25px;background:linear-gradient(135deg,#09233e,#147da1)}
+h1{letter-spacing:2px}
+select{width:90%;margin:15px 5%;padding:15px;border-radius:12px;font-size:17px}
+.card{background:#153957;margin:14px;padding:18px;border-radius:18px}
+.temp{font-size:65px;font-weight:bold;text-align:center}
+.info{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.info div{background:#204966;padding:14px;border-radius:12px}
+.hourly{display:flex;overflow-x:auto;gap:10px}
+.hour{min-width:95px;text-align:center;background:#204966;padding:12px;border-radius:12px;line-height:2}
+.day{display:flex;justify-content:space-between;gap:8px;padding:14px 0;border-bottom:1px solid #45617a}
+#map{height:350px;border-radius:12px}
 </style>
 </head>
 <body>
 
 <header>
 <h1>🌤️ METEO CILENTO</h1>
-<p>Il tempo nel cuore del Cilento</p>
+<p>Il meteo del nostro territorio</p>
 </header>
 
 <select id="city" onchange="loadWeather()">
@@ -55,83 +33,138 @@ select {
 <option value="40.349,14.994">Agropoli</option>
 <option value="40.227,15.263">Ascea</option>
 <option value="40.034,15.288">Palinuro</option>
-<option value="40.025,15.289">Centola</option>
 <option value="40.140,15.235">Vallo della Lucania</option>
 <option value="40.173,15.556">Sapri</option>
-<option value="40.228,15.264">Velia</option>
+<option value="40.282,15.073">Castellabate</option>
+<option value="40.230,15.057">Pollica</option>
 </select>
 
 <div class="card">
 <h2 id="name">Casal Velino</h2>
 <div class="temp" id="temp">--°</div>
-<div id="description">Caricamento...</div>
+<p id="description" style="text-align:center">Caricamento...</p>
 <div class="info">
-💧 Pioggia: <span id="rain">--</span><br>
-🌬️ Vento: <span id="wind">--</span> km/h<br>
-🌡️ Percepita: <span id="feels">--</span>°<br>
-☁️ Umidità: <span id="humidity">--</span>%
+<div>🌡️ Percepita<br><b id="feels">--</b></div>
+<div>💧 Umidità<br><b id="humidity">--</b></div>
+<div>🌧️ Pioggia<br><b id="rain">--</b></div>
+<div>🌬️ Vento<br><b id="wind">--</b></div>
+<div>💨 Raffiche<br><b id="gust">--</b></div>
+<div>☁️ Nuvole<br><b id="cloud">--</b></div>
 </div>
 </div>
 
-<h2>PREVISIONI ORARIE</h2>
+<div class="card">
+<h2>⏱️ Previsioni orarie</h2>
 <div class="hourly" id="hourly"></div>
+</div>
 
+<div class="card">
+<h2>📅 PREVISIONI 7 GIORNI</h2>
+<div id="days">Caricamento...</div>
+</div>
+
+<div class="card">
+<h2>🛰️ RADAR PRECIPITAZIONI</h2>
+<p>Osservazione delle precipitazioni sulla zona</p>
+<div id="map"></div>
+<p id="radarStatus">Caricamento radar...</p>
+</div>
+
+<footer style="text-align:center;padding:25px">
+METEO CILENTO · Dati Open-Meteo
+</footer>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
-async function loadWeather() {
- const city = document.getElementById("city");
- const coords = city.value.split(",");
- document.getElementById("name").textContent =
- city.options[city.selectedIndex].text;
-
- const url = `https://api.open-meteo.com/v1/forecast?latitude=${coords[0]}&longitude=${coords[1]}&current=temperature_2m,relative_humidity_2m,apparent_temperature,precipitation,weather_code,wind_speed_10m&hourly=temperature_2m,precipitation_probability,weather_code&forecast_days=3&timezone=Europe%2FRome`;
-
- try {
- const response = await fetch(url);
- const data = await response.json();
- const c = data.current;
-
- document.getElementById("temp").textContent =
- Math.round(c.temperature_2m)+"°";
- document.getElementById("feels").textContent =
- Math.round(c.apparent_temperature);
- document.getElementById("rain").textContent =
- c.precipitation+" mm";
- document.getElementById("wind").textContent =
- c.wind_speed_10m;
- document.getElementById("humidity").textContent =
- c.relative_humidity_2m;
- document.getElementById("description").textContent =
- weather(c.weather_code);
-
- const box = document.getElementById("hourly");
- box.innerHTML = "";
-
- for(let i=0;i<24;i++){
- box.innerHTML += `
- <div class="hour">
- ${data.hourly.time[i].slice(11,16)}<br>
- ${weather(data.hourly.weather_code[i])}<br>
- <b>${Math.round(data.hourly.temperature_2m[i])}°</b><br>
- 🌧️ ${data.hourly.precipitation_probability[i]}%
- </div>`;
- }
- } catch(e) {
- document.getElementById("description").textContent =
- "Errore nel caricamento delle previsioni";
- }
+function weather(c){
+if(c===0)return "☀️ Sereno";
+if(c<=2)return "🌤️ Poco nuvoloso";
+if(c===3)return "☁️ Coperto";
+if(c<=48)return "🌫️ Nebbia";
+if(c<=67)return "🌧️ Pioggia";
+if(c<=77)return "❄️ Neve";
+if(c<=82)return "🌦️ Rovesci";
+return "⛈️ Temporale";
 }
 
-function weather(code) {
- if(code===0)return "☀️ Sereno";
- if(code<=3)return "🌤️ Nuvoloso";
- if(code<=48)return "🌫️ Nebbia";
- if(code<=67)return "🌧️ Pioggia";
- if(code<=77)return "❄️ Neve";
- if(code<=82)return "🌦️ Rovesci";
- return "⛈️ Temporale";
+async function loadWeather(){
+const city=document.getElementById("city");
+const [lat,lon]=city.value.split(",");
+document.getElementById("name").textContent=city.options[city.selectedIndex].text;
+
+const url=`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,apparent_temperature,precipitation,weather_code,wind_speed_10m,wind_gusts_10m,cloud_cover&hourly=temperature_2m,precipitation_probability,weather_code&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max&forecast_days=7&timezone=Europe%2FRome`;
+
+try{
+const r=await fetch(url);
+if(!r.ok)throw Error();
+const d=await r.json();
+const c=d.current;
+
+temp.textContent=Math.round(c.temperature_2m)+"°";
+description.textContent=weather(c.weather_code);
+feels.textContent=Math.round(c.apparent_temperature)+"°";
+humidity.textContent=c.relative_humidity_2m+"%";
+rain.textContent=c.precipitation+" mm";
+wind.textContent=c.wind_speed_10m+" km/h";
+gust.textContent=c.wind_gusts_10m+" km/h";
+cloud.textContent=c.cloud_cover+"%";
+
+hourly.innerHTML="";
+let start=d.hourly.time.findIndex(t=>new Date(t)>=new Date());
+if(start<0)start=0;
+
+for(let i=start;i<Math.min(start+24,d.hourly.time.length);i++){
+hourly.innerHTML+=`<div class="hour">
+${d.hourly.time[i].slice(11,16)}<br>
+${weather(d.hourly.weather_code[i])}<br>
+<b>${Math.round(d.hourly.temperature_2m[i])}°</b><br>
+🌧️ ${d.hourly.precipitation_probability[i]}%
+</div>`;
+}
+
+days.innerHTML="";
+for(let i=0;i<7;i++){
+const date=new Date(d.daily.time[i]+"T12:00:00").toLocaleDateString("it-IT",{weekday:"short",day:"numeric",month:"short"});
+days.innerHTML+=`<div class="day">
+<span>${date}<br>${weather(d.daily.weather_code[i])}</span>
+<span>🌧️ ${d.daily.precipitation_probability_max[i]}%</span>
+<b>${Math.round(d.daily.temperature_2m_min[i])}° / ${Math.round(d.daily.temperature_2m_max[i])}°</b>
+</div>`;
+}
+}catch(e){
+description.textContent="Errore nel caricamento";
+}
+}
+
+let map=L.map("map").setView([40.191,15.112],9);
+
+L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",{
+attribution:"© OpenStreetMap"
+}).addTo(map);
+
+L.marker([40.191,15.112]).addTo(map).bindPopup("Casal Velino");
+
+async function loadRadar(){
+try{
+const r=await fetch("https://api.rainviewer.com/public/weather-maps.json");
+const d=await r.json();
+const frames=d.radar.past;
+if(!frames.length)throw Error();
+const f=frames[frames.length-1];
+
+L.tileLayer(d.host+f.path+"/256/{z}/{x}/{y}/2/1_1.png",{
+opacity:0.65,
+attribution:"RainViewer"
+}).addTo(map);
+
+radarStatus.textContent="Radar osservato: ultimo aggiornamento disponibile.";
+}catch(e){
+radarStatus.textContent="Radar momentaneamente non disponibile.";
+}
 }
 
 loadWeather();
+loadRadar();
 </script>
 </body>
 </html>
