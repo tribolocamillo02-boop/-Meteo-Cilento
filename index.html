@@ -178,5 +178,71 @@ loadRadar();
      CONSULTA LE ALLERTE UFFICIALI
   </a>
 </section>
+  <section style="background:#123b59;color:white;padding:18px;margin:20px 10px;border-radius:15px;">
+  <h2>🌊 METEO MARE – CASAL VELINO</h2>
+  <p style="color:#b8d9ed">Condizioni del mare aggiornate</p>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;text-align:center">
+    <div style="background:#204966;padding:15px;border-radius:12px">
+      🌊 Altezza onde
+      <h2 id="onda">--</h2>
+    </div>
+    <div style="background:#204966;padding:15px;border-radius:12px">
+      🌡️ Temperatura acqua
+      <h2 id="acqua">--</h2>
+    </div>
+    <div style="background:#204966;padding:15px;border-radius:12px">
+      🧭 Direzione onde
+      <h2 id="direzione">--</h2>
+    </div>
+    <div style="background:#204966;padding:15px;border-radius:12px">
+      ⏱️ Periodo onde
+      <h2 id="periodo">--</h2>
+    </div>
+  </div>
+
+  <p id="aggiornamento" style="text-align:center;font-size:12px;margin-top:15px">
+    Caricamento dati marini...
+  </p>
+  <p style="font-size:11px;text-align:center">
+    Dati: Open-Meteo Marine API
+  </p>
+</section>
+
+<script>
+async function caricaMare() {
+  const url = "https://marine-api.open-meteo.com/v1/marine?latitude=40.19&longitude=15.12&current=wave_height,wave_direction,wave_period,sea_surface_temperature&timezone=Europe%2FRome&cell_selection=sea";
+
+  try {
+    const risposta = await fetch(url);
+    if (!risposta.ok) throw new Error("Errore API");
+
+    const dati = await risposta.json();
+    const mare = dati.current;
+
+    document.getElementById("onda").textContent =
+      mare.wave_height != null ? mare.wave_height + " m" : "N/D";
+
+    document.getElementById("acqua").textContent =
+      mare.sea_surface_temperature != null
+      ? mare.sea_surface_temperature + " °C" : "N/D";
+
+    document.getElementById("direzione").textContent =
+      mare.wave_direction != null ? mare.wave_direction + "°" : "N/D";
+
+    document.getElementById("periodo").textContent =
+      mare.wave_period != null ? mare.wave_period + " sec" : "N/D";
+
+    document.getElementById("aggiornamento").textContent =
+      "Ultimo dato: " + mare.time.replace("T"," ");
+
+  } catch (errore) {
+    document.getElementById("aggiornamento").textContent =
+      "Dati del mare temporaneamente non disponibili.";
+  }
+}
+
+caricaMare();
+</script>
 </body>
 </html>
