@@ -75,6 +75,25 @@ font-weight: bold;
   font-weight: bold;
   margin-bottom: 20px;
 }
+  #suggerimentiComuni{
+width:90%;
+margin:0 5%;
+background:white;
+color:#09233e;
+border-radius:0 0 12px 12px;
+overflow:hidden;
+display:none;
+}
+
+#suggerimentiComuni div{
+padding:14px;
+border-bottom:1px solid #ddd;
+font-size:17px;
+}
+
+#suggerimentiComuni div:active{
+background:#d8efff;
+}
 </style>
 </head>
 <body>
@@ -95,8 +114,8 @@ font-weight: bold;
 type="text"
 id="cercaComune"
 placeholder="🔎 Cerca un comune del Cilento..."
-list="listaComuni"
->
+list="listaComuni">
+<div id="suggerimentiComuni"></div>
 <select id="city" onchange="loadWeather()">
 <option value="40.192,15.110">Casal Velino</option>
 <option value="40.350,14.990">Agropoli</option>
@@ -232,19 +251,41 @@ attribution:"© OpenStreetMap"
 }).addTo(map);
 
 L.marker([40.191,15.112]).addTo(map).bindPopup("Casal Velino");
-document.getElementById("cercaComune").addEventListener("input", function(){
-const ricerca = this.value.toLowerCase().trim();
+const cercaComune = document.getElementById("cercaComune");
+const suggerimenti = document.getElementById("suggerimentiComuni");
 const select = document.getElementById("city");
 
-for(let i=0; i<select.options.length; i++){
-const nome = select.options[i].text.toLowerCase();
+cercaComune.addEventListener("input", function(){
+const ricerca = this.value.toLowerCase().trim();
+suggerimenti.innerHTML = "";
 
-if(nome === ricerca){
-select.selectedIndex = i;
+if(ricerca === ""){
+suggerimenti.style.display = "none";
+return;
+}
+
+let trovati = 0;
+
+Array.from(select.options).forEach((opzione, indice) => {
+const nome = opzione.text.trim();
+
+if(nome.toLowerCase().startsWith(ricerca)){
+const voce = document.createElement("div");
+voce.textContent = nome;
+
+voce.addEventListener("click", function(){
+select.selectedIndex = indice;
+cercaComune.value = nome;
+suggerimenti.style.display = "none";
 loadWeather();
-break;
+});
+
+suggerimenti.appendChild(voce);
+trovati++;
 }
-}
+});
+
+suggerimenti.style.display = trovati > 0 ? "block" : "none";
 });
   const selectComuni = document.getElementById("city");
 const lista = document.createElement("datalist");
