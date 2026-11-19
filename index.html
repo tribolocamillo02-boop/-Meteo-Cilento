@@ -200,7 +200,15 @@ if(c<=77)return "❄️ Neve";
 if(c<=82)return "🌦️ Rovesci";
 return "⛈️ Temporale";
 }
+async function loadWeather(){
 
+const city = document.getElementById("city");
+const [lat,lon] = city.value.split(",");
+
+document.getElementById("name").textContent =
+city.options[city.selectedIndex].text;
+
+const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,apparent_temperature,precipitation,weather_code,wind_speed_10m,wind_gusts_10m,cloud_cover&hourly=temperature_2m,precipitation_probability,weather_code&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max&forecast_days=7&timezone=Europe%2FRome`;
 
 try{
 const r=await fetch(url);
