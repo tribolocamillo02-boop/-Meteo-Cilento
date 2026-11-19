@@ -11,6 +11,25 @@ body{margin:0;background:#091d35;color:white;font-family:Arial}
 header{text-align:center;padding:25px;background:linear-gradient(135deg,#09233e,#147da1)}
 h1{letter-spacing:2px}
 select{width:90%;margin:15px 5%;padding:15px;border-radius:12px;font-size:17px}
+  #cercaComune{
+
+width:90%;
+
+margin:15px 5% 0;
+
+padding:15px;
+
+border-radius:12px;
+
+font-size:17px;
+
+border:none;
+
+background:white;
+
+color:#09233e;
+
+}
 .card{background:#153957;margin:14px;padding:18px;border-radius:18px}
 .temp{font-size:65px;font-weight:bold;text-align:center}
 .info{display:grid;grid-template-columns:1fr 1fr;gap:10px}
@@ -72,6 +91,12 @@ font-weight: bold;
 </nav>
   
 <section id="sezione-meteo">
+  <input
+type="text"
+id="cercaComune"
+placeholder="🔎 Cerca un comune del Cilento..."
+list="listaComuni"
+>
 <select id="city" onchange="loadWeather()">
 <option value="40.192,15.110">Casal Velino</option>
 <option value="40.350,14.990">Agropoli</option>
@@ -157,12 +182,6 @@ if(c<=82)return "🌦️ Rovesci";
 return "⛈️ Temporale";
 }
 
-async function loadWeather(){
-const city=document.getElementById("city");
-const [lat,lon]=city.value.split(",");
-document.getElementById("name").textContent=city.options[city.selectedIndex].text;
-
-const url=`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,apparent_temperature,precipitation,weather_code,wind_speed_10m,wind_gusts_10m,cloud_cover&hourly=temperature_2m,precipitation_probability,weather_code&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max&forecast_days=7&timezone=Europe%2FRome`;
 
 try{
 const r=await fetch(url);
@@ -213,7 +232,31 @@ attribution:"© OpenStreetMap"
 }).addTo(map);
 
 L.marker([40.191,15.112]).addTo(map).bindPopup("Casal Velino");
+document.getElementById("cercaComune").addEventListener("input", function(){
+const ricerca = this.value.toLowerCase().trim();
+const select = document.getElementById("city");
 
+for(let i=0; i<select.options.length; i++){
+const nome = select.options[i].text.toLowerCase();
+
+if(nome === ricerca){
+select.selectedIndex = i;
+loadWeather();
+break;
+}
+}
+});
+  const selectComuni = document.getElementById("city");
+const lista = document.createElement("datalist");
+lista.id = "listaComuni";
+
+Array.from(selectComuni.options).forEach(opzione => {
+const voce = document.createElement("option");
+voce.value = opzione.text;
+lista.appendChild(voce);
+});
+
+document.body.appendChild(lista);
 async function loadRadar(){
 try{
 const r=await fetch("https://api.rainviewer.com/public/weather-maps.json");
