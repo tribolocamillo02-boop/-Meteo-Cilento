@@ -265,12 +265,124 @@ color:#83dfff;
 0%,100%{transform:translateY(0) scale(1);}
 50%{transform:translateY(-12px) scale(1.05);}
 }
+/* ATMOSFERA 3D FUTURISTICA */
 
+.hero-meteo{
+position:relative;
+isolation:isolate;
+background:
+radial-gradient(ellipse at 50% 35%,rgba(0,220,255,.28),transparent 55%),
+linear-gradient(160deg,#123e68,#06172e 75%);
+overflow:hidden;
+}
+
+.hero-meteo::before{
+content:"";
+position:absolute;
+inset:-50%;
+z-index:-1;
+background:
+radial-gradient(circle,rgba(0,225,255,.13) 1px,transparent 2px);
+background-size:35px 35px;
+animation:stelle 35s linear infinite;
+}
+
+.hero-meteo::after{
+content:"";
+position:absolute;
+width:240px;
+height:240px;
+top:45px;
+left:50%;
+transform:translateX(-50%);
+border-radius:50%;
+background:radial-gradient(circle,rgba(0,220,255,.20),transparent 70%);
+filter:blur(15px);
+z-index:-1;
+animation:respiro 5s ease-in-out infinite;
+}
+
+@keyframes stelle{
+from{transform:translateY(0);}
+to{transform:translateY(-100px);}
+}
+
+@keyframes respiro{
+0%,100%{opacity:.5;scale:1;}
+50%{opacity:1;scale:1.25;}
+}
+
+.weather-icon{
+filter:
+drop-shadow(0 0 15px #00d9ff)
+drop-shadow(0 0 35px rgba(0,180,255,.7));
+}
+  /* NUVOLE 3D ANIMATE */
+
+.weather-scene{
+position:relative;
+overflow:hidden;
+perspective:600px;
+}
+
+.nuvola{
+position:absolute;
+font-size:65px;
+opacity:.75;
+filter:drop-shadow(0 8px 15px rgba(0,0,0,.4));
+animation:nuvole 9s ease-in-out infinite alternate;
+}
+
+.nuvola-1{
+top:20px;
+left:5%;
+}
+
+.nuvola-2{
+bottom:15px;
+right:5%;
+font-size:48px;
+animation-delay:2s;
+}
+
+@keyframes nuvole{
+0%{transform:translateX(-10px) translateY(0) rotateY(0deg);}
+100%{transform:translateX(25px) translateY(-12px) rotateY(20deg);}
+}
+
+.orbita{
+position:absolute;
+width:190px;
+height:190px;
+border:1px solid rgba(0,220,255,.22);
+border-radius:50%;
+box-shadow:0 0 35px rgba(0,200,255,.12);
+animation:rotazione 18s linear infinite;
+}
+
+@keyframes rotazione{
+to{transform:rotate(360deg);}
+}
+
+.particelle{
+position:absolute;
+width:5px;
+height:5px;
+border-radius:50%;
+background:#8df5ff;
+box-shadow:0 0 15px #00dfff;
+top:25%;
+left:25%;
+animation:luce 3s ease-in-out infinite alternate;
+}
+
+@keyframes luce{
+to{transform:translate(100px,60px);opacity:.2;}
+}
 </style>
 </head>
 <body>
 
-<header>
 <header class="hero-meteo">
 
   <div class="hero-top">
@@ -284,14 +396,22 @@ color:#83dfff;
   <p class="hero-sottotitolo">IL METEO DEL TUO TERRITORIO</p>
 
   <div class="weather-scene">
-    <div id="weatherIcon" class="weather-icon">🌤️</div>
-  </div>
+
+  <div class="orbita"></div>
+
+  <div class="nuvola nuvola-1">☁️</div>
+  <div class="nuvola nuvola-2">☁️</div>
+
+  <div id="weatherIcon" class="weather-icon">🌤️</div>
+
+  <div class="particelle"></div>
+
+</div>
 
   <div class="hero-footer">
     PREVISIONI METEO IN TEMPO REALE
   </div>
 
-</header>
 </header>
   <nav class="menu-principale">
   <button onclick="mostraSezione('meteo')">🏠 Meteo</button>
