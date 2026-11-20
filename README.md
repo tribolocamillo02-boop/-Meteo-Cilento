@@ -3,7 +3,7 @@
 Previsioni meteo per i comuni del Cilento: condizioni attuali, prossime 24 ore,
 7 giorni ora per ora, mare, radar delle precipitazioni e allerte.
 
-Dati: [Open-Meteo](https://open-meteo.com) (meteo e mare), [RainViewer](https://www.rainviewer.com) (radar),
+Dati: [Open-Meteo](https://open-meteo.com) (meteo e mare), [radar della Protezione Civile](https://radar.protezionecivile.gov.it) (CC BY-SA 4.0, con [RainViewer](https://www.rainviewer.com) di riserva),
 [Wikimedia Commons](https://commons.wikimedia.org) (foto), © OpenStreetMap © CARTO (mappa).
 
 ## Le foto dei paesi

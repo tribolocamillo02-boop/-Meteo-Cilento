@@ -895,7 +895,7 @@ font-size:16px;
         <input id="radarCursore" type="range" min="0" max="0" value="0" aria-label="Momento del radar">
         <span id="radarOra">--:--</span>
       </div>
-      <div class="radar-legenda"><span>Debole</span><div class="radar-scala"></div><span>Forte</span></div>
+      <div class="radar-legenda"><span>Debole</span><div class="radar-scala" id="radarScala"></div><span>Forte</span></div>
       <p id="radarStatus">Caricamento radar…</p>
     </div>
   </section>
@@ -916,7 +916,7 @@ font-size:16px;
     </div>
   </section>
 
-  <footer>Meteo Cilento · Dati Open-Meteo · RainViewer · Wikimedia Commons</footer>
+  <footer>Meteo Cilento · Dati Open-Meteo · Radar Protezione Civile · Wikimedia Commons</footer>
 </main>
 
 <nav class="tabbar" aria-label="Sezioni">
@@ -1533,12 +1533,137 @@ async function caricaMare(){
 
 /* =========================================================
    MAPPA E RADAR
-   Le immagini RainViewer gratuite arrivano fino allo zoom 7:
-   oltre, Leaflet le ingrandisce (maxNativeZoom).
+   Fonte principale: rete radar nazionale della Protezione Civile
+   (prodotto VMI, ogni 5 minuti, circa 1 km). Le immagini contengono
+   la riflettività in scala di grigi (0–60 dBZ nel canale rosso) e
+   vengono colorate qui. Se non rispondono si usa RainViewer.
+   Entrambe le fonti hanno immagini fino allo zoom 7: oltre, vengono
+   ingrandite.
 ========================================================= */
 
 const RADAR_ZOOM_NATIVO = 7;
-const RADAR_VELOCITA_MS = 700;
+const RADAR_VELOCITA_MS = 600;
+
+const DPC = {
+  base: "https://s3-prod-dpc-radar-webp-cache.s3.eu-south-1.amazonaws.com",
+  prodotto: "VMI",
+  dbzMax: 60,
+  passoMs: 5 * 60 * 1000,
+  fotogrammi: 13,                       // ultima ora
+  tileProva: { z:7, x:69, y:48 },       // riquadro che contiene il Cilento
+  attribuzione: 'Radar <a href="https://radar.protezionecivile.gov.it/" target="_blank" rel="noopener">Protezione Civile</a> (CC BY-SA 4.0)'
+};
+
+// Colori per intensità (dBZ): da pioviggine a grandine
+const SCALA_DBZ = [
+  [12, [110,190,255,  0]],
+  [15, [110,190,255,120]],
+  [20, [ 40,140,255,170]],
+  [25, [  0,200,150,185]],
+  [30, [ 70,220, 60,200]],
+  [35, [255,230,  0,210]],
+  [40, [255,150,  0,220]],
+  [45, [255, 40, 40,230]],
+  [50, [220,  0,190,240]],
+  [55, [255,255,255,250]]
+];
+
+const TABELLA_COLORI = (() => {
+  const t = new Uint8ClampedArray(256 * 4);
+  for(let i = 0; i < 256; i++){
+    const v = i / 255 * DPC.dbzMax;
+    let c = [0,0,0,0];
+    if(v >= SCALA_DBZ[SCALA_DBZ.length - 1][0]){
+      c = SCALA_DBZ[SCALA_DBZ.length - 1][1];
+    }else if(v >= SCALA_DBZ[0][0]){
+      for(let k = 0; k < SCALA_DBZ.length - 1; k++){
+        const [a, ca] = SCALA_DBZ[k], [b, cb] = SCALA_DBZ[k + 1];
+        if(v < b){
+          const f = (v - a) / (b - a);
+          c = ca.map((x, j) => x + (cb[j] - x) * f);
+          break;
+        }
+      }
+    }
+    t.set(c, i * 4);
+  }
+  return t;
+})();
+
+function urlDPC(tempo, z, x, y){
+  const d = new Date(tempo), p = n => String(n).padStart(2, "0");
+  return `${DPC.base}/${DPC.prodotto}/${d.getUTCFullYear()}/${p(d.getUTCMonth() + 1)}/${p(d.getUTCDate())}/`
+    + `${p(d.getUTCHours())}${p(d.getUTCMinutes())}/${z}/${x}/${y}/${DPC.prodotto.toLowerCase()}.webp`;
+}
+
+const immaginiRadar = new Map();   // url -> { tempo, promessa }
+function caricaImmagineRadar(url, tempo){
+  if(!immaginiRadar.has(url)){
+    immaginiRadar.set(url, { tempo, promessa: new Promise(ok => {
+      const img = new Image();
+      img.crossOrigin = "anonymous";
+      img.onload = () => ok(img);
+      img.onerror = () => ok(null);
+      img.src = url;
+    }) });
+  }
+  return immaginiRadar.get(url).promessa;
+}
+
+function liberaImmaginiRadar(daTempo){
+  for(const [url, v] of immaginiRadar) if(v.tempo < daTempo) immaginiRadar.delete(url);
+}
+
+// Strato Leaflet che scarica le immagini DPC e le colora
+const StratoRadarDPC = window.L ? L.GridLayer.extend({
+  initialize(tempo, opzioni){
+    this.tempo = tempo;
+    L.setOptions(this, opzioni);
+  },
+  createTile(c, fatto){
+    const tela = document.createElement("canvas");
+    tela.width = tela.height = 256;
+    const z = Math.min(c.z, RADAR_ZOOM_NATIVO);
+    const scala = Math.pow(2, c.z - z);
+    const x = Math.floor(c.x / scala), y = Math.floor(c.y / scala);
+
+    caricaImmagineRadar(urlDPC(this.tempo, z, x, y), this.tempo).then(img => {
+      if(img){
+        const ctx = tela.getContext("2d", { willReadFrequently:true });
+        const lato = 256 / scala;
+        ctx.imageSmoothingEnabled = true;
+        ctx.drawImage(img, (c.x - x * scala) * lato, (c.y - y * scala) * lato, lato, lato, 0, 0, 256, 256);
+        try{
+          const dati = ctx.getImageData(0, 0, 256, 256), px = dati.data;
+          for(let i = 0; i < px.length; i += 4){
+            const a = px[i + 3];
+            if(a < 8){ px[i + 3] = 0; continue; }
+            const k = px[i] * 4;
+            px[i] = TABELLA_COLORI[k];
+            px[i + 1] = TABELLA_COLORI[k + 1];
+            px[i + 2] = TABELLA_COLORI[k + 2];
+            px[i + 3] = TABELLA_COLORI[k + 3] * a / 255;
+          }
+          ctx.putImageData(dati, 0, 0);
+        }catch(e){
+          ctx.clearRect(0, 0, 256, 256);
+        }
+      }
+      fatto(null, tela);
+    });
+    return tela;
+  }
+}) : null;
+
+async function ultimoTempoDPC(){
+  const adesso = Math.floor(Date.now() / DPC.passoMs) * DPC.passoMs;
+  const { z, x, y } = DPC.tileProva;
+  for(let k = 0; k < 12; k++){
+    const t = adesso - k * DPC.passoMs;
+    if(await caricaImmagineRadar(urlDPC(t, z, x, y), t)) return t;
+  }
+  return null;
+}
 
 let map = null;
 let marker = null;
@@ -1570,7 +1695,7 @@ const oraRadar = time => oraLocale(new Date(time * 1000));
 function mostraFotogramma(i){
   if(!radar.fotogrammi.length) return;
   radar.indice = (i + radar.fotogrammi.length) % radar.fotogrammi.length;
-  radar.fotogrammi.forEach((f, n) => f.layer.setOpacity(n === radar.indice ? 0.75 : 0));
+  radar.fotogrammi.forEach((f, n) => f.layer.setOpacity(n === radar.indice ? f.opacita : 0));
   const f = radar.fotogrammi[radar.indice];
   const ultimo = radar.indice === radar.fotogrammi.length - 1;
   $("radarOra").textContent = oraRadar(f.time) + (ultimo ? " · ora" : "");
@@ -1599,37 +1724,84 @@ function aggiornaPulsanteRadar(){
   $("radarPlay").setAttribute("aria-label", radar.inRiproduzione ? "Pausa" : "Riproduci");
 }
 
+function sostituisciFotogrammi(nuovi){
+  fermaAnimazione();
+  radar.fotogrammi.forEach(f => map.removeLayer(f.layer));
+  radar.fotogrammi = nuovi;
+  radar.fotogrammi.forEach(f => f.layer.addTo(map));
+  $("radarCursore").max = radar.fotogrammi.length - 1;
+  $("radarControlli").hidden = false;
+  mostraFotogramma(radar.fotogrammi.length - 1);
+  avviaAnimazione();
+}
+
+async function radarProtezioneCivile(){
+  if(!StratoRadarDPC) return false;
+  const ultimo = await ultimoTempoDPC();
+  if(!ultimo) return false;
+  if(ultimo === radar.ultimoDPC) return true;   // nessuna immagine nuova
+  radar.ultimoDPC = ultimo;
+  liberaImmaginiRadar(ultimo - (DPC.fotogrammi + 1) * DPC.passoMs);
+
+  const fotogrammi = [];
+  for(let k = DPC.fotogrammi - 1; k >= 0; k--){
+    const t = ultimo - k * DPC.passoMs;
+    fotogrammi.push({
+      time: t / 1000,
+      opacita: 1,
+      layer: new StratoRadarDPC(t, {
+        opacity:0,
+        maxZoom:12,
+        bounds:[[31.8, 5], [48.5, 20.5]],
+        attribution:DPC.attribuzione
+      })
+    });
+  }
+  sostituisciFotogrammi(fotogrammi);
+
+  $("radarScala").style.background = "linear-gradient(90deg," +
+    SCALA_DBZ.slice(1).map(([, c]) => `rgb(${c[0]},${c[1]},${c[2]})`).join(",") + ")";
+  $("radarStatus").textContent =
+    `Radar Protezione Civile · aggiornato ogni 5 minuti · dalle ${oraRadar(fotogrammi[0].time)} alle ${oraRadar(fotogrammi[fotogrammi.length - 1].time)}.`;
+  return true;
+}
+
+async function radarRainViewer(){
+  const r = await fetch("https://api.rainviewer.com/public/weather-maps.json");
+  if(!r.ok) throw new Error("risposta " + r.status);
+  const d = await r.json();
+  const frames = d.radar?.past || [];
+  if(!frames.length) throw new Error("nessun frame radar");
+
+  radar.ultimoDPC = null;
+  sostituisciFotogrammi(frames.map(f => ({
+    time: f.time,
+    opacita: 0.75,
+    layer: L.tileLayer(d.host + f.path + "/256/{z}/{x}/{y}/2/1_1.png", {
+      opacity:0,
+      maxNativeZoom:RADAR_ZOOM_NATIVO,
+      maxZoom:12,
+      attribution:'<a href="https://www.rainviewer.com/" target="_blank" rel="noopener">RainViewer</a>'
+    })
+  })));
+
+  $("radarScala").style.background = "";
+  $("radarStatus").textContent =
+    `Radar RainViewer (il radar della Protezione Civile non risponde) · dalle ${oraRadar(frames[0].time)} alle ${oraRadar(frames[frames.length - 1].time)}.`;
+}
+
 async function loadRadar(){
   if(!map){
     $("radarStatus").textContent = "Mappa non disponibile.";
     return;
   }
   try{
-    const r = await fetch("https://api.rainviewer.com/public/weather-maps.json");
-    if(!r.ok) throw new Error("risposta " + r.status);
-    const d = await r.json();
-    const frames = d.radar?.past || [];
-    if(!frames.length) throw new Error("nessun frame radar");
-
-    fermaAnimazione();
-    radar.fotogrammi.forEach(f => map.removeLayer(f.layer));
-    radar.fotogrammi = frames.map(f => ({
-      time: f.time,
-      layer: L.tileLayer(d.host + f.path + "/256/{z}/{x}/{y}/2/1_1.png", {
-        opacity:0,
-        maxNativeZoom:RADAR_ZOOM_NATIVO,
-        maxZoom:12,
-        attribution:'<a href="https://www.rainviewer.com/" target="_blank" rel="noopener">RainViewer</a>'
-      }).addTo(map)
-    }));
-
-    $("radarCursore").max = radar.fotogrammi.length - 1;
-    $("radarControlli").hidden = false;
-    mostraFotogramma(radar.fotogrammi.length - 1);
-    avviaAnimazione();
-
-    $("radarStatus").textContent =
-      "Precipitazioni osservate dalle " + oraRadar(frames[0].time) + " alle " + oraRadar(frames[frames.length - 1].time) + ".";
+    if(await radarProtezioneCivile()) return;
+  }catch(e){
+    console.error(e);
+  }
+  try{
+    await radarRainViewer();
   }catch(e){
     console.error(e);
     $("radarStatus").textContent = "Radar momentaneamente non disponibile.";
@@ -1736,8 +1908,10 @@ loadRadar();
 setInterval(() => {
   loadWeather();
   caricaMare();
-  loadRadar();
 }, AGGIORNAMENTO_MS);
+
+// Il radar si aggiorna ogni 5 minuti, come la rete della Protezione Civile
+setInterval(loadRadar, 5 * 60 * 1000);
 </script>
 </body>
 </html>
