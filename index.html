@@ -494,7 +494,6 @@ list="listaComuni">
 <option value="40.280,15.220">Prignano Cilento</option>
 <option value="40.270,15.250">Rutino</option>
 <option value="40.250,15.280">Lustra</option>
-<option value="40.230,15.300">Omignano</option>
 <option value="40.190,15.330">San Mauro Cilento</option>
 <option value="40.160,15.350">Pollica - Acciaroli</option>
 <option value="40.120,15.370">Montecorice</option>
@@ -563,11 +562,22 @@ try{
 const r=await fetch(url);
 if(!r.ok)throw Error();
 const d=await r.json();
+
+  const temp = document.getElementById("temp");
+const description = document.getElementById("description");
+const hourly = document.getElementById("hourly");
+const days = document.getElementById("days");
+  const feels = document.getElementById("feels");
+const humidity = document.getElementById("humidity");
+const rain = document.getElementById("rain");
+const wind = document.getElementById("wind");
+const gust = document.getElementById("gust");
+const cloud = document.getElementById("cloud");
 const c=d.current;
+  const codice = c.weather_code;
   const icona = document.getElementById("weatherIcon");
 
 if(icona){
-const codice = c.weather_code;
 
 if(codice === 0){
 icona.textContent = "☀️";
@@ -618,7 +628,8 @@ atmosfera = "temporale";
 
 hero.dataset.atmosfera = atmosfera;
 }
-temp.textContent=Math.round(c.temperature_2m)+"°";
+document.getElementById("temp").textContent =
+Math.round(c.temperature_2m)+"°";
   let minmax = document.getElementById("minmax");
 
 if(!minmax){
@@ -664,8 +675,9 @@ days.innerHTML+=`<div class="day">
 <b>${Math.round(d.daily.temperature_2m_min[i])}° / ${Math.round(d.daily.temperature_2m_max[i])}°</b>
 </div>`;
 }
-}catch(e){
-description.textContent="Errore nel caricamento";
+  }catch(e){
+console.error(e);
+description.textContent="Errore: "+e.message;
 }
 }
 
