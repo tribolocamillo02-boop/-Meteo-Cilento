@@ -586,6 +586,7 @@ background:#05080f;
 }
 
 .leaflet-container{font-family:inherit;}
+.mappa-base{filter:invert(1) hue-rotate(190deg) brightness(.95) contrast(.9) saturate(.55);}
 .leaflet-bar{border:1px solid var(--bordo) !important;border-radius:14px !important;overflow:hidden;}
 .leaflet-bar a{background:rgba(8,12,22,.85) !important;color:#fff !important;border-bottom-color:var(--bordo) !important;}
 .leaflet-control-attribution{background:rgba(2,4,10,.6) !important;color:var(--testo-3) !important;}
@@ -1544,9 +1545,10 @@ let marker = null;
 
 if(window.L){
   map = L.map("map", { minZoom:5, maxZoom:12 }).setView([40.191, 15.109], 9);
-  L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png", {
-    attribution:'© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> © <a href="https://carto.com/attributions">CARTO</a>',
-    subdomains:"abcd",
+  // Mappa OpenStreetMap resa scura con un filtro (solo lo sfondo, non il radar)
+  L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
+    attribution:'© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+    className:"mappa-base",
     maxZoom:12
   }).addTo(map);
   marker = L.marker([40.191, 15.109], {
