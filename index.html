@@ -406,6 +406,36 @@ const r=await fetch(url);
 if(!r.ok)throw Error();
 const d=await r.json();
 const c=d.current;
+  const icona = document.getElementById("weatherIcon");
+
+if(icona){
+const codice = c.weather_code;
+
+if(codice === 0){
+icona.textContent = "☀️";
+}
+else if(codice <= 2){
+icona.textContent = "🌤️";
+}
+else if(codice === 3){
+icona.textContent = "☁️";
+}
+else if(codice <= 48){
+icona.textContent = "🌫️";
+}
+else if(codice <= 67){
+icona.textContent = "🌧️";
+}
+else if(codice <= 77){
+icona.textContent = "❄️";
+}
+else if(codice <= 82){
+icona.textContent = "🌦️";
+}
+else{
+icona.textContent = "⛈️";
+}
+}
 
 temp.textContent=Math.round(c.temperature_2m)+"°";
   let minmax = document.getElementById("minmax");
