@@ -6,6 +6,9 @@
 <title>METEO CILENTO</title>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 <style>
+/* =================================
+   BASE
+================================= */
 
 *{
 box-sizing:border-box;
@@ -13,193 +16,108 @@ box-sizing:border-box;
 
 body{
 margin:0;
-background:
-radial-gradient(ellipse at 50% 0%,#164e78 0%,transparent 55%),
-linear-gradient(180deg,#071a30,#030914 100%);
+background:radial-gradient(ellipse at 50% 0%,#164b78 0%,#07172b 55%,#020812 100%);
 color:#fff;
 font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;
 min-height:100vh;
 }
 
-header{
-text-align:center;
-padding:30px 15px;
-background:linear-gradient(135deg,rgba(10,45,78,.9),rgba(0,190,230,.25));
-border-bottom:1px solid rgba(80,220,255,.4);
-box-shadow:0 5px 30px rgba(0,190,255,.18);
-}
-
-h1{
-font-size:26px;
-letter-spacing:4px;
-text-shadow:0 0 15px #00cfff,0 0 30px #007aff;
-}
-
-header p{
-color:#a9eaff;
-letter-spacing:1px;
-}
-
-select,#cercaComune{
-width:90%;
-margin:15px 5%;
-padding:16px;
-border-radius:16px;
-font-size:17px;
-border:1px solid rgba(80,210,255,.4);
-background:rgba(12,39,66,.95);
-color:white;
-outline:none;
-}
-
-#cercaComune{
-margin-bottom:0;
-}
-
-.card{
-background:linear-gradient(145deg,rgba(26,75,112,.75),rgba(7,25,48,.92));
-margin:15px;
-padding:21px;
-border-radius:24px;
-border:1px solid rgba(80,210,255,.3);
-box-shadow:0 10px 35px rgba(0,0,0,.35),inset 0 0 20px rgba(0,180,255,.06);
-backdrop-filter:blur(18px);
--webkit-backdrop-filter:blur(18px);
-}
-
-.temp{
-font-size:82px;
-font-weight:800;
-text-align:center;
-margin:20px 0 5px;
-color:#fff;
-text-shadow:0 0 15px #36d8ff,0 0 35px #008cff;
-}
-
-#description{
-font-size:20px;
-font-weight:bold;
-text-align:center;
-margin-bottom:20px;
-color:#a9eaff;
-}
-
-#minmax{
-color:#7ee5ff;
-text-shadow:0 0 12px #008cff;
-}
-
-.info{
-display:grid;
-grid-template-columns:1fr 1fr;
-gap:12px;
-}
-
-.info div{
-background:linear-gradient(145deg,rgba(34,105,145,.45),rgba(10,38,66,.7));
-padding:16px;
-border-radius:17px;
-border:1px solid rgba(90,210,255,.22);
-}
-
-.hourly{
-display:flex;
-overflow-x:auto;
-gap:12px;
-padding-bottom:8px;
-}
-
-.hour{
-min-width:95px;
-text-align:center;
-background:linear-gradient(160deg,#18557d,#0a2948);
-padding:15px 10px;
-border-radius:17px;
-line-height:2;
-border:1px solid rgba(80,210,255,.3);
-}
-
-.day{
-display:flex;
-justify-content:space-between;
-gap:8px;
-padding:16px 0;
-border-bottom:1px solid rgba(100,210,255,.2);
-}
-
-#map{
-height:350px;
-border-radius:18px;
-border:1px solid rgba(80,210,255,.4);
-}
-
-.menu-principale{
-display:flex;
-gap:7px;
-justify-content:space-between;
-margin:12px;
-position:sticky;
-top:0;
-z-index:1000;
-background:rgba(4,18,35,.94);
-padding:10px 5px;
-border-radius:18px;
-border:1px solid rgba(80,210,255,.35);
-backdrop-filter:blur(18px);
--webkit-backdrop-filter:blur(18px);
-}
-
-.menu-principale button{
-flex:1;
-border:1px solid rgba(80,210,255,.3);
-border-radius:13px;
-padding:14px 3px;
-background:linear-gradient(145deg,#18527a,#092743);
-color:white;
-font-size:12px;
-font-weight:bold;
-}
-
-.menu-principale button:active{
-background:#008dbb;
-box-shadow:0 0 20px #00cfff;
-}
-
-#suggerimentiComuni{
-width:90%;
-margin:0 5%;
-background:#102d49;
-color:white;
-border:1px solid rgba(80,210,255,.3);
-border-radius:0 0 15px 15px;
-overflow:hidden;
-display:none;
-}
-
-#suggerimentiComuni div{
-padding:15px;
-border-bottom:1px solid rgba(100,210,255,.2);
-font-size:17px;
-}
-
-#suggerimentiComuni div:active{
-background:#17658a;
-}
-
-button,.card,.hour{
+button{
 transition:all .25s ease;
 }
 
-@media(max-width:380px){
-.temp{font-size:68px;}
-.menu-principale button{font-size:10px;}
+button:active{
+transform:scale(.96);
 }
-  .hero-meteo{
-background:radial-gradient(circle at 50% 45%,#176a9b,#0b3155 55%,#06172c);
-padding:25px 20px;
-border-bottom:1px solid rgba(65,210,255,.5);
-box-shadow:0 10px 40px rgba(0,180,255,.2);
+
+/* EFFETTO VETRO */
+
+.hero-meteo,
+.hour,
+.day,
+section{
+backdrop-filter:blur(22px);
+-webkit-backdrop-filter:blur(22px);
+}
+
+/* =================================
+   HERO
+================================= */
+
+.hero-meteo{
+position:relative;
+isolation:isolate;
 overflow:hidden;
+text-align:center;
+padding:25px 20px;
+min-height:350px;
+background:#06172e;
+border:1px solid rgba(255,255,255,.18);
+border-radius:28px;
+box-shadow:
+0 15px 45px rgba(0,0,0,.35),
+inset 0 1px 1px rgba(255,255,255,.2);
+}
+
+/* Sfondo fotografico: il filtro meteo agisce solo qui, non sul testo */
+
+.hero-sfondo{
+position:absolute;
+inset:0;
+z-index:-2;
+background:
+linear-gradient(180deg,rgba(3,15,30,.15),rgba(3,15,30,.85)),
+url("https://commons.wikimedia.org/wiki/Special:FilePath/Marina_di_Casal_Velino.jpg")
+center 50% / cover no-repeat;
+transition:filter 2s ease;
+}
+
+.hero-meteo[data-atmosfera="sole"] .hero-sfondo{filter:brightness(1.08) saturate(1.15);}
+.hero-meteo[data-atmosfera="nuvoloso"] .hero-sfondo{filter:brightness(.85) saturate(.8);}
+.hero-meteo[data-atmosfera="nebbia"] .hero-sfondo{filter:grayscale(.35) brightness(.9);}
+.hero-meteo[data-atmosfera="pioggia"] .hero-sfondo{filter:brightness(.65) saturate(.75);}
+.hero-meteo[data-atmosfera="neve"] .hero-sfondo{filter:brightness(1.05) saturate(.7);}
+.hero-meteo[data-atmosfera="temporale"] .hero-sfondo{filter:brightness(.48) saturate(.65);}
+
+/* Luce atmosferica */
+
+.hero-meteo::before{
+content:"";
+position:absolute;
+width:260px;
+height:260px;
+top:-100px;
+right:-80px;
+z-index:-1;
+border-radius:50%;
+background:radial-gradient(circle,rgba(65,180,255,.24),transparent 70%);
+animation:luce3D 7s ease-in-out infinite alternate;
+pointer-events:none;
+}
+
+.hero-meteo::after{
+content:"";
+position:absolute;
+width:240px;
+height:240px;
+top:45px;
+left:50%;
+transform:translateX(-50%);
+border-radius:50%;
+background:radial-gradient(circle,rgba(0,220,255,.20),transparent 70%);
+filter:blur(15px);
+z-index:-1;
+animation:respiro 5s ease-in-out infinite;
+}
+
+@keyframes luce3D{
+from{transform:translate(0,0) scale(1);}
+to{transform:translate(-40px,35px) scale(1.3);}
+}
+
+@keyframes respiro{
+0%,100%{opacity:.5;scale:1;}
+50%{opacity:1;scale:1.25;}
 }
 
 .hero-top{
@@ -241,19 +159,6 @@ text-align:center;
 margin-top:20px;
 }
 
-.weather-scene{
-height:170px;
-display:flex;
-align-items:center;
-justify-content:center;
-}
-
-.weather-icon{
-font-size:105px;
-filter:drop-shadow(0 0 20px rgba(0,210,255,.7));
-animation:fluttua 4s ease-in-out infinite;
-}
-
 .hero-footer{
 text-align:center;
 font-size:10px;
@@ -261,257 +166,36 @@ letter-spacing:3px;
 color:#83dfff;
 }
 
-@keyframes fluttua{
-0%,100%{transform:translateY(0) scale(1);}
-50%{transform:translateY(-12px) scale(1.05);}
+#fotoCredito{
+position:absolute;
+bottom:5px;
+right:8px;
+font-size:8px;
+color:white;
+background:rgba(0,0,0,.55);
+padding:5px;
+border-radius:6px;
+max-width:90%;
+z-index:5;
 }
-/* ATMOSFERA 3D FUTURISTICA */
 
-.hero-meteo{
+/* =================================
+   SCENA METEO 3D
+================================= */
+
+.weather-scene{
+height:210px;
+display:flex;
+align-items:center;
+justify-content:center;
 position:relative;
-isolation:isolate;
-background:
-radial-gradient(ellipse at 50% 35%,rgba(0,220,255,.28),transparent 55%),
-linear-gradient(160deg,#123e68,#06172e 75%);
 overflow:hidden;
-}
-
-.hero-meteo::before{
-content:"";
-position:absolute;
-inset:-50%;
-z-index:-1;
-background:
-radial-gradient(circle,rgba(0,225,255,.13) 1px,transparent 2px);
-background-size:35px 35px;
-animation:stelle 35s linear infinite;
-}
-
-.hero-meteo::after{
-content:"";
-position:absolute;
-width:240px;
-height:240px;
-top:45px;
-left:50%;
-transform:translateX(-50%);
-border-radius:50%;
-background:radial-gradient(circle,rgba(0,220,255,.20),transparent 70%);
-filter:blur(15px);
-z-index:-1;
-animation:respiro 5s ease-in-out infinite;
-}
-
-@keyframes stelle{
-from{transform:translateY(0);}
-to{transform:translateY(-100px);}
-}
-
-@keyframes respiro{
-0%,100%{opacity:.5;scale:1;}
-50%{opacity:1;scale:1.25;}
+perspective:900px;
 }
 
 .weather-icon{
-filter:
-drop-shadow(0 0 15px #00d9ff)
-drop-shadow(0 0 35px rgba(0,180,255,.7));
-}
-  /* NUVOLE 3D ANIMATE */
-
-.weather-scene{
 position:relative;
-overflow:hidden;
-perspective:600px;
-}
-
-.nuvola{
-position:absolute;
-font-size:65px;
-opacity:.75;
-filter:drop-shadow(0 8px 15px rgba(0,0,0,.4));
-animation:nuvole 9s ease-in-out infinite alternate;
-}
-
-.nuvola-1{
-top:20px;
-left:5%;
-}
-
-.nuvola-2{
-bottom:15px;
-right:5%;
-font-size:48px;
-animation-delay:2s;
-}
-
-@keyframes nuvole{
-0%{transform:translateX(-10px) translateY(0) rotateY(0deg);}
-100%{transform:translateX(25px) translateY(-12px) rotateY(20deg);}
-}
-
-.orbita{
-position:absolute;
-width:190px;
-height:190px;
-border:1px solid rgba(0,220,255,.22);
-border-radius:50%;
-box-shadow:0 0 35px rgba(0,200,255,.12);
-animation:rotazione 18s linear infinite;
-}
-
-@keyframes rotazione{
-to{transform:rotate(360deg);}
-}
-
-.particelle{
-position:absolute;
-width:5px;
-height:5px;
-border-radius:50%;
-background:#8df5ff;
-box-shadow:0 0 15px #00dfff;
-top:25%;
-left:25%;
-animation:luce 3s ease-in-out infinite alternate;
-}
-
-@keyframes luce{
-to{transform:translate(100px,60px);opacity:.2;}
-}
-  /* FOTOGRAFIA REALE CASAL VELINO */
-
-.hero-meteo{
-background:
-linear-gradient(180deg,rgba(3,15,30,.15),rgba(3,15,30,.85)),
-url("https://commons.wikimedia.org/wiki/Special:FilePath/Marina_di_Casal_Velino.jpg")
-center 50% / cover no-repeat;
-min-height:350px;
-}
-  /* ATMOSFERA METEO DINAMICA */
-
-.hero-meteo[data-atmosfera="sole"]{
-filter:brightness(1.08) saturate(1.15);
-}
-
-.hero-meteo[data-atmosfera="nuvoloso"]{
-filter:brightness(.85) saturate(.8);
-}
-
-.hero-meteo[data-atmosfera="nebbia"]{
-filter:grayscale(.35) brightness(.9);
-}
-
-.hero-meteo[data-atmosfera="pioggia"]{
-filter:brightness(.65) saturate(.75);
-}
-
-.hero-meteo[data-atmosfera="neve"]{
-filter:brightness(1.05) saturate(.7);
-}
-
-.hero-meteo[data-atmosfera="temporale"]{
-filter:brightness(.48) saturate(.65);
-}
-
-.hero-meteo{
-transition:filter 2s ease,background-image 1s ease;
-}
-  /* =================================
-   METEO CILENTO - FUTURISTIC UI
-================================= */
-
-body{
-background:
-radial-gradient(ellipse at 50% 0%, #164b78 0%, #07172b 55%, #020812 100%);
-color:#fff;
-}
-
-/* EFFETTO VETRO */
-
-.hero-meteo,
-.hour,
-.day,
-section,
-.weather-card{
-backdrop-filter:blur(22px);
--webkit-backdrop-filter:blur(22px);
-}
-
-/* ANIMAZIONE HERO */
-
-.hero-meteo{
-position:relative;
-overflow:hidden;
-border:1px solid rgba(255,255,255,.18);
-border-radius:28px;
-box-shadow:
-0 15px 45px rgba(0,0,0,.35),
-inset 0 1px 1px rgba(255,255,255,.2);
-}
-
-/* LUCE ATMOSFERICA */
-
-.hero-meteo::before{
-content:"";
-position:absolute;
-width:260px;
-height:260px;
-border-radius:50%;
-background:radial-gradient(circle,rgba(65,180,255,.24),transparent 70%);
-top:-100px;
-right:-80px;
-animation:luce3D 7s ease-in-out infinite alternate;
-pointer-events:none;
-}
-
-@keyframes luce3D{
-from{transform:translate(0,0) scale(1);}
-to{transform:translate(-40px,35px) scale(1.3);}
-}
-
-/* TEMPERATURA */
-
-#temp{
-font-size:clamp(65px,15vw,100px);
-font-weight:800;
-letter-spacing:-5px;
-text-shadow:0 0 35px rgba(100,190,255,.55);
-}
-
-/* SCHEDE */
-
-.hour,
-.day{
-background:linear-gradient(
-145deg,
-rgba(255,255,255,.13),
-rgba(255,255,255,.035)
-);
-border:1px solid rgba(255,255,255,.12);
-border-radius:18px;
-box-shadow:0 8px 25px rgba(0,0,0,.2);
-transition:transform .3s,box-shadow .3s;
-}
-
-.hour:active,
-.day:active{
-transform:scale(.96);
-}
-
-/* SCORRIMENTO */
-
-#hourly{
-scrollbar-width:none;
-}
-
-#hourly::-webkit-scrollbar{
-display:none;
-}
-
-/* ANIMAZIONE ICONA METEO */
-
-#weatherIcon{
+z-index:5;
 display:inline-block;
 font-size:65px;
 filter:drop-shadow(0 0 18px rgba(255,255,255,.35));
@@ -523,117 +207,66 @@ animation:iconaMeteo 4s ease-in-out infinite;
 50%{transform:translateY(-9px) rotate(3deg);}
 }
 
-/* TRANSIZIONI */
-
-button{
-transition:all .25s ease;
-}
-
-button:active{
-transform:scale(.96);
-}
-  /* TEST VISIVO METEO CILENTO */
-
-.hero-meteo{
-outline:3px solid #00eaff !important;
-box-shadow:0 0 35px #00cfff !important;
-}
-
-#temp{
-color:#ffffff !important;
-font-size:90px !important;
-text-shadow:0 0 30px #00dfff !important;
-}
-  /* METEO CILENTO - ATMOSFERA 3D PRO */
-
-.weather-scene{
-height:210px;
-position:relative;
-perspective:900px;
-}
-
-.weather-icon{
-position:relative;
-z-index:5;
-font-size:100px;
-animation:meteoFloat 4s ease-in-out infinite;
-filter:drop-shadow(0 0 25px rgba(0,220,255,.8));
-}
-
 .nuvola{
+position:absolute;
 z-index:3;
 font-size:75px;
+opacity:.75;
 filter:drop-shadow(0 10px 20px rgba(0,0,0,.45));
 }
 
 .nuvola-1{
+top:20px;
+left:5%;
 animation:cloud3D 8s ease-in-out infinite alternate;
 }
 
 .nuvola-2{
+bottom:15px;
+right:5%;
 animation:cloud3D 11s ease-in-out infinite alternate-reverse;
 }
 
+@keyframes cloud3D{
+0%{transform:translateX(-15px) translateY(0) scale(.95);}
+100%{transform:translateX(25px) translateY(-12px) scale(1.08);}
+}
+
 .orbita{
+position:absolute;
 width:190px;
 height:190px;
 border:1px solid rgba(0,225,255,.35);
+border-radius:50%;
 box-shadow:
 0 0 20px rgba(0,200,255,.15),
 inset 0 0 20px rgba(0,200,255,.1);
+animation:rotazione 18s linear infinite;
+}
+
+@keyframes rotazione{
+to{transform:rotate(360deg);}
 }
 
 .particelle{
+position:absolute;
 width:7px;
 height:7px;
+border-radius:50%;
+background:#8df5ff;
 box-shadow:
 0 0 15px #00eaff,
 0 0 30px #00aaff;
+top:25%;
+left:25%;
+animation:luce 3s ease-in-out infinite alternate;
 }
 
-@keyframes meteoFloat{
-0%,100%{
-transform:translateY(0) rotateY(-8deg);
-}
-50%{
-transform:translateY(-14px) rotateY(8deg);
-}
+@keyframes luce{
+to{transform:translate(100px,60px);opacity:.2;}
 }
 
-@keyframes cloud3D{
-0%{
-transform:translateX(-15px) translateY(0) scale(.95);
-}
-100%{
-transform:translateX(25px) translateY(-12px) scale(1.08);
-}
-}
-
-/* ATMOSFERA PIOGGIA */
-
-.hero-meteo[data-atmosfera="pioggia"] .weather-icon{
-filter:drop-shadow(0 0 25px #58caff);
-}
-
-/* ATMOSFERA TEMPORALE */
-
-.hero-meteo[data-atmosfera="temporale"] .weather-icon{
-filter:drop-shadow(0 0 30px #a58bff);
-animation:meteoFloat 2s ease-in-out infinite;
-}
-
-/* ATMOSFERA NEVE */
-
-.hero-meteo[data-atmosfera="neve"] .weather-icon{
-filter:drop-shadow(0 0 30px white);
-}
-
-/* MOVIMENTO FLUIDO */
-
-.hero-meteo{
-transition:all 1.5s ease;
-}
-  /* EFFETTI ATMOSFERICI AUTOMATICI */
+/* EFFETTI ATMOSFERICI */
 
 .effetto-meteo{
 position:absolute;
@@ -643,8 +276,6 @@ overflow:hidden;
 z-index:4;
 border-radius:20px;
 }
-
-/* PIOGGIA */
 
 .hero-meteo[data-atmosfera="pioggia"] .effetto-meteo{
 background:repeating-linear-gradient(
@@ -658,14 +289,10 @@ background-size:100% 35px;
 animation:pioggiaCaduta .45s linear infinite;
 }
 
-/* TEMPORALE */
-
 .hero-meteo[data-atmosfera="temporale"] .effetto-meteo{
 background:rgba(90,100,150,.08);
 animation:lampi 4s infinite;
 }
-
-/* NEVE */
 
 .hero-meteo[data-atmosfera="neve"] .effetto-meteo{
 background-image:
@@ -674,8 +301,6 @@ radial-gradient(white 1px,transparent 2px);
 background-size:45px 45px,70px 70px;
 animation:neveCaduta 5s linear infinite;
 }
-
-/* SOLE */
 
 .hero-meteo[data-atmosfera="sole"] .effetto-meteo{
 background:radial-gradient(
@@ -701,7 +326,8 @@ to{background-position:0 180px,20px 220px;}
 94%{background-color:transparent;}
 96%{background-color:rgba(220,230,255,.3);}
 }
-  /* SOLE 3D METEO CILENTO */
+
+/* SOLE 3D */
 
 .sole-3d{
 position:absolute;
@@ -759,7 +385,8 @@ to{transform:rotate(360deg);}
 0%,100%{transform:translate(-50%,-50%) scale(1);}
 50%{transform:translate(-50%,-50%) scale(1.12);}
 }
-  /* PIOGGIA 3D REALISTICA */
+
+/* PIOGGIA 3D */
 
 .pioggia-3d{
 position:absolute;
@@ -802,7 +429,8 @@ animation:cadutaPioggia .65s linear infinite;
 from{transform:translate3d(0,0,0) rotate(12deg)}
 to{transform:translate3d(-35px,260px,0) rotate(12deg)}
 }
-  /* FLASH TEMPORALE */
+
+/* FLASH TEMPORALE */
 
 .flash-temporale{
 position:absolute;
@@ -817,22 +445,12 @@ animation:fulmine 6s infinite;
 }
 
 @keyframes fulmine{
-0%,88%,90%,94%,100%{
-opacity:0;
-background:transparent;
+0%,88%,90%,94%,100%{opacity:0;background:transparent;}
+89%,93%{opacity:1;background:rgba(220,235,255,.65);}
+91%{opacity:.2;background:rgba(180,210,255,.3);}
 }
 
-89%,93%{
-opacity:1;
-background:rgba(220,235,255,.65);
-}
-
-91%{
-opacity:.2;
-background:rgba(180,210,255,.3);
-}
-}
-  /* VENTO 3D METEO CILENTO */
+/* VENTO 3D */
 
 .vento-3d{
 position:absolute;
@@ -855,12 +473,7 @@ left:-100px;
 width:100px;
 height:2px;
 border-radius:50%;
-background:linear-gradient(
-90deg,
-transparent,
-rgba(150,225,255,.8),
-transparent
-);
+background:linear-gradient(90deg,transparent,rgba(150,225,255,.8),transparent);
 filter:blur(1px);
 animation:sciaVento 3s linear infinite;
 }
@@ -877,11 +490,238 @@ from{transform:translateX(0) scaleX(.5);opacity:0}
 20%{opacity:1}
 to{transform:translateX(500px) scaleX(1.5);opacity:0}
 }
+
+/* =================================
+   MENU
+================================= */
+
+.menu-principale{
+display:flex;
+gap:7px;
+justify-content:space-between;
+margin:12px;
+position:sticky;
+top:0;
+z-index:1000;
+background:rgba(4,18,35,.94);
+padding:10px 5px;
+border-radius:18px;
+border:1px solid rgba(80,210,255,.35);
+backdrop-filter:blur(18px);
+-webkit-backdrop-filter:blur(18px);
+}
+
+.menu-principale button{
+flex:1;
+border:1px solid rgba(80,210,255,.3);
+border-radius:13px;
+padding:14px 3px;
+background:linear-gradient(145deg,#18527a,#092743);
+color:white;
+font-size:12px;
+font-weight:bold;
+}
+
+.menu-principale button:active{
+background:#008dbb;
+box-shadow:0 0 20px #00cfff;
+}
+
+/* =================================
+   RICERCA E SELEZIONE COMUNE
+================================= */
+
+select,#cercaComune{
+width:90%;
+margin:15px 5%;
+padding:16px;
+border-radius:16px;
+font-size:17px;
+border:1px solid rgba(80,210,255,.4);
+background:rgba(12,39,66,.95);
+color:white;
+outline:none;
+}
+
+#cercaComune{
+margin-bottom:0;
+}
+
+#suggerimentiComuni{
+width:90%;
+margin:0 5%;
+background:#102d49;
+color:white;
+border:1px solid rgba(80,210,255,.3);
+border-radius:0 0 15px 15px;
+overflow:hidden;
+display:none;
+}
+
+#suggerimentiComuni div{
+padding:15px;
+border-bottom:1px solid rgba(100,210,255,.2);
+font-size:17px;
+cursor:pointer;
+}
+
+#suggerimentiComuni div:active{
+background:#17658a;
+}
+
+/* =================================
+   SCHEDE
+================================= */
+
+.card{
+background:linear-gradient(145deg,rgba(26,75,112,.75),rgba(7,25,48,.92));
+margin:15px;
+padding:21px;
+border-radius:24px;
+border:1px solid rgba(80,210,255,.3);
+box-shadow:0 10px 35px rgba(0,0,0,.35),inset 0 0 20px rgba(0,180,255,.06);
+backdrop-filter:blur(18px);
+-webkit-backdrop-filter:blur(18px);
+transition:all .25s ease;
+}
+
+.temp{
+font-size:clamp(65px,15vw,100px);
+font-weight:800;
+letter-spacing:-5px;
+text-align:center;
+margin:20px 0 5px;
+color:#fff;
+text-shadow:0 0 35px rgba(100,190,255,.55);
+}
+
+#minmax{
+text-align:center;
+font-size:22px;
+font-weight:bold;
+margin:5px 0 15px;
+color:#7ee5ff;
+text-shadow:0 0 12px #008cff;
+}
+
+#description{
+font-size:20px;
+font-weight:bold;
+text-align:center;
+margin-bottom:20px;
+color:#a9eaff;
+}
+
+.info{
+display:grid;
+grid-template-columns:1fr 1fr;
+gap:12px;
+}
+
+.info div{
+background:linear-gradient(145deg,rgba(34,105,145,.45),rgba(10,38,66,.7));
+padding:16px;
+border-radius:17px;
+border:1px solid rgba(90,210,255,.22);
+}
+
+.hourly{
+display:flex;
+overflow-x:auto;
+gap:12px;
+padding-bottom:8px;
+scrollbar-width:none;
+}
+
+.hourly::-webkit-scrollbar{
+display:none;
+}
+
+.hour,
+.day{
+background:linear-gradient(145deg,rgba(255,255,255,.13),rgba(255,255,255,.035));
+border:1px solid rgba(255,255,255,.12);
+border-radius:18px;
+box-shadow:0 8px 25px rgba(0,0,0,.2);
+transition:transform .3s,box-shadow .3s;
+}
+
+.hour:active,
+.day:active{
+transform:scale(.96);
+}
+
+.hour{
+min-width:95px;
+text-align:center;
+padding:15px 10px;
+line-height:2;
+}
+
+.day{
+display:flex;
+justify-content:space-between;
+gap:8px;
+padding:16px 0;
+}
+
+#map{
+height:350px;
+border-radius:18px;
+border:1px solid rgba(80,210,255,.4);
+}
+
+/* MARE E ALLERTE */
+
+.sezione-semplice{
+color:white;
+padding:18px;
+margin:20px 10px;
+border-radius:15px;
+}
+
+#sezione-mare{
+background:#123b59;
+}
+
+#sezione-allerte{
+background:#172b45;
+text-align:center;
+}
+
+.griglia-mare{
+display:grid;
+grid-template-columns:1fr 1fr;
+gap:12px;
+text-align:center;
+}
+
+.griglia-mare div{
+background:#204966;
+padding:15px;
+border-radius:12px;
+}
+
+.link-allerte{
+display:block;
+background:#f5a623;
+color:#172b45;
+padding:13px;
+border-radius:10px;
+text-decoration:none;
+font-weight:bold;
+}
+
+@media(max-width:380px){
+.menu-principale button{font-size:10px;}
+}
 </style>
 </head>
 <body>
 
-<header class="hero-meteo">
+<header class="hero-meteo" id="hero">
+
+  <div class="hero-sfondo" id="heroSfondo"></div>
 
   <div class="hero-top">
     <div class="logo-meteo">
@@ -894,565 +734,455 @@ to{transform:translateX(500px) scaleX(1.5);opacity:0}
   <p class="hero-sottotitolo">IL METEO DEL TUO TERRITORIO</p>
 
   <div class="weather-scene">
+    <div class="orbita"></div>
 
-  <div class="orbita"></div>
+    <div class="nuvola nuvola-1">☁️</div>
+    <div class="nuvola nuvola-2">☁️</div>
 
-  <div class="nuvola nuvola-1">☁️</div>
-  <div class="nuvola nuvola-2">☁️</div>
+    <div id="weatherIcon" class="weather-icon">🌤️</div>
 
-  <div id="weatherIcon" class="weather-icon">🌤️</div>
+    <div class="particelle"></div>
+    <div class="effetto-meteo"></div>
 
-  <div class="particelle"></div>
-<div class="effetto-meteo" id="effettoMeteo"></div>
-    <div class="vento-3d" id="vento3D">
-  <span></span>
-  <span></span>
-  <span></span>
-  <span></span>
-  <span></span>
-  <span></span>
-</div>
-    <div class="pioggia-3d" id="pioggia3D">
-  <span></span>
-  <span></span>
-  <span></span>
-  <span></span>
-  <span></span>
-  <span></span>
-  <span></span>
-  <span></span>
-  <span></span>
-  <span></span>
-</div>
+    <div class="vento-3d">
+      <span></span><span></span><span></span>
+      <span></span><span></span><span></span>
+    </div>
 
-<div class="flash-temporale" id="flashTemporale"></div>
-    <div class="sole-3d" id="sole3D">
-  <div class="sole-centro"></div>
-  <div class="sole-raggi"></div>
-</div>
-    
-</div>
+    <div class="pioggia-3d">
+      <span></span><span></span><span></span><span></span><span></span>
+      <span></span><span></span><span></span><span></span><span></span>
+    </div>
 
-  <div class="hero-footer">
-    PREVISIONI METEO IN TEMPO REALE
+    <div class="flash-temporale"></div>
+
+    <div class="sole-3d">
+      <div class="sole-centro"></div>
+      <div class="sole-raggi"></div>
+    </div>
   </div>
 
+  <div class="hero-footer">PREVISIONI METEO IN TEMPO REALE</div>
+
+  <div id="fotoCredito" hidden></div>
+
 </header>
-  <nav class="menu-principale">
+
+<nav class="menu-principale">
   <button onclick="mostraSezione('meteo')">🏠 Meteo</button>
   <button onclick="mostraSezione('mare')">🌊 Mare</button>
   <button onclick="mostraSezione('radar')">🌧️ Radar</button>
   <button onclick="mostraSezione('allerte')">🚨 Allerte</button>
 </nav>
-  
+
 <section id="sezione-meteo">
-  <input
-type="text"
-id="cercaComune"
-placeholder="🔎 Cerca un comune del Cilento..."
-list="listaComuni">
-<div id="suggerimentiComuni"></div>
-<select id="city" onchange="loadWeather()">
-<option value="40.192,15.110">Casal Velino</option>
-<option value="40.350,14.990">Agropoli</option>
-<option value="40.167,15.180">Ascea</option>
-<option value="40.108,15.235">Pisciotta</option>
-<option value="40.038,15.288">Centola - Palinuro</option>
-<option value="40.005,15.375">Camerota - Marina</option>
-<option value="40.145,15.230">Ceraso</option>
-<option value="40.140,15.290">Cuccaro Vetere</option>
-<option value="40.180,15.260">San Mauro la Bruca</option>
-<option value="40.210,15.270">Futani</option>
-<option value="40.250,15.260">Vallo della Lucania</option>
-<option value="40.230,15.200">Omignano</option>
-<option value="40.220,15.170">Salento</option>
-<option value="40.260,15.130">Perito</option>
-<option value="40.280,15.110">Orria</option>
-<option value="40.300,15.080">Gioi</option>
-<option value="40.320,15.050">Moio della Civitella</option>
-<option value="40.330,15.020">Cannalonga</option>
-<option value="40.290,15.030">Stio</option>
-<option value="40.350,15.080">Magliano Vetere</option>
-<option value="40.380,15.100">Monteforte Cilento</option>
-<option value="40.400,15.120">Trentinara</option>
-<option value="40.350,15.140">Giungano</option>
-<option value="40.320,15.180">Laureana Cilento</option>
-<option value="40.300,15.200">Torchiara</option>
-<option value="40.280,15.220">Prignano Cilento</option>
-<option value="40.270,15.250">Rutino</option>
-<option value="40.250,15.280">Lustra</option>
-<option value="40.190,15.330">San Mauro Cilento</option>
-<option value="40.160,15.350">Pollica - Acciaroli</option>
-<option value="40.120,15.370">Montecorice</option>
-<option value="40.100,15.400">Castellabate</option>
-</select>
+  <input type="text" id="cercaComune" placeholder="🔎 Cerca un comune del Cilento..." autocomplete="off">
+  <div id="suggerimentiComuni"></div>
 
-<div class="card">
-<h2 id="name">Casal Velino</h2>
-<div class="temp" id="temp">--°</div>
-<p id="description" style="text-align:center">Caricamento...</p>
-<div class="info">
-<div>🌡️ Percepita<br><b id="feels">--</b></div>
-<div>💧 Umidità<br><b id="humidity">--</b></div>
-<div>🌧️ Pioggia<br><b id="rain">--</b></div>
-<div>🌬️ Vento<br><b id="wind">--</b></div>
-<div>💨 Raffiche<br><b id="gust">--</b></div>
-<div>☁️ Nuvole<br><b id="cloud">--</b></div>
-</div>
-</div>
+  <select id="city">
+    <option value="40.191,15.109">Casal Velino</option>
+    <option value="40.349,14.992">Agropoli</option>
+    <option value="40.142,15.187">Ascea</option>
+    <option value="40.108,15.234">Pisciotta</option>
+    <option value="40.035,15.277">Centola - Palinuro</option>
+    <option value="40.003,15.374">Camerota - Marina</option>
+    <option value="40.195,15.256">Ceraso</option>
+    <option value="40.164,15.306">Cuccaro Vetere</option>
+    <option value="40.122,15.291">San Mauro la Bruca</option>
+    <option value="40.150,15.323">Futani</option>
+    <option value="40.229,15.266">Vallo della Lucania</option>
+    <option value="40.249,15.084">Omignano</option>
+    <option value="40.248,15.190">Salento</option>
+    <option value="40.299,15.147">Perito</option>
+    <option value="40.300,15.171">Orria</option>
+    <option value="40.289,15.218">Gioi</option>
+    <option value="40.247,15.270">Moio della Civitella</option>
+    <option value="40.244,15.294">Cannalonga</option>
+    <option value="40.310,15.252">Stio</option>
+    <option value="40.348,15.236">Magliano Vetere</option>
+    <option value="40.364,15.194">Monteforte Cilento</option>
+    <option value="40.402,15.113">Trentinara</option>
+    <option value="40.395,15.108">Giungano</option>
+    <option value="40.300,15.039">Laureana Cilento</option>
+    <option value="40.321,15.053">Torchiara</option>
+    <option value="40.334,15.068">Prignano Cilento</option>
+    <option value="40.300,15.072">Rutino</option>
+    <option value="40.287,15.069">Lustra</option>
+    <option value="40.226,15.044">San Mauro Cilento</option>
+    <option value="40.176,15.031">Pollica - Acciaroli</option>
+    <option value="40.236,15.009">Montecorice</option>
+    <option value="40.279,14.952">Castellabate</option>
+  </select>
 
-<div class="card">
-<h2>⏱️ Previsioni orarie</h2>
-<div class="hourly" id="hourly"></div>
-</div>
+  <div class="card">
+    <h2 id="name">Casal Velino</h2>
+    <div class="temp" id="temp">--°</div>
+    <div id="minmax"></div>
+    <p id="description">Caricamento...</p>
+    <div class="info">
+      <div>🌡️ Percepita<br><b id="feels">--</b></div>
+      <div>💧 Umidità<br><b id="humidity">--</b></div>
+      <div>🌧️ Pioggia<br><b id="rain">--</b></div>
+      <div>🌬️ Vento<br><b id="wind">--</b></div>
+      <div>💨 Raffiche<br><b id="gust">--</b></div>
+      <div>☁️ Nuvole<br><b id="cloud">--</b></div>
+    </div>
+  </div>
 
-<div class="card">
-<h2>📅 PREVISIONI 7 GIORNI</h2>
-<div id="days">Caricamento...</div>
-</div>
+  <div class="card">
+    <h2>⏱️ Previsioni orarie</h2>
+    <div class="hourly" id="hourly"></div>
+  </div>
+
+  <div class="card">
+    <h2>📅 PREVISIONI 7 GIORNI</h2>
+    <div id="days">Caricamento...</div>
+  </div>
 </section>
+
+<section id="sezione-mare" class="sezione-semplice">
+  <h2 id="titoloMare">🌊 METEO MARE – CASAL VELINO</h2>
+  <p style="color:#b8d9ed">Condizioni del mare aggiornate</p>
+
+  <div class="griglia-mare">
+    <div>🌊 Altezza onde<h2 id="onda">--</h2></div>
+    <div>🌡️ Temperatura acqua<h2 id="acqua">--</h2></div>
+    <div>🧭 Direzione onde<h2 id="direzione">--</h2></div>
+    <div>⏱️ Periodo onde<h2 id="periodo">--</h2></div>
+  </div>
+
+  <p id="aggiornamento" style="text-align:center;font-size:12px;margin-top:15px">Caricamento dati marini...</p>
+  <p style="font-size:11px;text-align:center">Dati: Open-Meteo Marine API</p>
+</section>
+
 <section id="sezione-radar">
-<div class="card">
-<h2>🛰️ RADAR PRECIPITAZIONI</h2>
-<p>Osservazione delle precipitazioni sulla zona</p>
-<div id="map"></div>
-<p id="radarStatus">Caricamento radar...</p>
-</div>
+  <div class="card">
+    <h2>🛰️ RADAR PRECIPITAZIONI</h2>
+    <p>Osservazione delle precipitazioni sulla zona</p>
+    <div id="map"></div>
+    <p id="radarStatus">Caricamento radar...</p>
+  </div>
 </section>
+
+<section id="sezione-allerte" class="sezione-semplice">
+  <h2>🚨 ALLERTE METEO</h2>
+  <p>Consulta gli avvisi ufficiali della Protezione Civile Campania.</p>
+  <p>🌧️ Rischio idrogeologico</p>
+  <p>⛈️ Temporali e fenomeni intensi</p>
+  <p>💨 Vento forte e 🌊 mareggiate</p>
+  <a class="link-allerte" href="https://portaleprotezionecivile.regione.campania.it/" target="_blank" rel="noopener">
+    CONSULTA LE ALLERTE UFFICIALI
+  </a>
+</section>
+
 <footer style="text-align:center;padding:25px">
 METEO CILENTO · Dati Open-Meteo
 </footer>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
-function weather(c){
-if(c===0)return "☀️ Sereno";
-if(c<=2)return "🌤️ Poco nuvoloso";
-if(c===3)return "☁️ Coperto";
-if(c<=48)return "🌫️ Nebbia";
-if(c<=67)return "🌧️ Pioggia";
-if(c<=77)return "❄️ Neve";
-if(c<=82)return "🌦️ Rovesci";
-return "⛈️ Temporale";
+const $ = id => document.getElementById(id);
+
+const select = $("city");
+const hero = $("hero");
+const heroSfondo = $("heroSfondo");
+
+const AGGIORNAMENTO_MS = 15 * 60 * 1000;
+
+/* ---------- Comune selezionato ---------- */
+
+function comuneCorrente(){
+  const [lat, lon] = select.value.split(",").map(Number);
+  return { lat, lon, nome: select.options[select.selectedIndex].text };
 }
+
+/* ---------- Codici meteo WMO: testo, icona, atmosfera ---------- */
+
+function infoMeteo(c){
+  if(c === 0)  return { testo:"☀️ Sereno",           icona:"☀️", atmosfera:"sole" };
+  if(c <= 2)   return { testo:"🌤️ Poco nuvoloso",    icona:"🌤️", atmosfera:"sole" };
+  if(c === 3)  return { testo:"☁️ Coperto",          icona:"☁️", atmosfera:"nuvoloso" };
+  if(c <= 48)  return { testo:"🌫️ Nebbia",           icona:"🌫️", atmosfera:"nebbia" };
+  if(c <= 67)  return { testo:"🌧️ Pioggia",          icona:"🌧️", atmosfera:"pioggia" };
+  if(c <= 77)  return { testo:"❄️ Neve",             icona:"❄️", atmosfera:"neve" };
+  if(c <= 82)  return { testo:"🌦️ Rovesci",          icona:"🌦️", atmosfera:"pioggia" };
+  if(c <= 86)  return { testo:"🌨️ Rovesci di neve",  icona:"🌨️", atmosfera:"neve" };
+  return             { testo:"⛈️ Temporale",         icona:"⛈️", atmosfera:"temporale" };
+}
+
+function livelloVento(kmh){
+  if(kmh >= 40) return "forte";
+  if(kmh >= 20) return "moderato";
+  return "debole";
+}
+
+/* ---------- Meteo ---------- */
+
 async function loadWeather(){
+  const { lat, lon, nome } = comuneCorrente();
+  $("name").textContent = nome;
 
-const city = document.getElementById("city");
-const [lat,lon] = city.value.split(",");
+  const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}`
+    + `&current=temperature_2m,relative_humidity_2m,apparent_temperature,precipitation,weather_code,wind_speed_10m,wind_gusts_10m,cloud_cover`
+    + `&hourly=temperature_2m,precipitation_probability,weather_code`
+    + `&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max`
+    + `&forecast_days=7&timezone=Europe%2FRome`;
 
-document.getElementById("name").textContent =
-city.options[city.selectedIndex].text;
+  try{
+    const r = await fetch(url);
+    if(!r.ok) throw new Error("risposta " + r.status);
+    const d = await r.json();
 
-const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,apparent_temperature,precipitation,weather_code,wind_speed_10m,wind_gusts_10m,cloud_cover&hourly=temperature_2m,precipitation_probability,weather_code&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max&forecast_days=7&timezone=Europe%2FRome`;
+    // Se nel frattempo l'utente ha cambiato comune, scarta questa risposta
+    if(comuneCorrente().nome !== nome) return;
 
-try{
-const r=await fetch(url);
-if(!r.ok)throw Error();
-const d=await r.json();
+    const c = d.current;
+    const meteo = infoMeteo(c.weather_code);
 
-  const temp = document.getElementById("temp");
-const description = document.getElementById("description");
-const hourly = document.getElementById("hourly");
-const days = document.getElementById("days");
-  const feels = document.getElementById("feels");
-const humidity = document.getElementById("humidity");
-const rain = document.getElementById("rain");
-const wind = document.getElementById("wind");
-const gust = document.getElementById("gust");
-const cloud = document.getElementById("cloud");
-const c=d.current;
-  const codice = c.weather_code;
-  const icona = document.getElementById("weatherIcon");
-const pioggia = c.rain || 0;
-const rovesci = c.showers || 0;
-const precipitazioni = c.precipitation || 0;
-const staPiovendo = pioggia > 0 || rovesci > 0 || precipitazioni > 0;
-if(icona){
-  if(staPiovendo){
-    icona.textContent = "🌧️";
-}
-else if(codice === 0){
-    icona.textContent = "☀️";
-}
+    $("weatherIcon").textContent = meteo.icona;
+    hero.dataset.atmosfera = meteo.atmosfera;
+    hero.dataset.vento = livelloVento(c.wind_speed_10m);
 
-if(codice === 0){
-icona.textContent = "☀️";
-}
-else if(codice <= 2){
-icona.textContent = "🌤️";
-}
-else if(codice === 3){
-icona.textContent = "☁️";
-}
-else if(codice <= 48){
-icona.textContent = "🌫️";
-}
-else if(codice <= 67){
-icona.textContent = "🌧️";
-}
-else if(codice <= 77){
-icona.textContent = "❄️";
-}
-else if(codice <= 82){
-icona.textContent = "🌦️";
-}
-else{
-icona.textContent = "⛈️";
-}
-}
-  const hero = document.querySelector(".hero-meteo");
+    $("temp").textContent = Math.round(c.temperature_2m) + "°";
+    $("minmax").textContent =
+      "MIN " + Math.round(d.daily.temperature_2m_min[0]) +
+      "°  |  MAX " + Math.round(d.daily.temperature_2m_max[0]) + "°";
+    $("description").textContent = meteo.testo;
+    $("feels").textContent = Math.round(c.apparent_temperature) + "°";
+    $("humidity").textContent = c.relative_humidity_2m + "%";
+    $("rain").textContent = c.precipitation + " mm";
+    $("wind").textContent = c.wind_speed_10m + " km/h";
+    $("gust").textContent = c.wind_gusts_10m + " km/h";
+    $("cloud").textContent = c.cloud_cover + "%";
 
-if(hero){
+    // Previsioni orarie: prossime 24 ore
+    const h = d.hourly;
+    let start = h.time.findIndex(t => new Date(t) >= new Date());
+    if(start < 0) start = 0;
 
-let atmosfera = "sole";
-
-if(codice === 3){
-atmosfera = "nuvoloso";
-}
-else if(codice >= 45 && codice <= 48){
-atmosfera = "nebbia";
-}
-else if(codice >= 51 && codice <= 67){
-atmosfera = "pioggia";
-}
-else if(codice >= 71 && codice <= 77){
-atmosfera = "neve";
-}
-else if(codice >= 80){
-atmosfera = "temporale";
-}
-
-hero.dataset.atmosfera = atmosfera;
-  const velocitaVento = c.wind_speed_10m;
-
-if(velocitaVento >= 40){
-hero.dataset.vento = "forte";
-}
-else if(velocitaVento >= 20){
-hero.dataset.vento = "moderato";
-}
-else{
-hero.dataset.vento = "debole";
-}
-}
-document.getElementById("temp").textContent =
-Math.round(c.temperature_2m)+"°";
-  let minmax = document.getElementById("minmax");
-
-if(!minmax){
-minmax = document.createElement("div");
-minmax.id = "minmax";
-minmax.style.textAlign = "center";
-minmax.style.fontSize = "22px";
-minmax.style.fontWeight = "bold";
-minmax.style.margin = "5px 0 15px";
-temp.insertAdjacentElement("afterend", minmax);
-}
-
-minmax.textContent =
-"MIN " + Math.round(d.daily.temperature_2m_min[0]) +
-"°  |  MAX " + Math.round(d.daily.temperature_2m_max[0]) + "°";
-description.textContent=weather(c.weather_code);
-feels.textContent=Math.round(c.apparent_temperature)+"°";
-humidity.textContent=c.relative_humidity_2m+"%";
-rain.textContent=c.precipitation+" mm";
-wind.textContent=c.wind_speed_10m+" km/h";
-gust.textContent=c.wind_gusts_10m+" km/h";
-cloud.textContent=c.cloud_cover+"%";
-
-hourly.innerHTML="";
-let start=d.hourly.time.findIndex(t=>new Date(t)>=new Date());
-if(start<0)start=0;
-
-for(let i=start;i<Math.min(start+24,d.hourly.time.length);i++){
-hourly.innerHTML+=`<div class="hour">
-${d.hourly.time[i].slice(11,16)}<br>
-${weather(d.hourly.weather_code[i])}<br>
-<b>${Math.round(d.hourly.temperature_2m[i])}°</b><br>
-🌧️ ${d.hourly.precipitation_probability[i]}%
+    let html = "";
+    for(let i = start; i < Math.min(start + 24, h.time.length); i++){
+      html += `<div class="hour">
+${h.time[i].slice(11,16)}<br>
+${infoMeteo(h.weather_code[i]).testo}<br>
+<b>${Math.round(h.temperature_2m[i])}°</b><br>
+🌧️ ${h.precipitation_probability[i]}%
 </div>`;
-}
+    }
+    $("hourly").innerHTML = html;
 
-days.innerHTML="";
-for(let i=0;i<7;i++){
-const date=new Date(d.daily.time[i]+"T12:00:00").toLocaleDateString("it-IT",{weekday:"short",day:"numeric",month:"short"});
-days.innerHTML+=`<div class="day">
-<span>${date}<br>${weather(d.daily.weather_code[i])}</span>
-<span>🌧️ ${d.daily.precipitation_probability_max[i]}%</span>
-<b>${Math.round(d.daily.temperature_2m_min[i])}° / ${Math.round(d.daily.temperature_2m_max[i])}°</b>
+    // Previsioni 7 giorni
+    const g = d.daily;
+    html = "";
+    for(let i = 0; i < g.time.length; i++){
+      const data = new Date(g.time[i] + "T12:00:00")
+        .toLocaleDateString("it-IT", { weekday:"short", day:"numeric", month:"short" });
+      html += `<div class="day">
+<span>${data}<br>${infoMeteo(g.weather_code[i]).testo}</span>
+<span>🌧️ ${g.precipitation_probability_max[i]}%</span>
+<b>${Math.round(g.temperature_2m_min[i])}° / ${Math.round(g.temperature_2m_max[i])}°</b>
 </div>`;
-}
+    }
+    $("days").innerHTML = html;
+
   }catch(e){
-console.error(e);
-description.textContent="Errore: "+e.message;
-}
-}
-
-let map=L.map("map").setView([40.191,15.112],6);
-
-L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",{
-attribution:"© OpenStreetMap"
-}).addTo(map);
-
-L.marker([40.191,15.112]).addTo(map).bindPopup("Casal Velino");
-const cercaComune = document.getElementById("cercaComune");
-const suggerimenti = document.getElementById("suggerimentiComuni");
-const select = document.getElementById("city");
-
-cercaComune.addEventListener("input", function(){
-const ricerca = this.value.toLowerCase().trim();
-suggerimenti.innerHTML = "";
-
-if(ricerca === ""){
-suggerimenti.style.display = "none";
-return;
-}
-
-let trovati = 0;
-
-Array.from(select.options).forEach((opzione, indice) => {
-const nome = opzione.text.trim();
-
-if(nome.toLowerCase().startsWith(ricerca)){
-const voce = document.createElement("div");
-voce.textContent = nome;
-
-voce.addEventListener("click", function(){
-select.selectedIndex = indice;
-cercaComune.value = nome;
-suggerimenti.style.display = "none";
-loadWeather();
-});
-
-suggerimenti.appendChild(voce);
-trovati++;
-}
-});
-
-suggerimenti.style.display = trovati > 0 ? "block" : "none";
-});
-  const selectComuni = document.getElementById("city");
-const lista = document.createElement("datalist");
-lista.id = "listaComuni";
-
-Array.from(selectComuni.options).forEach(opzione => {
-const voce = document.createElement("option");
-voce.value = opzione.text;
-lista.appendChild(voce);
-});
-
-document.body.appendChild(lista);
-async function loadRadar(){
-try{
-const r=await fetch("https://api.rainviewer.com/public/weather-maps.json");
-const d=await r.json();
-const frames=d.radar.past;
-if(!frames.length)throw Error();
-const f=frames[frames.length-1];
-
-L.tileLayer(d.host+f.path+"/256/{z}/{x}/{y}/2/1_1.png",{
-opacity:0.65,
-attribution:"RainViewer"
-}).addTo(map);
-
-radarStatus.textContent="Radar osservato: ultimo aggiornamento disponibile.";
-}catch(e){
-radarStatus.textContent="Radar momentaneamente non disponibile.";
-}
-}
-
-loadWeather();
-loadRadar();
-</script>
-  <section id="sezione-allerte" style="background:#172b45;color:white;padding:18px;margin:20px 10px;border-radius:15px;text-align:center;">
-  <h2>🚨 ALLERTE METEO</h2>
-  <p>Consulta gli avvisi ufficiali della Protezione Civile Campania.</p>
-  <p>🌧️ Rischio idrogeologico</p>
-  <p>⛈️ Temporali e fenomeni intensi</p>
-  <p>💨 Vento forte e 🌊 mareggiate</p>
-  <a href="https://portaleprotezionecivile.regione.campania.it/"
-     target="_blank"
-     style="display:block;background:#f5a623;color:#172b45;padding:13px;border-radius:10px;text-decoration:none;font-weight:bold;">
-     CONSULTA LE ALLERTE UFFICIALI
-  </a>
-</section>
- <section id="sezione-mare" style="background:#123b59;color:white;padding:18px;margin:20px 10px;border-radius:15px;">
-  <h2>🌊 METEO MARE – CASAL VELINO</h2>
-  <p style="color:#b8d9ed">Condizioni del mare aggiornate</p>
-
-  <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;text-align:center">
-    <div style="background:#204966;padding:15px;border-radius:12px">
-      🌊 Altezza onde
-      <h2 id="onda">--</h2>
-    </div>
-    <div style="background:#204966;padding:15px;border-radius:12px">
-      🌡️ Temperatura acqua
-      <h2 id="acqua">--</h2>
-    </div>
-    <div style="background:#204966;padding:15px;border-radius:12px">
-      🧭 Direzione onde
-      <h2 id="direzione">--</h2>
-    </div>
-    <div style="background:#204966;padding:15px;border-radius:12px">
-      ⏱️ Periodo onde
-      <h2 id="periodo">--</h2>
-    </div>
-  </div>
-
-  <p id="aggiornamento" style="text-align:center;font-size:12px;margin-top:15px">
-    Caricamento dati marini...
-  </p>
-  <p style="font-size:11px;text-align:center">
-    Dati: Open-Meteo Marine API
-  </p>
-</section>
-
-<script>
-async function caricaMare() {
-  const city = document.getElementById("city");
-const [lat,lon] = city.value.split(",");
-
-const url = `https://marine-api.open-meteo.com/v1/marine?latitude=${lat}&longitude=${lon}&current=wave_height,wave_direction,wave_period,sea_surface_temperature&timezone=Europe%2FRome&cell_selection=sea`;
-
-  try {
-    const risposta = await fetch(url);
-    if (!risposta.ok) throw new Error("Errore API");
-
-    const dati = await risposta.json();
-    const mare = dati.current;
-
-    document.getElementById("onda").textContent =
-      mare.wave_height != null ? mare.wave_height + " m" : "N/D";
-
-    document.getElementById("acqua").textContent =
-      mare.sea_surface_temperature != null
-      ? mare.sea_surface_temperature + " °C" : "N/D";
-
-    document.getElementById("direzione").textContent =
-      mare.wave_direction != null ? mare.wave_direction + "°" : "N/D";
-
-    document.getElementById("periodo").textContent =
-      mare.wave_period != null ? mare.wave_period + " sec" : "N/D";
-
-    document.getElementById("aggiornamento").textContent =
-      "Ultimo dato: " + mare.time.replace("T"," ");
-
-  } catch (errore) {
-    document.getElementById("aggiornamento").textContent =
-      "Dati del mare temporaneamente non disponibili.";
+    console.error(e);
+    $("description").textContent = "Dati meteo momentaneamente non disponibili.";
   }
 }
 
-caricaMare();
-  function mostraSezione(sezione) {
-  document.getElementById("sezione-meteo").style.display = "none";
-  document.getElementById("sezione-mare").style.display = "none";
-  document.getElementById("sezione-radar").style.display = "none";
-  document.getElementById("sezione-allerte").style.display = "none";
+/* ---------- Mare ---------- */
 
-  document.getElementById("sezione-" + sezione).style.display = "block";
+async function caricaMare(){
+  const { lat, lon, nome } = comuneCorrente();
+  $("titoloMare").textContent = "🌊 METEO MARE – " + nome.toUpperCase();
 
-  if (sezione === "radar" && typeof map !== "undefined") {
+  const url = `https://marine-api.open-meteo.com/v1/marine?latitude=${lat}&longitude=${lon}`
+    + `&current=wave_height,wave_direction,wave_period,sea_surface_temperature`
+    + `&timezone=Europe%2FRome&cell_selection=sea`;
+
+  const valore = (v, unita) => v != null ? v + unita : "N/D";
+
+  try{
+    const r = await fetch(url);
+    if(!r.ok) throw new Error("risposta " + r.status);
+    const dati = await r.json();
+    if(comuneCorrente().nome !== nome) return;
+
+    const mare = dati.current;
+    $("onda").textContent = valore(mare.wave_height, " m");
+    $("acqua").textContent = valore(mare.sea_surface_temperature, " °C");
+    $("direzione").textContent = valore(mare.wave_direction, "°");
+    $("periodo").textContent = valore(mare.wave_period, " sec");
+    $("aggiornamento").textContent = "Ultimo dato: " + mare.time.replace("T", " ");
+  }catch(e){
+    console.error(e);
+    $("aggiornamento").textContent = "Dati del mare temporaneamente non disponibili.";
+  }
+}
+
+/* ---------- Mappa e radar ---------- */
+
+let map = null;
+let marker = null;
+
+if(window.L){
+  map = L.map("map").setView([40.191, 15.109], 10);
+  L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+    attribution:"© OpenStreetMap"
+  }).addTo(map);
+  marker = L.marker([40.191, 15.109]).addTo(map).bindPopup("Casal Velino");
+}
+
+function aggiornaMappa(){
+  if(!map) return;
+  const { lat, lon, nome } = comuneCorrente();
+  marker.setLatLng([lat, lon]).setPopupContent(nome);
+  map.setView([lat, lon], map.getZoom());
+}
+
+let livelloRadar = null;
+
+async function loadRadar(){
+  if(!map){
+    $("radarStatus").textContent = "Mappa non disponibile.";
+    return;
+  }
+  try{
+    const r = await fetch("https://api.rainviewer.com/public/weather-maps.json");
+    if(!r.ok) throw new Error("risposta " + r.status);
+    const d = await r.json();
+    const frames = d.radar.past;
+    if(!frames.length) throw new Error("nessun frame radar");
+    const f = frames[frames.length - 1];
+
+    if(livelloRadar) map.removeLayer(livelloRadar);
+    livelloRadar = L.tileLayer(d.host + f.path + "/256/{z}/{x}/{y}/2/1_1.png", {
+      opacity:0.65,
+      attribution:"RainViewer"
+    }).addTo(map);
+
+    const ora = new Date(f.time * 1000).toLocaleTimeString("it-IT", { hour:"2-digit", minute:"2-digit" });
+    $("radarStatus").textContent = "Radar osservato: aggiornato alle " + ora + ".";
+  }catch(e){
+    console.error(e);
+    $("radarStatus").textContent = "Radar momentaneamente non disponibile.";
+  }
+}
+
+/* ---------- Foto del comune (Wikimedia Commons) ---------- */
+
+async function caricaFotoComuneMeteo(){
+  const { lat, lon, nome } = comuneCorrente();
+
+  const params = new URLSearchParams({
+    action:"query",
+    generator:"geosearch",
+    ggscoord:lat + "|" + lon,
+    ggsradius:"10000",
+    ggsnamespace:"6",
+    ggsprimary:"all",
+    ggslimit:"20",
+    prop:"imageinfo",
+    iiprop:"url|extmetadata",
+    iiurlwidth:"1400",
+    format:"json",
+    origin:"*"
+  });
+
+  try{
+    const r = await fetch("https://commons.wikimedia.org/w/api.php?" + params);
+    const data = await r.json();
+    if(comuneCorrente().nome !== nome) return;
+
+    const pagine = Object.values(data.query?.pages || {});
+    const foto = pagine.find(p => p.imageinfo?.[0]?.thumburl);
+    if(!foto) return;
+
+    const info = foto.imageinfo[0];
+    heroSfondo.style.backgroundImage =
+      'linear-gradient(180deg,rgba(3,15,30,.12),rgba(3,15,30,.82)),url("' + info.thumburl + '")';
+
+    const pulisci = testo => new DOMParser().parseFromString(testo, "text/html").body.textContent;
+    const artista = info.extmetadata?.Artist?.value || "Autore non indicato";
+    const licenza = info.extmetadata?.LicenseShortName?.value || "Licenza da verificare";
+
+    const credito = $("fotoCredito");
+    credito.textContent =
+      "Foto: " + foto.title.replace("File:", "") + " | " + pulisci(artista) + " | " + pulisci(licenza);
+    credito.hidden = false;
+  }catch(e){
+    console.log("Errore caricamento fotografia:", e);
+  }
+}
+
+/* ---------- Ricerca comune ---------- */
+
+const cercaComune = $("cercaComune");
+const suggerimenti = $("suggerimentiComuni");
+
+cercaComune.addEventListener("input", function(){
+  const ricerca = this.value.toLowerCase().trim();
+  suggerimenti.innerHTML = "";
+
+  if(ricerca === ""){
+    suggerimenti.style.display = "none";
+    return;
+  }
+
+  let trovati = 0;
+  Array.from(select.options).forEach((opzione, indice) => {
+    const nome = opzione.text.trim();
+    if(!nome.toLowerCase().includes(ricerca)) return;
+
+    const voce = document.createElement("div");
+    voce.textContent = nome;
+    voce.addEventListener("click", () => {
+      select.selectedIndex = indice;
+      cercaComune.value = nome;
+      suggerimenti.style.display = "none";
+      cambiaComune();
+    });
+    suggerimenti.appendChild(voce);
+    trovati++;
+  });
+
+  suggerimenti.style.display = trovati > 0 ? "block" : "none";
+});
+
+/* ---------- Sezioni ---------- */
+
+function mostraSezione(sezione){
+  ["meteo", "mare", "radar", "allerte"].forEach(s => {
+    $("sezione-" + s).style.display = s === sezione ? "block" : "none";
+  });
+
+  if(sezione === "radar" && map){
     setTimeout(() => map.invalidateSize(), 200);
   }
 }
 
+/* ---------- Avvio ---------- */
+
+function cambiaComune(){
+  loadWeather();
+  caricaMare();
+  aggiornaMappa();
+  caricaFotoComuneMeteo();
+}
+
+select.addEventListener("change", cambiaComune);
+
 mostraSezione("meteo");
-  // FOTO REALI AUTOMATICHE PER OGNI COMUNE
+cambiaComune();
+loadRadar();
 
-async function caricaFotoComuneMeteo(){
-
-const city = document.getElementById("city");
-const hero = document.querySelector(".hero-meteo");
-
-if(!city || !hero) return;
-
-const [lat,lon] = city.value.split(",");
-
-const params = new URLSearchParams({
-action:"query",
-generator:"geosearch",
-ggscoord:lat+"|"+lon,
-ggsradius:"10000",
-ggsnamespace:"6",
-ggsprimary:"all",
-ggslimit:"20",
-prop:"imageinfo",
-iiprop:"url|extmetadata",
-iiurlwidth:"1400",
-format:"json",
-origin:"*"
-});
-
-try{
-
-const response = await fetch(
-"https://commons.wikimedia.org/w/api.php?"+params
-);
-
-const data = await response.json();
-
-const pages = Object.values(data.query?.pages || {});
-
-const foto = pages.find(p =>
-p.imageinfo &&
-p.imageinfo[0] &&
-p.imageinfo[0].thumburl
-);
-
-if(!foto){
-console.log("Nessuna fotografia locale disponibile");
-return;
-}
-
-const info = foto.imageinfo[0];
-const immagine = info.thumburl;
-  
-  hero.dataset.foto = immagine;
-
-hero.style.backgroundImage =
-'linear-gradient(180deg,rgba(3,15,30,.12),rgba(3,15,30,.82)),url("'+immagine+'")';
-
-hero.style.backgroundSize = "cover";
-hero.style.backgroundPosition = "center";
-
-let credito = document.getElementById("fotoCredito");
-
-if(!credito){
-
-credito = document.createElement("div");
-credito.id = "fotoCredito";
-
-credito.style.cssText =
-"position:absolute;bottom:5px;right:8px;font-size:8px;color:white;background:rgba(0,0,0,.55);padding:5px;border-radius:6px;max-width:90%;z-index:5";
-
-hero.appendChild(credito);
-
-}
-
-const artista = info.extmetadata?.Artist?.value || "Autore non indicato";
-const licenza = info.extmetadata?.LicenseShortName?.value || "Licenza da verificare";
-
-const pulisci = testo =>
-new DOMParser().parseFromString(testo,"text/html").body.textContent;
-
-credito.textContent =
-"Foto: "+foto.title.replace("File:","")+" | "+pulisci(artista)+" | "+pulisci(licenza);
-
-}catch(error){
-
-console.log("Errore caricamento fotografia:",error);
-
-}
-
-}
-
-document.getElementById("city").addEventListener(
-"change",
-caricaFotoComuneMeteo
-);
-
-caricaFotoComuneMeteo();
+// Aggiornamento automatico dei dati
+setInterval(() => {
+  loadWeather();
+  caricaMare();
+  loadRadar();
+}, AGGIORNAMENTO_MS);
 </script>
 </body>
 </html>
