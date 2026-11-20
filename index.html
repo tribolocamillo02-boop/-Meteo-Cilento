@@ -1063,8 +1063,17 @@ const cloud = document.getElementById("cloud");
 const c=d.current;
   const codice = c.weather_code;
   const icona = document.getElementById("weatherIcon");
-
+const pioggia = c.rain || 0;
+const rovesci = c.showers || 0;
+const precipitazioni = c.precipitation || 0;
+const staPiovendo = pioggia > 0 || rovesci > 0 || precipitazioni > 0;
 if(icona){
+  if(staPiovendo){
+    icona.textContent = "🌧️";
+}
+else if(codice === 0){
+    icona.textContent = "☀️";
+}
 
 if(codice === 0){
 icona.textContent = "☀️";
