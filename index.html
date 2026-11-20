@@ -388,6 +388,35 @@ url("https://commons.wikimedia.org/wiki/Special:FilePath/Marina_di_Casal_Velino.
 center 50% / cover no-repeat;
 min-height:350px;
 }
+  /* ATMOSFERA METEO DINAMICA */
+
+.hero-meteo[data-atmosfera="sole"]{
+filter:brightness(1.08) saturate(1.15);
+}
+
+.hero-meteo[data-atmosfera="nuvoloso"]{
+filter:brightness(.85) saturate(.8);
+}
+
+.hero-meteo[data-atmosfera="nebbia"]{
+filter:grayscale(.35) brightness(.9);
+}
+
+.hero-meteo[data-atmosfera="pioggia"]{
+filter:brightness(.65) saturate(.75);
+}
+
+.hero-meteo[data-atmosfera="neve"]{
+filter:brightness(1.05) saturate(.7);
+}
+
+.hero-meteo[data-atmosfera="temporale"]{
+filter:brightness(.48) saturate(.65);
+}
+
+.hero-meteo{
+transition:filter 2s ease,background-image 1s ease;
+}
 </style>
 </head>
 <body>
@@ -565,7 +594,30 @@ else{
 icona.textContent = "⛈️";
 }
 }
+  const hero = document.querySelector(".hero-meteo");
 
+if(hero){
+
+let atmosfera = "sole";
+
+if(codice >= 1 && codice <= 3){
+atmosfera = "nuvoloso";
+}
+else if(codice >= 45 && codice <= 48){
+atmosfera = "nebbia";
+}
+else if(codice >= 51 && codice <= 67){
+atmosfera = "pioggia";
+}
+else if(codice >= 71 && codice <= 77){
+atmosfera = "neve";
+}
+else if(codice >= 80){
+atmosfera = "temporale";
+}
+
+hero.dataset.atmosfera = atmosfera;
+}
 temp.textContent=Math.round(c.temperature_2m)+"°";
   let minmax = document.getElementById("minmax");
 
@@ -836,6 +888,8 @@ return;
 
 const info = foto.imageinfo[0];
 const immagine = info.thumburl;
+  
+  hero.dataset.foto = immagine;
 
 hero.style.backgroundImage =
 'linear-gradient(180deg,rgba(3,15,30,.12),rgba(3,15,30,.82)),url("'+immagine+'")';
