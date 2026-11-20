@@ -661,8 +661,49 @@ line-height:2;
 .day{
 display:flex;
 justify-content:space-between;
+align-items:center;
 gap:8px;
-padding:16px 0;
+padding:16px 12px;
+}
+
+/* GIORNI ESPANDIBILI */
+
+.giorno{
+margin-bottom:10px;
+}
+
+.giorno summary{
+cursor:pointer;
+list-style:none;
+}
+
+.giorno summary::-webkit-details-marker{
+display:none;
+}
+
+.freccia{
+font-size:26px;
+line-height:1;
+color:#7ee5ff;
+transition:transform .3s;
+}
+
+.giorno[open] .freccia{
+transform:rotate(90deg);
+}
+
+.giorno[open] summary{
+border-color:rgba(80,210,255,.45);
+}
+
+.ore-giorno{
+margin-top:10px;
+}
+
+.suggerimento-giorni{
+margin:-6px 0 14px;
+font-size:13px;
+color:#9bdfff;
 }
 
 #map{
@@ -891,6 +932,7 @@ font-weight:bold;
 
   <div class="card">
     <h2>📅 PREVISIONI 7 GIORNI</h2>
+    <p class="suggerimento-giorni">Tocca un giorno per vedere le previsioni ora per ora.</p>
     <div id="days">Caricamento...</div>
   </div>
 </section>
@@ -987,7 +1029,7 @@ async function loadWeather(){
 
   const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}`
     + `&current=temperature_2m,relative_humidity_2m,apparent_temperature,precipitation,weather_code,wind_speed_10m,wind_gusts_10m,cloud_cover`
-    + `&hourly=temperature_2m,precipitation_probability,weather_code`
+    + `&hourly=temperature_2m,precipitation_probability,weather_code,wind_speed_10m`
     + `&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max`
     + `&forecast_days=7&timezone=Europe%2FRome`;
 
@@ -1020,31 +1062,38 @@ async function loadWeather(){
 
     // Previsioni orarie: prossime 24 ore
     const h = d.hourly;
-    let start = h.time.findIndex(t => new Date(t) >= new Date());
+    const adesso = new Date();
+    let start = h.time.findIndex(t => new Date(t) >= adesso);
     if(start < 0) start = 0;
 
     let html = "";
     for(let i = start; i < Math.min(start + 24, h.time.length); i++){
-      html += `<div class="hour">
-${h.time[i].slice(11,16)}<br>
-${infoMeteo(h.weather_code[i]).testo}<br>
-<b>${Math.round(h.temperature_2m[i])}°</b><br>
-🌧️ ${h.precipitation_probability[i]}%
-</div>`;
+      html += schedaOraria(h, i);
     }
     $("hourly").innerHTML = html;
 
-    // Previsioni 7 giorni
+    // Previsioni 7 giorni: ogni giorno si apre sulle sue previsioni ora per ora
     const g = d.daily;
     html = "";
     for(let i = 0; i < g.time.length; i++){
       const data = new Date(g.time[i] + "T12:00:00")
         .toLocaleDateString("it-IT", { weekday:"short", day:"numeric", month:"short" });
-      html += `<div class="day">
+
+      let ore = "";
+      h.time.forEach((t, k) => {
+        // di oggi mostra solo le ore ancora da venire
+        if(t.startsWith(g.time[i]) && (i > 0 || k >= start)) ore += schedaOraria(h, k);
+      });
+
+      html += `<details class="giorno">
+<summary class="day">
 <span>${data}<br>${infoMeteo(g.weather_code[i]).testo}</span>
 <span>🌧️ ${g.precipitation_probability_max[i]}%</span>
 <b>${Math.round(g.temperature_2m_min[i])}° / ${Math.round(g.temperature_2m_max[i])}°</b>
-</div>`;
+<span class="freccia" aria-hidden="true">›</span>
+</summary>
+<div class="hourly ore-giorno">${ore || "Nessun dato orario disponibile."}</div>
+</details>`;
     }
     $("days").innerHTML = html;
 
@@ -1052,6 +1101,16 @@ ${infoMeteo(h.weather_code[i]).testo}<br>
     console.error(e);
     $("description").textContent = "Dati meteo momentaneamente non disponibili.";
   }
+}
+
+function schedaOraria(h, i){
+  return `<div class="hour">
+${h.time[i].slice(11,16)}<br>
+${infoMeteo(h.weather_code[i]).testo}<br>
+<b>${Math.round(h.temperature_2m[i])}°</b><br>
+🌧️ ${h.precipitation_probability[i]}%<br>
+<span style="white-space:nowrap">🌬️ ${Math.round(h.wind_speed_10m[i])} km/h</span>
+</div>`;
 }
 
 /* ---------- Mare ---------- */
