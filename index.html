@@ -832,6 +832,51 @@ opacity:.2;
 background:rgba(180,210,255,.3);
 }
 }
+  /* VENTO 3D METEO CILENTO */
+
+.vento-3d{
+position:absolute;
+inset:0;
+overflow:hidden;
+pointer-events:none;
+z-index:4;
+opacity:0;
+transition:opacity 1s;
+}
+
+.hero-meteo[data-vento="moderato"] .vento-3d,
+.hero-meteo[data-vento="forte"] .vento-3d{
+opacity:1;
+}
+
+.vento-3d span{
+position:absolute;
+left:-100px;
+width:100px;
+height:2px;
+border-radius:50%;
+background:linear-gradient(
+90deg,
+transparent,
+rgba(150,225,255,.8),
+transparent
+);
+filter:blur(1px);
+animation:sciaVento 3s linear infinite;
+}
+
+.vento-3d span:nth-child(1){top:20%;animation-delay:0s}
+.vento-3d span:nth-child(2){top:35%;animation-delay:1s}
+.vento-3d span:nth-child(3){top:50%;animation-delay:2s}
+.vento-3d span:nth-child(4){top:65%;animation-delay:.5s}
+.vento-3d span:nth-child(5){top:78%;animation-delay:1.5s}
+.vento-3d span:nth-child(6){top:90%;animation-delay:2.5s}
+
+@keyframes sciaVento{
+from{transform:translateX(0) scaleX(.5);opacity:0}
+20%{opacity:1}
+to{transform:translateX(500px) scaleX(1.5);opacity:0}
+}
 </style>
 </head>
 <body>
@@ -859,6 +904,14 @@ background:rgba(180,210,255,.3);
 
   <div class="particelle"></div>
 <div class="effetto-meteo" id="effettoMeteo"></div>
+    <div class="vento-3d" id="vento3D">
+  <span></span>
+  <span></span>
+  <span></span>
+  <span></span>
+  <span></span>
+  <span></span>
+</div>
     <div class="pioggia-3d" id="pioggia3D">
   <span></span>
   <span></span>
@@ -1061,6 +1114,17 @@ atmosfera = "temporale";
 }
 
 hero.dataset.atmosfera = atmosfera;
+  const velocitaVento = c.wind_speed_10m;
+
+if(velocitaVento >= 40){
+hero.dataset.vento = "forte";
+}
+else if(velocitaVento >= 20){
+hero.dataset.vento = "moderato";
+}
+else{
+hero.dataset.vento = "debole";
+}
 }
 document.getElementById("temp").textContent =
 Math.round(c.temperature_2m)+"°";
