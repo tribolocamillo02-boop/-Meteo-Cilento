@@ -701,6 +701,64 @@ to{background-position:0 180px,20px 220px;}
 94%{background-color:transparent;}
 96%{background-color:rgba(220,230,255,.3);}
 }
+  /* SOLE 3D METEO CILENTO */
+
+.sole-3d{
+position:absolute;
+width:150px;
+height:150px;
+top:50%;
+left:50%;
+transform:translate(-50%,-50%);
+z-index:2;
+pointer-events:none;
+opacity:0;
+transition:opacity 1s ease;
+}
+
+.hero-meteo[data-atmosfera="sole"] .sole-3d{
+opacity:1;
+}
+
+.sole-centro{
+position:absolute;
+width:75px;
+height:75px;
+top:50%;
+left:50%;
+transform:translate(-50%,-50%);
+border-radius:50%;
+background:radial-gradient(circle,#fffbd0 0%,#ffe45c 45%,#ff9d00 100%);
+box-shadow:
+0 0 25px #ffe45c,
+0 0 55px #ffb300,
+0 0 90px rgba(255,180,0,.6);
+animation:soleRespiro 3s ease-in-out infinite;
+}
+
+.sole-raggi{
+position:absolute;
+inset:0;
+border-radius:50%;
+background:repeating-conic-gradient(
+from 0deg,
+transparent 0deg 12deg,
+rgba(255,210,80,.75) 13deg 15deg,
+transparent 16deg 30deg
+);
+mask-image:radial-gradient(circle,transparent 0 42%,black 45% 65%,transparent 70%);
+-webkit-mask-image:radial-gradient(circle,transparent 0 42%,black 45% 65%,transparent 70%);
+animation:raggiRotanti 18s linear infinite;
+}
+
+@keyframes raggiRotanti{
+to{transform:rotate(360deg);}
+}
+
+@keyframes soleRespiro{
+0%,100%{transform:translate(-50%,-50%) scale(1);}
+50%{transform:translate(-50%,-50%) scale(1.12);}
+}
 </style>
 </head>
 <body>
@@ -728,6 +786,10 @@ to{background-position:0 180px,20px 220px;}
 
   <div class="particelle"></div>
 <div class="effetto-meteo" id="effettoMeteo"></div>
+    <div class="sole-3d" id="sole3D">
+  <div class="sole-centro"></div>
+  <div class="sole-raggi"></div>
+</div>
     
 </div>
 
