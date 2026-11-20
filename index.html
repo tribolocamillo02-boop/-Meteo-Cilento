@@ -633,6 +633,74 @@ filter:drop-shadow(0 0 30px white);
 .hero-meteo{
 transition:all 1.5s ease;
 }
+  /* EFFETTI ATMOSFERICI AUTOMATICI */
+
+.effetto-meteo{
+position:absolute;
+inset:0;
+pointer-events:none;
+overflow:hidden;
+z-index:4;
+border-radius:20px;
+}
+
+/* PIOGGIA */
+
+.hero-meteo[data-atmosfera="pioggia"] .effetto-meteo{
+background:repeating-linear-gradient(
+110deg,
+transparent 0px,
+transparent 18px,
+rgba(120,210,255,.55) 19px,
+transparent 21px
+);
+background-size:100% 35px;
+animation:pioggiaCaduta .45s linear infinite;
+}
+
+/* TEMPORALE */
+
+.hero-meteo[data-atmosfera="temporale"] .effetto-meteo{
+background:rgba(90,100,150,.08);
+animation:lampi 4s infinite;
+}
+
+/* NEVE */
+
+.hero-meteo[data-atmosfera="neve"] .effetto-meteo{
+background-image:
+radial-gradient(white 2px,transparent 3px),
+radial-gradient(white 1px,transparent 2px);
+background-size:45px 45px,70px 70px;
+animation:neveCaduta 5s linear infinite;
+}
+
+/* SOLE */
+
+.hero-meteo[data-atmosfera="sole"] .effetto-meteo{
+background:radial-gradient(
+circle at 50% 45%,
+rgba(255,220,100,.16),
+transparent 60%
+);
+}
+
+@keyframes pioggiaCaduta{
+from{background-position:0 0;}
+to{background-position:0 100px;}
+}
+
+@keyframes neveCaduta{
+from{background-position:0 0,20px 0;}
+to{background-position:0 180px,20px 220px;}
+}
+
+@keyframes lampi{
+0%,90%,100%{background-color:transparent;}
+92%{background-color:rgba(220,230,255,.55);}
+94%{background-color:transparent;}
+96%{background-color:rgba(220,230,255,.3);}
+}
 </style>
 </head>
 <body>
@@ -659,7 +727,8 @@ transition:all 1.5s ease;
   <div id="weatherIcon" class="weather-icon">🌤️</div>
 
   <div class="particelle"></div>
-
+<div class="effetto-meteo" id="effettoMeteo"></div>
+    
 </div>
 
   <div class="hero-footer">
