@@ -208,7 +208,7 @@ def pagina(p, paesi, mare):
   <ul class="link">{vicini_html}</ul>
 
   <footer>
-    <p><a href="../">Tutti i paesi del Cilento</a> · <a href="../../privacy.html">Privacy</a> · <a href="../../pubblicita.html">Pubblicità</a></p>
+    <p><a href="../">Tutti i paesi del Cilento</a> · <a href="../../privacy.html">Privacy</a> · <a href="../../pubblicita.html">Pubblicità</a> · <a href="https://www.instagram.com/cilentometeo/" rel="noopener">Instagram</a></p>
     <p>Dati meteo: Open-Meteo · Radar: Dipartimento della Protezione Civile</p>
   </footer>
 </main>
@@ -251,7 +251,7 @@ def elenco(paesi):
   <h1>Il meteo di tutti i paesi del Cilento</h1>
   <p>{html.escape(descr)} Scegli un paese per le previsioni, oppure <a href="../">apri l'app</a>.</p>
 {gruppi}
-  <footer><p><a href="../">Cilento Meteo</a> · <a href="../privacy.html">Privacy</a> · <a href="../pubblicita.html">Pubblicità</a></p></footer>
+  <footer><p><a href="../">Cilento Meteo</a> · <a href="../privacy.html">Privacy</a> · <a href="../pubblicita.html">Pubblicità</a> · <a href="https://www.instagram.com/cilentometeo/" rel="noopener">Instagram</a></p></footer>
 </main>
 {STATISTICHE}
 </body>

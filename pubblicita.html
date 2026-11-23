@@ -121,11 +121,11 @@ footer{margin-top:44px;font-size:13px;color:var(--testo-3);text-align:center;}
     <p class="in-arrivo" id="contattiInArrivo" hidden>Contatti in arrivo.</p>
   </div>
 
-  <footer><a href="./">Cilento Meteo</a> · <a href="paesi/">Tutti i paesi</a> · <a href="privacy.html">Privacy</a></footer>
+  <footer><a href="./">Cilento Meteo</a> · <a href="paesi/">Tutti i paesi</a> · <a href="privacy.html">Privacy</a> · <a href="https://www.instagram.com/cilentometeo/" rel="noopener">Instagram @cilentometeo</a></footer>
 </main>
 <script>
 // Contatti per gli sponsor: inserire l'email e/o il numero WhatsApp (con prefisso, es. 393401234567)
-const CONTATTO = { email: "cilentometeo@gmail.com", whatsapp: "" };
+const CONTATTO = { email: "cilentometeo@gmail.com", whatsapp: "", instagram: "cilentometeo" };
 (function(){
   const box = document.getElementById("pulsantiContatti");
   const oggetto = "Sponsor su Cilento Meteo";
@@ -142,6 +142,14 @@ const CONTATTO = { email: "cilentometeo@gmail.com", whatsapp: "" };
     a.className = "pulsante" + (CONTATTO.whatsapp ? " secondario" : "");
     a.href = "mailto:" + CONTATTO.email + "?subject=" + encodeURIComponent(oggetto) + "&body=" + encodeURIComponent(testo);
     a.textContent = "Scrivici per email";
+    box.appendChild(a);
+  }
+  if(CONTATTO.instagram){
+    const a = document.createElement("a");
+    a.className = "pulsante" + (box.children.length ? " secondario" : "");
+    a.href = "https://ig.me/m/" + CONTATTO.instagram;
+    a.target = "_blank"; a.rel = "noopener";
+    a.textContent = "Scrivici su Instagram";
     box.appendChild(a);
   }
   if(!box.children.length) document.getElementById("contattiInArrivo").hidden = false;
