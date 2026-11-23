@@ -305,3 +305,29 @@ In alternativa si possono mandare le foto a Claude, che le mette nella cartella 
 | Salvitelle | `foto/salvitelle/` |
 | San Gregorio Magno | `foto/san-gregorio-magno/` |
 
+
+## Instagram automatico (@cilentometeo)
+
+Il workflow `.github/workflows/instagram.yml` gira ogni ora e pubblica da solo:
+
+| Quando | Cosa |
+|---|---|
+| ogni sera dalle 19 | storia «Domani nel Cilento» |
+| il giovedì dalle 17 | post + storia «Il weekend nel Cilento» con didascalia e hashtag |
+| allerta gialla, arancione o rossa | post + storia dell'allerta (una volta per bollettino, tra le 7 e le 23) |
+
+Le immagini sono quelle di `social.html`, create con Playwright da `scripts/social.mjs`
+e salvate in `social/immagini/` (restano solo gli ultimi 7 giorni). Lo stato delle
+pubblicazioni è in `social/stato.json`.
+
+Segreti del repository (Settings → Secrets and variables → Actions):
+
+- `IG_TOKEN`: token di Instagram (API con accesso Instagram, permesso
+  `instagram_business_content_publish`; l'account deve essere professionale di tipo
+  **Azienda** per pubblicare le storie). Senza questo segreto il workflow non fa niente.
+- `GH_PAT`: token GitHub «fine-grained» limitato a questo repository con permesso
+  **Secrets: Read and write**. Serve a rinnovare da solo `IG_TOKEN` ogni settimana
+  (altrimenti scade dopo 60 giorni).
+
+Per una prova: Actions → Instagram → Run workflow, con «Solo prova» o con
+«Pubblica subito» = `storia`.

@@ -1,0 +1,102 @@
+# Pubblica da solo su Instagram (@cilentometeo):
+# - ogni sera dalle 19: storia con il meteo di domani;
+# - il giovedì dalle 17: post e storia del weekend;
+# - quando c'è un'allerta gialla, arancione o rossa: post e storia (una volta per bollettino).
+# Gira ogni ora; non fa niente finché non c'è il segreto IG_TOKEN.
+# Il segreto GH_PAT (facoltativo ma consigliato) serve a rinnovare da solo il token ogni settimana.
+name: Instagram
+
+on:
+  schedule:
+    - cron: "41 * * * *"
+  workflow_dispatch:
+    inputs:
+      forza:
+        description: "Pubblica subito (storia, weekend, allerta; separati da virgola)"
+        required: false
+        default: ""
+      prova:
+        description: "Solo prova: crea le immagini senza pubblicare"
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+
+concurrency:
+  group: dati-repository
+  cancel-in-progress: false
+
+jobs:
+  pubblica:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      IG_TOKEN: ${{ secrets.IG_TOKEN }}
+      FORZA: ${{ inputs.forza }}
+      PROVA: ${{ inputs.prova && '1' || '' }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Decide cosa pubblicare
+        id: d
+        run: node scripts/social.mjs decidi
+
+      - name: Prepara il browser
+        if: steps.d.outputs.compiti != ''
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq fonts-noto-color-emoji
+          npm install --no-save --no-package-lock playwright@1.49.1
+          npx playwright install --with-deps chromium
+
+      - name: Crea le immagini
+        if: steps.d.outputs.compiti != ''
+        run: node scripts/social.mjs genera
+
+      - name: Salva le immagini nel repository
+        if: steps.d.outputs.compiti != ''
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A social/immagini
+          git commit -q -m "Immagini per Instagram" || true
+          git pull -q --rebase origin main
+          git push -q origin HEAD:main
+          echo "URL_BASE=https://raw.githubusercontent.com/${{ github.repository }}/$(git rev-parse HEAD)" >> "$GITHUB_ENV"
+
+      - name: Pubblica su Instagram
+        if: steps.d.outputs.compiti != ''
+        run: node scripts/social.mjs pubblica
+
+      - name: Rinnova il token
+        if: steps.d.outputs.rinnovo == '1' && env.GH_PAT != '' && env.PROVA != '1'
+        env:
+          GH_PAT: ${{ secrets.GH_PAT }}
+          GH_TOKEN: ${{ secrets.GH_PAT }}
+          FILE_TOKEN: ${{ runner.temp }}/token
+        run: |
+          node scripts/social.mjs rinnova
+          if [ -s "$FILE_TOKEN" ]; then
+            gh secret set IG_TOKEN --repo "${{ github.repository }}" < "$FILE_TOKEN"
+            rm -f "$FILE_TOKEN"
+            node scripts/social.mjs rinnovato
+          fi
+
+      - name: Salva lo stato
+        if: always() && env.PROVA != '1'
+        run: |
+          if [ -n "$(git status --porcelain social/stato.json)" ]; then
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add social/stato.json
+            git commit -q -m "Stato delle pubblicazioni su Instagram"
+            git pull -q --rebase origin main
+            git push -q origin HEAD:main
+          fi
