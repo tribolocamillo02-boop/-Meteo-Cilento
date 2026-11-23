@@ -332,7 +332,60 @@ letter-spacing:.01em;
 }
 
 .chip-comune .ico{font-size:18px;color:var(--blu-chiaro);}
-.chip-comune .ico:last-child{font-size:14px;color:var(--testo-2);}
+.chip-comune > .ico:last-child{font-size:14px;color:var(--testo-2);}
+
+.riga-comune{display:flex;align-items:center;gap:8px;}
+
+.nome-luogo{display:flex;flex-direction:column;align-items:flex-start;line-height:1.15;text-align:left;}
+.nome-luogo small{font-size:11px;font-weight:500;color:var(--testo-2);letter-spacing:.02em;}
+
+.chip-gps{
+flex:none;
+display:inline-flex;
+align-items:center;
+justify-content:center;
+width:44px;
+height:44px;
+border-radius:50%;
+background:rgba(255,255,255,.1);
+border:1px solid rgba(255,255,255,.18);
+backdrop-filter:var(--sfocatura);
+-webkit-backdrop-filter:var(--sfocatura);
+font-size:20px;
+color:#fff;
+transition:background .3s,box-shadow .3s;
+}
+
+.chip-gps.attivo{
+background:linear-gradient(180deg,rgba(47,125,255,.7),rgba(47,125,255,.35));
+border-color:var(--bordo-blu);
+box-shadow:0 0 22px rgba(47,125,255,.55);
+}
+
+.chip-gps.cerca .ico{animation:mira 1.2s linear infinite;}
+
+@keyframes mira{to{transform:rotate(360deg);}}
+
+.avviso{
+position:fixed;
+z-index:2500;
+left:50%;
+top:calc(64px + env(safe-area-inset-top));
+transform:translateX(-50%);
+width:min(calc(100% - 28px),440px);
+padding:12px 16px;
+border-radius:16px;
+background:rgba(8,12,22,.82);
+border:1px solid var(--bordo);
+backdrop-filter:blur(24px);
+-webkit-backdrop-filter:blur(24px);
+box-shadow:0 14px 40px rgba(0,0,0,.5);
+font-size:14px;
+line-height:1.4;
+text-align:center;
+}
+
+.avviso[hidden]{display:none;}
 
 .temp{
 font-size:clamp(104px,32vw,176px);
@@ -954,9 +1007,12 @@ font-weight:600;
   </div>
 
   <div class="hero-contenuto">
-    <button class="chip-comune" id="apriComuni" type="button" aria-label="Cambia comune">
-      <span data-ico="pin"></span><span id="name">Casal Velino</span><span data-ico="giu"></span>
-    </button>
+    <div class="riga-comune">
+      <button class="chip-comune" id="apriComuni" type="button" aria-label="Cambia paese">
+        <span id="iconaLuogo"></span><span class="nome-luogo"><span id="name">Casal Velino</span><small id="vicinoA" hidden></small></span><span data-ico="giu"></span>
+      </button>
+      <button class="chip-gps" id="gpsHero" type="button" aria-label="Usa la mia posizione esatta" title="Usa la mia posizione esatta"><span data-ico="mirino"></span></button>
+    </div>
     <div class="temp" id="temp">--°</div>
     <div class="condizione"><span id="weatherIcon"></span><span id="description">Caricamento…</span></div>
     <div id="minmax"></div>
@@ -964,6 +1020,8 @@ font-weight:600;
 
   <div id="fotoCredito"></div>
 </header>
+
+<div class="avviso" id="avviso" role="status" hidden></div>
 
 <main>
 
@@ -1151,7 +1209,7 @@ font-weight:600;
     <label class="cerca"><span data-ico="cerca"></span>
       <input type="text" id="cercaComune" placeholder="Cerca tra i paesi del Cilento" autocomplete="off">
     </label>
-    <button type="button" class="vicino" id="vicinoAMe"><span data-ico="pin"></span>Trova il paese più vicino a me</button>
+    <button type="button" class="vicino" id="vicinoAMe"><span data-ico="mirino"></span>Usa la mia posizione esatta</button>
     <p class="vicino-stato" id="vicinoStato" hidden></p>
     <div id="listaComuni"></div>
   </div>
@@ -1313,9 +1371,47 @@ try{
   if(salvato && indiceDiNome(salvato) >= 0) comuneIndice = indiceDiNome(salvato);
 }catch(e){}
 
+// Posizione esatta della persona (GPS): { lat, lon, precisione, vicino, distanza }
+let posizione = null;
+
+function paeseVicino(lat, lon){
+  let migliore = 0, dist = Infinity;
+  COMUNI.forEach(([, , la, lo], i) => {
+    const d = distanzaKm(lat, lon, la, lo);
+    if(d < dist){ dist = d; migliore = i; }
+  });
+  return { indice: migliore, distanza: dist };
+}
+
+function impostaPosizione(lat, lon, precisione){
+  const { indice, distanza } = paeseVicino(lat, lon);
+  posizione = { lat, lon, precisione, vicino: indice, distanza };
+}
+
+try{
+  if(localStorage.getItem("meteoCilento.modo") === "posizione"){
+    const p = JSON.parse(localStorage.getItem("meteoCilento.posizione"));
+    if(p && isFinite(p.lat) && isFinite(p.lon)) impostaPosizione(p.lat, p.lon, p.precisione);
+  }
+}catch(e){}
+
 function comuneCorrente(){
+  if(posizione){
+    const vicino = posizione.distanza <= 60 ? COMUNI[posizione.vicino] : null;
+    return {
+      nome: "La mia posizione",
+      chiave: `pos:${posizione.lat.toFixed(4)},${posizione.lon.toFixed(4)}`,
+      lat: posizione.lat,
+      lon: posizione.lon,
+      posizione: true,
+      vicino: vicino ? vicino[0] : null,
+      fotoNome: vicino ? vicino[0] : null,
+      fotoLat: vicino ? vicino[2] : null,
+      fotoLon: vicino ? vicino[3] : null
+    };
+  }
   const [nome, zona, lat, lon] = COMUNI[comuneIndice];
-  return { nome, zona, lat, lon };
+  return { nome, zona, lat, lon, chiave: nome, posizione: false, fotoNome: nome, fotoLat: lat, fotoLon: lon };
 }
 
 function slug(nome){
@@ -1348,7 +1444,8 @@ const UI = {
   cerca:'<circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/>',
   sensore:'<circle cx="12" cy="12" r="2.5"/><path d="M7.8 7.8a6 6 0 0 0 0 8.4M16.2 7.8a6 6 0 0 1 0 8.4M5 5a10 10 0 0 0 0 14M19 5a10 10 0 0 1 0 14"/>',
   esterno:'<path d="M14 4h6v6M20 4l-9 9M18 14v6H4V6h6"/>',
-  periodo:'<path d="M3 12h4l3-7 4 14 3-7h4"/>'
+  periodo:'<path d="M3 12h4l3-7 4 14 3-7h4"/>',
+  mirino:'<circle cx="12" cy="12" r="7"/><circle cx="12" cy="12" r="2.5" fill="currentColor"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/>'
 };
 
 function ui(nome){
@@ -1656,18 +1753,18 @@ async function aggiornaFoto(nome, lat, lon, atm, notte){
 
   for(const url of specifiche){
     if(await fotoEsiste(url)){
-      if(comuneCorrente().nome === nome) impostaFoto(url, "", true);
+      if(comuneCorrente().fotoNome === nome) impostaFoto(url, "", true);
       return;
     }
   }
   if(await fotoEsiste(cartella + "default.jpg")){
-    if(comuneCorrente().nome === nome) impostaFoto(cartella + "default.jpg", "", false);
+    if(comuneCorrente().fotoNome === nome) impostaFoto(cartella + "default.jpg", "", false);
     return;
   }
 
   try{
     const foto = await cercaFotoCommons(nome, lat, lon);
-    if(foto && comuneCorrente().nome === nome){
+    if(foto && comuneCorrente().fotoNome === nome){
       await fotoEsiste(foto.url);
       impostaFoto(foto.url, foto.credito, false);
     }
@@ -1676,8 +1773,9 @@ async function aggiornaFoto(nome, lat, lon, atm, notte){
   }
 }
 
-// Foto iniziale, in attesa dei dati
-impostaFoto("https://commons.wikimedia.org/wiki/Special:FilePath/Marina_di_Casal_Velino.jpg?width=1600", "", false);
+// Foto iniziale, in attesa dei dati (usata anche fuori dal Cilento)
+const FOTO_GENERICA = "https://commons.wikimedia.org/wiki/Special:FilePath/Marina_di_Casal_Velino.jpg?width=1600";
+impostaFoto(FOTO_GENERICA, "", false);
 
 /* =========================================================
    METEO
@@ -1732,8 +1830,9 @@ function disegnaSole(g){
 }
 
 async function loadWeather(){
-  const { lat, lon, nome } = comuneCorrente();
-  $("name").textContent = nome;
+  const luogo = comuneCorrente();
+  const { lat, lon, chiave } = luogo;
+  mostraNomeLuogo();
 
   const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}`
     + `&current=temperature_2m,relative_humidity_2m,apparent_temperature,precipitation,weather_code,wind_speed_10m,wind_direction_10m,wind_gusts_10m,cloud_cover,pressure_msl,is_day`
@@ -1745,14 +1844,15 @@ async function loadWeather(){
     const r = await fetch(url);
     if(!r.ok) throw new Error("risposta " + r.status);
     const d = await r.json();
-    if(comuneCorrente().nome !== nome) return;
+    if(comuneCorrente().chiave !== chiave) return;
 
     const c = d.current, h = d.hourly, g = d.daily;
     const meteo = infoMeteo(c.weather_code);
     const notte = c.is_day === 0;
 
     impostaAtmosfera(meteo, notte);
-    aggiornaFoto(nome, lat, lon, meteo.atmosfera, notte);
+    if(luogo.fotoNome) aggiornaFoto(luogo.fotoNome, luogo.fotoLat, luogo.fotoLon, meteo.atmosfera, notte);
+    else impostaFoto(FOTO_GENERICA, "", false);
 
     $("weatherIcon").innerHTML = iconaMeteo(meteo.tipo, notte);
     $("temp").textContent = Math.round(c.temperature_2m) + "°";
@@ -1858,8 +1958,11 @@ function statoMare(m){
 }
 
 async function caricaMare(){
-  const { lat, lon, nome } = comuneCorrente();
-  $("titoloMare").textContent = "Mare · " + nome;
+  const luogo = comuneCorrente();
+  const { lat, lon, chiave } = luogo;
+  $("titoloMare").textContent = luogo.posizione
+    ? "Mare · " + (luogo.vicino ? "vicino a " + luogo.vicino : "la tua zona")
+    : "Mare · " + luogo.nome;
 
   const url = `https://marine-api.open-meteo.com/v1/marine?latitude=${lat}&longitude=${lon}`
     + `&current=wave_height,wave_direction,wave_period,sea_surface_temperature`
@@ -1872,7 +1975,7 @@ async function caricaMare(){
     const r = await fetch(url);
     if(!r.ok) throw new Error("risposta " + r.status);
     const dati = await r.json();
-    if(comuneCorrente().nome !== nome) return;
+    if(comuneCorrente().chiave !== chiave) return;
 
     const m = dati.current;
     $("mareDettagli").innerHTML = [
@@ -2082,11 +2185,19 @@ if(window.L){
   }).addTo(map).bindPopup("Casal Velino");
 }
 
+let cerchioPrecisione = null;
+
 function aggiornaMappa(){
   if(!map) return;
-  const { lat, lon, nome } = comuneCorrente();
-  marker.setLatLng([lat, lon]).setPopupContent(nome);
-  map.setView([lat, lon], map.getZoom());
+  const luogo = comuneCorrente();
+  marker.setLatLng([luogo.lat, luogo.lon]).setPopupContent(luogo.posizione ? "Sei qui" : luogo.nome);
+  if(cerchioPrecisione){ map.removeLayer(cerchioPrecisione); cerchioPrecisione = null; }
+  if(luogo.posizione && posizione.precisione && posizione.precisione < 5000){
+    cerchioPrecisione = L.circle([luogo.lat, luogo.lon], {
+      radius: posizione.precisione, color:"#2f7dff", weight:1, fillColor:"#2f7dff", fillOpacity:.12, interactive:false
+    }).addTo(map);
+  }
+  map.setView([luogo.lat, luogo.lon], map.getZoom());
 }
 
 const radar = { fotogrammi: [], indice: 0, timer: null, inRiproduzione: true };
@@ -2238,6 +2349,7 @@ function disegnaListaComuni(){
     .filter(v => !ricerca || normalizza(v.nome).includes(ricerca) || normalizza(v.zona).includes(ricerca));
 
   $("vicinoAMe").hidden = !!ricerca;
+  $("vicinoAMe").classList.toggle("attivo", !!posizione);
 
   if(!voci.length){
     $("listaComuni").innerHTML = '<div class="vuoto">Nessun paese trovato.</div>';
@@ -2248,14 +2360,18 @@ function disegnaListaComuni(){
     const gruppo = voci.filter(v => v.zona === zona).sort((a, b) => a.nome.localeCompare(b.nome, "it"));
     if(!gruppo.length) return "";
     return `<div class="zona">${zona} · ${gruppo.length}</div>` + gruppo.map(v =>
-      `<button type="button" data-i="${v.i}" class="${v.i === comuneIndice ? "corrente" : ""}">${v.nome}${v.i === comuneIndice ? ui("pin") : ""}</button>`
+      `<button type="button" data-i="${v.i}" class="${!posizione && v.i === comuneIndice ? "corrente" : ""}">${v.nome}${!posizione && v.i === comuneIndice ? ui("pin") : ""}</button>`
     ).join("");
   }).join("");
 }
 
 function scegliComune(i){
   comuneIndice = i;
-  try{ localStorage.setItem("meteoCilento.comuneNome", COMUNI[i][0]); }catch(err){}
+  posizione = null;
+  try{
+    localStorage.setItem("meteoCilento.comuneNome", COMUNI[i][0]);
+    localStorage.setItem("meteoCilento.modo", "comune");
+  }catch(err){}
   chiudiComuni();
   cambiaComune();
 }
@@ -2266,33 +2382,74 @@ function distanzaKm(lat1, lon1, lat2, lon2){
   return 12742 * Math.asin(Math.sqrt(a));
 }
 
-$("vicinoAMe").addEventListener("click", () => {
+let avvisoTimer = null;
+function avviso(testo, durata = 5000){
+  const el = $("avviso");
+  el.textContent = testo;
+  el.hidden = false;
+  clearTimeout(avvisoTimer);
+  avvisoTimer = setTimeout(() => { el.hidden = true; }, durata);
+}
+
+let cercandoPosizione = false;
+
+// silenziosa = aggiornamento automatico: nessun messaggio se fallisce
+function usaPosizioneEsatta(silenziosa = false){
   const stato = $("vicinoStato");
-  stato.hidden = false;
+  const messaggio = testo => {
+    if(silenziosa) return;
+    if(!foglio.hidden){ stato.hidden = false; stato.textContent = testo; }
+    else avviso(testo);
+  };
+
   if(!navigator.geolocation){
-    stato.textContent = "Il tuo dispositivo non permette di trovare la posizione.";
+    messaggio("Questo dispositivo non permette di trovare la posizione.");
     return;
   }
-  stato.textContent = "Cerco la tua posizione…";
+  if(cercandoPosizione) return;
+  cercandoPosizione = true;
+  $("gpsHero").classList.add("cerca");
+  if(!silenziosa && !foglio.hidden){ stato.hidden = false; stato.textContent = "Cerco la tua posizione…"; }
+
   navigator.geolocation.getCurrentPosition(pos => {
-    const { latitude, longitude } = pos.coords;
-    let migliore = 0, dist = Infinity;
-    COMUNI.forEach(([, , lat, lon], i) => {
-      const d = distanzaKm(latitude, longitude, lat, lon);
-      if(d < dist){ dist = d; migliore = i; }
-    });
-    if(dist > 60){
-      stato.textContent = `Sei a circa ${Math.round(dist)} km dal Cilento: il paese più vicino è ${COMUNI[migliore][0]}.`;
-      return;
-    }
+    cercandoPosizione = false;
+    $("gpsHero").classList.remove("cerca");
+    const { latitude, longitude, accuracy } = pos.coords;
+    const precedente = posizione && comuneCorrente().chiave;
+    impostaPosizione(latitude, longitude, Math.round(accuracy));
+    try{
+      localStorage.setItem("meteoCilento.modo", "posizione");
+      localStorage.setItem("meteoCilento.posizione", JSON.stringify({ lat: latitude, lon: longitude, precisione: Math.round(accuracy) }));
+    }catch(e){}
     stato.hidden = true;
-    scegliComune(migliore);
+    chiudiComuni();
+    if(silenziosa && precedente === comuneCorrente().chiave) return;
+    cambiaComune();
+    if(!silenziosa){
+      avviso(posizione.distanza <= 60
+        ? `Meteo della tua posizione esatta, vicino a ${COMUNI[posizione.vicino][0]} (precisione ${posizione.precisione < 1000 ? posizione.precisione + " m" : (posizione.precisione / 1000).toFixed(1) + " km"}).`
+        : "Meteo della tua posizione esatta. Sei fuori dal Cilento: la foto è generica.");
+    }
   }, err => {
-    stato.textContent = err.code === 1
-      ? "Permesso di posizione negato: puoi attivarlo nelle impostazioni del browser."
-      : "Non riesco a trovare la tua posizione in questo momento.";
-  }, { enableHighAccuracy:false, timeout:10000, maximumAge:600000 });
-});
+    cercandoPosizione = false;
+    $("gpsHero").classList.remove("cerca");
+    messaggio(err.code === 1
+      ? "Permesso di posizione negato. Puoi attivarlo nelle impostazioni del browser per questo sito."
+      : "Non riesco a trovare la tua posizione in questo momento. Riprova all'aperto.");
+  }, { enableHighAccuracy:true, timeout:15000, maximumAge: silenziosa ? 120000 : 0 });
+}
+
+$("vicinoAMe").addEventListener("click", () => usaPosizioneEsatta());
+$("gpsHero").addEventListener("click", () => usaPosizioneEsatta());
+
+async function permessoPosizioneConcesso(){
+  try{
+    const st = await navigator.permissions.query({ name:"geolocation" });
+    return st.state === "granted";
+  }catch(e){
+    return false;
+  }
+}
 
 function apriComuni(){
   cercaComune.value = "";
@@ -2414,8 +2571,17 @@ document.querySelectorAll(".tab").forEach(t =>
    AVVIO
 ========================================================= */
 
+function mostraNomeLuogo(){
+  const luogo = comuneCorrente();
+  $("name").textContent = luogo.nome;
+  $("vicinoA").hidden = !luogo.posizione;
+  $("vicinoA").textContent = luogo.posizione ? (luogo.vicino ? "vicino a " + luogo.vicino : "fuori dal Cilento") : "";
+  $("iconaLuogo").innerHTML = ui(luogo.posizione ? "mirino" : "pin");
+  $("gpsHero").classList.toggle("attivo", luogo.posizione);
+}
+
 function cambiaComune(){
-  $("name").textContent = comuneCorrente().nome;
+  mostraNomeLuogo();
   loadWeather();
   caricaMare();
   aggiornaMappa();
@@ -2425,7 +2591,11 @@ mostraSezione("meteo");
 cambiaComune();
 loadRadar();
 
-setInterval(() => {
+// Se la persona usa la posizione esatta e ha già dato il permesso, la aggiorna subito
+if(posizione) permessoPosizioneConcesso().then(ok => { if(ok) usaPosizioneEsatta(true); });
+
+setInterval(async () => {
+  if(posizione && await permessoPosizioneConcesso()) usaPosizioneEsatta(true);
   loadWeather();
   caricaMare();
 }, AGGIORNAMENTO_MS);
