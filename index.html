@@ -419,6 +419,84 @@ color:var(--testo-2);
 
 .card-titolo .ico{font-size:16px;color:var(--blu-chiaro);}
 
+/* ---------- Pagine a tendina ---------- */
+
+.tendina{padding:0;}
+
+.tendina-testa{
+display:grid;
+grid-template-columns:1fr auto;
+align-items:center;
+gap:6px 10px;
+padding:18px 20px;
+list-style:none;
+cursor:pointer;
+-webkit-tap-highlight-color:transparent;
+}
+
+.tendina-testa::-webkit-details-marker{display:none;}
+.tendina-testa .card-titolo{margin:0;}
+
+.tendina-chevron{
+display:inline-flex;
+align-items:center;
+justify-content:center;
+width:28px;
+height:28px;
+border-radius:50%;
+background:rgba(255,255,255,.06);
+border:1px solid var(--bordo);
+font-size:14px;
+color:var(--testo-2);
+transition:transform .35s cubic-bezier(.2,.8,.2,1),background .3s,color .3s;
+}
+
+.tendina[open] > .tendina-testa .tendina-chevron{
+transform:rotate(180deg);
+background:rgba(47,125,255,.25);
+color:#fff;
+}
+
+.tendina-anteprima{
+grid-column:1 / -1;
+font-size:14px;
+color:var(--bianco);
+line-height:1.4;
+}
+
+.tendina-anteprima:empty{display:none;}
+.tendina[open] > .tendina-testa .tendina-anteprima{display:none;}
+
+.tendina-corpo{padding:0 20px 20px;}
+
+.consigli{margin:0;padding-left:20px;color:var(--testo-2);font-size:14px;line-height:1.6;}
+.consigli li + li{margin-top:6px;}
+
+.numeri{list-style:none;margin:0;padding:0;}
+.numeri li{display:flex;align-items:baseline;gap:14px;padding:10px 0;border-top:1px solid rgba(255,255,255,.06);}
+.numeri li:first-child{border-top:0;}
+.numeri b{min-width:52px;font:600 20px/1 var(--font-tecnico);color:var(--blu-chiaro);}
+.numeri span{color:var(--testo-2);font-size:14px;}
+
+.guida-colori{display:grid;gap:8px;}
+.guida-colori div{display:flex;align-items:center;gap:12px;font-size:14px;color:var(--testo-2);}
+.guida-colori i{width:28px;height:14px;border-radius:4px;flex:none;}
+
+/* Mare nei prossimi giorni */
+
+.mare-giorno{
+display:grid;
+grid-template-columns:58px 1fr 52px 70px;
+align-items:center;
+gap:10px;
+padding:12px 2px;
+font-variant-numeric:tabular-nums;
+}
+
+.mare-giorno + .mare-giorno{border-top:1px solid rgba(255,255,255,.06);}
+.mare-onda{font-weight:600;text-align:right;}
+.mare-dir{display:flex;align-items:center;gap:4px;font-size:12px;color:var(--testo-2);}
+
 .card-testo{color:var(--testo-2);font-size:14px;line-height:1.55;margin:0 0 14px;}
 
 /* Riquadri dei dettagli */
@@ -531,6 +609,7 @@ font-variant-numeric:tabular-nums;
 }
 
 .giorno summary::-webkit-details-marker{display:none;}
+.giorno summary{-webkit-tap-highlight-color:transparent;}
 
 .giorno-nome{font-weight:600;font-size:15px;}
 .giorno-nome small{display:block;font-size:11px;font-weight:400;color:var(--testo-3);margin-top:2px;}
@@ -856,34 +935,75 @@ font-size:16px;
 <main>
 
   <section id="sezione-meteo">
-    <div class="card">
-      <h2 class="card-titolo"><span data-ico="sensore"></span>Condizioni attuali</h2>
-      <div class="dettagli" id="dettagli"></div>
-    </div>
+    <details class="card tendina" data-tendina="dettagli" open>
+      <summary class="tendina-testa">
+        <span class="card-titolo"><span data-ico="sensore"></span>Condizioni attuali</span>
+        <span class="tendina-chevron"><span data-ico="giu"></span></span>
+        <span class="tendina-anteprima" id="antDettagli"></span>
+      </summary>
+      <div class="tendina-corpo">
+        <div class="dettagli" id="dettagli"></div>
+      </div>
+    </details>
 
-    <div class="card">
-      <h2 class="card-titolo"><span data-ico="orologio"></span>Prossime 24 ore</h2>
-      <div class="hourly" id="hourly"></div>
-    </div>
+    <details class="card tendina" data-tendina="ore24" open>
+      <summary class="tendina-testa">
+        <span class="card-titolo"><span data-ico="orologio"></span>Prossime 24 ore</span>
+        <span class="tendina-chevron"><span data-ico="giu"></span></span>
+        <span class="tendina-anteprima" id="antOre"></span>
+      </summary>
+      <div class="tendina-corpo">
+        <div class="hourly" id="hourly"></div>
+      </div>
+    </details>
 
-    <div class="card">
-      <h2 class="card-titolo"><span data-ico="calendario"></span>Prossimi 7 giorni</h2>
-      <p class="suggerimento">Tocca un giorno per vederlo ora per ora.</p>
-      <div id="days">Caricamento…</div>
-    </div>
+    <details class="card tendina" data-tendina="settimana" open>
+      <summary class="tendina-testa">
+        <span class="card-titolo"><span data-ico="calendario"></span>Prossimi 7 giorni</span>
+        <span class="tendina-chevron"><span data-ico="giu"></span></span>
+        <span class="tendina-anteprima" id="antSettimana"></span>
+      </summary>
+      <div class="tendina-corpo">
+        <p class="suggerimento">Tocca un giorno per vederlo ora per ora.</p>
+        <div id="days">Caricamento…</div>
+      </div>
+    </details>
 
-    <div class="card">
-      <h2 class="card-titolo"><span data-ico="uv"></span>Sole</h2>
-      <div id="sole"></div>
-    </div>
+    <details class="card tendina" data-tendina="sole">
+      <summary class="tendina-testa">
+        <span class="card-titolo"><span data-ico="uv"></span>Sole</span>
+        <span class="tendina-chevron"><span data-ico="giu"></span></span>
+        <span class="tendina-anteprima" id="antSole"></span>
+      </summary>
+      <div class="tendina-corpo">
+        <div id="sole"></div>
+      </div>
+    </details>
   </section>
 
   <section id="sezione-mare">
-    <div class="card">
-      <h2 class="card-titolo"><span data-ico="onda"></span><span id="titoloMare">Mare</span></h2>
-      <div class="dettagli" id="mareDettagli"></div>
-      <p id="aggiornamento" class="card-testo" style="margin:14px 0 0;font-size:12px">Caricamento dati marini…</p>
-    </div>
+    <details class="card tendina" data-tendina="mare-adesso" open>
+      <summary class="tendina-testa">
+        <span class="card-titolo"><span data-ico="onda"></span><span id="titoloMare">Mare</span></span>
+        <span class="tendina-chevron"><span data-ico="giu"></span></span>
+        <span class="tendina-anteprima" id="antMare"></span>
+      </summary>
+      <div class="tendina-corpo">
+        <div class="dettagli" id="mareDettagli"></div>
+        <p id="aggiornamento" class="card-testo" style="margin:14px 0 0;font-size:12px">Caricamento dati marini…</p>
+      </div>
+    </details>
+
+    <details class="card tendina" data-tendina="mare-giorni" open>
+      <summary class="tendina-testa">
+        <span class="card-titolo"><span data-ico="calendario"></span>Mare nei prossimi 7 giorni</span>
+        <span class="tendina-chevron"><span data-ico="giu"></span></span>
+        <span class="tendina-anteprima" id="antMareGiorni"></span>
+      </summary>
+      <div class="tendina-corpo">
+        <div id="mareGiorni">Caricamento…</div>
+      </div>
+    </details>
   </section>
 
   <section id="sezione-radar">
@@ -898,22 +1018,88 @@ font-size:16px;
       <div class="radar-legenda"><span>Debole</span><div class="radar-scala" id="radarScala"></div><span>Forte</span></div>
       <p id="radarStatus">Caricamento radar…</p>
     </div>
+
+    <details class="card tendina" data-tendina="radar-guida">
+      <summary class="tendina-testa">
+        <span class="card-titolo"><span data-ico="sensore"></span>Come leggere il radar</span>
+        <span class="tendina-chevron"><span data-ico="giu"></span></span>
+        
+      </summary>
+      <div class="tendina-corpo">
+        <p class="card-testo">I colori indicano quanto è intensa la pioggia vista dai radar. Le immagini arrivano ogni 5 minuti con circa 10 minuti di ritardo; il pulsante ▶ mostra come si è mossa nell'ultima ora.</p>
+        <div id="radarGuida" class="guida-colori"></div>
+      </div>
+    </details>
   </section>
 
   <section id="sezione-allerte">
     <div class="card">
       <h2 class="card-titolo"><span data-ico="allerta"></span>Allerte meteo</h2>
-      <p class="card-testo">Gli avvisi ufficiali per il Cilento sono emessi dalla Protezione Civile della Regione Campania.</p>
-      <div class="allerte-lista">
-        <span>🌧️ Rischio idrogeologico</span>
-        <span>⛈️ Temporali</span>
-        <span>💨 Vento forte</span>
-        <span>🌊 Mareggiate</span>
-      </div>
+      <p class="card-testo">Gli avvisi ufficiali per il Cilento sono emessi dalla Protezione Civile della Regione Campania. Controllali prima di uscire quando è previsto maltempo.</p>
       <a class="bottone-blu" href="https://portaleprotezionecivile.regione.campania.it/" target="_blank" rel="noopener">
         Consulta le allerte ufficiali <span data-ico="esterno"></span>
       </a>
     </div>
+
+    <details class="card tendina" data-tendina="allerta-idro">
+      <summary class="tendina-testa">
+        <span class="card-titolo"><span data-ico="goccia"></span>Rischio idrogeologico</span>
+        <span class="tendina-chevron"><span data-ico="giu"></span></span>
+        
+      </summary>
+      <div class="tendina-corpo">
+        <p class="card-testo">Frane e allagamenti dopo piogge forti o prolungate.</p>
+        <ul class="consigli"><li>Non attraversare sottopassi, guadi e strade allagate.</li><li>Evita le zone vicino a fiumi, torrenti e versanti instabili.</li><li>Non scendere in cantine e piani interrati durante le piogge intense.</li></ul>
+      </div>
+    </details>
+<details class="card tendina" data-tendina="allerta-temp">
+      <summary class="tendina-testa">
+        <span class="card-titolo"><span data-ico="allerta"></span>Temporali</span>
+        <span class="tendina-chevron"><span data-ico="giu"></span></span>
+        
+      </summary>
+      <div class="tendina-corpo">
+        <p class="card-testo">Pioggia molto intensa, fulmini, grandine e raffiche improvvise.</p>
+        <ul class="consigli"><li>Ripara in un edificio; evita alberi isolati, tralicci e spiagge.</li><li>Esci dall'acqua e allontanati da moli e scogli.</li><li>Non ripararti sotto i ponti di corsi d'acqua.</li></ul>
+      </div>
+    </details>
+<details class="card tendina" data-tendina="allerta-vento">
+      <summary class="tendina-testa">
+        <span class="card-titolo"><span data-ico="vento"></span>Vento forte</span>
+        <span class="tendina-chevron"><span data-ico="giu"></span></span>
+        
+      </summary>
+      <div class="tendina-corpo">
+        <p class="card-testo">Raffiche che possono far cadere rami, tegole e impalcature.</p>
+        <ul class="consigli"><li>Fissa o ritira gli oggetti su balconi e terrazzi.</li><li>Evita di sostare sotto alberi, cartelloni e strutture provvisorie.</li><li>Guida con prudenza, soprattutto con mezzi alti o telonati.</li></ul>
+      </div>
+    </details>
+<details class="card tendina" data-tendina="allerta-mare">
+      <summary class="tendina-testa">
+        <span class="card-titolo"><span data-ico="onda"></span>Mareggiate</span>
+        <span class="tendina-chevron"><span data-ico="giu"></span></span>
+        
+      </summary>
+      <div class="tendina-corpo">
+        <p class="card-testo">Onde alte che possono invadere spiagge, porti e strade costiere.</p>
+        <ul class="consigli"><li>Non avvicinarti a moli, frangiflutti e scogliere.</li><li>Non fermarti sul lungomare durante le mareggiate.</li><li>Non fare il bagno e non uscire in barca.</li></ul>
+      </div>
+    </details>
+
+    <details class="card tendina" data-tendina="numeri">
+      <summary class="tendina-testa">
+        <span class="card-titolo"><span data-ico="allerta"></span>Numeri utili</span>
+        <span class="tendina-chevron"><span data-ico="giu"></span></span>
+        
+      </summary>
+      <div class="tendina-corpo">
+        <ul class="numeri">
+          <li><b>112</b><span>Numero unico di emergenza</span></li>
+          <li><b>115</b><span>Vigili del Fuoco</span></li>
+          <li><b>1530</b><span>Emergenze in mare (Guardia Costiera)</span></li>
+        </ul>
+      </div>
+    </details>
   </section>
 
   <footer>Meteo Cilento · Dati Open-Meteo · Radar Protezione Civile · Wikimedia Commons</footer>
@@ -1391,6 +1577,7 @@ function disegnaSole(g){
   const minutiLuce = Math.round((tramonto - alba) / 60000);
   const giorno = ora >= alba && ora <= tramonto;
 
+  $("antSole").textContent = `Alba ${oraLocale(alba)} · Tramonto ${oraLocale(tramonto)}`;
   $("sole").innerHTML = `
 <svg class="arco-sole" viewBox="0 0 300 100" aria-hidden="true">
   <defs><linearGradient id="arcoGrad" x1="0" x2="1"><stop offset="0" stop-color="#2f7dff"/><stop offset="1" stop-color="#cfe5ff"/></linearGradient></defs>
@@ -1436,6 +1623,9 @@ async function loadWeather(){
       `MIN ${Math.round(g.temperature_2m_min[0])}°  ·  MAX ${Math.round(g.temperature_2m_max[0])}°  ·  PERCEPITA ${Math.round(c.apparent_temperature)}°`;
     $("aggiornato").textContent = "AGG. " + oraLocale(new Date());
 
+    $("antDettagli").textContent =
+      `${Math.round(c.temperature_2m)}° · ${meteo.testo} · vento ${Math.round(c.wind_speed_10m)} km/h da ${cardinale(c.wind_direction_10m)} · umidità ${c.relative_humidity_2m}%`;
+
     $("dettagli").innerHTML = [
       tile("termometro", "Percepita", `${Math.round(c.apparent_temperature)}°`),
       tile("goccia", "Umidità", `${c.relative_humidity_2m}<small>%</small>`),
@@ -1456,6 +1646,17 @@ async function loadWeather(){
       html += schedaOraria(h, i, i === start);
     }
     $("hourly").innerHTML = html;
+
+    const prossime = [];
+    for(let i = start; i < Math.min(start + 24, h.time.length); i++) prossime.push(i);
+    const piovosa = prossime.find(i => h.precipitation_probability[i] >= 50);
+    const maxP = Math.max(...prossime.map(i => h.precipitation_probability[i]));
+    const piuCalda = prossime.reduce((a, i) => h.temperature_2m[i] > h.temperature_2m[a] ? i : a, start);
+    const testoPioggia = piovosa != null
+      ? `Pioggia probabile dalle ${h.time[piovosa].slice(11, 16)} (${h.precipitation_probability[piovosa]}%)`
+      : maxP >= 20 ? `Possibile qualche goccia (fino al ${maxP}%)` : "Niente pioggia prevista";
+    $("antOre").textContent =
+      `${testoPioggia} · max ${Math.round(h.temperature_2m[piuCalda])}° alle ${h.time[piuCalda].slice(11, 16)}`;
 
     // 7 giorni, ciascuno apribile ora per ora
     const minSett = Math.min(...g.temperature_2m_min), maxSett = Math.max(...g.temperature_2m_max);
@@ -1489,6 +1690,14 @@ ${iconaMeteo(infoMeteo(g.weather_code[i]).tipo)}
     }
     $("days").innerHTML = html;
 
+    const giorniPioggia = g.time
+      .map((t, i) => ({ i, nome: i === 0 ? "oggi" : new Date(t + "T12:00:00").toLocaleDateString("it-IT", { weekday:"short" }).replace(".", "") }))
+      .filter(x => g.precipitation_probability_max[x.i] >= 50)
+      .map(x => x.nome);
+    $("antSettimana").textContent =
+      (giorniPioggia.length ? `Pioggia probabile: ${giorniPioggia.join(", ")}` : "Settimana senza pioggia prevista")
+      + ` · da ${Math.round(minSett)}° a ${Math.round(maxSett)}°`;
+
     disegnaSole(g);
   }catch(e){
     console.error(e);
@@ -1500,13 +1709,24 @@ ${iconaMeteo(infoMeteo(g.weather_code[i]).tipo)}
    MARE
 ========================================================= */
 
+function statoMare(m){
+  if(m == null) return "";
+  if(m < 0.1) return "calmo";
+  if(m < 0.5) return "poco mosso";
+  if(m < 1.25) return "mosso";
+  if(m < 2.5) return "molto mosso";
+  if(m < 4) return "agitato";
+  return "molto agitato";
+}
+
 async function caricaMare(){
   const { lat, lon, nome } = comuneCorrente();
   $("titoloMare").textContent = "Mare · " + nome;
 
   const url = `https://marine-api.open-meteo.com/v1/marine?latitude=${lat}&longitude=${lon}`
     + `&current=wave_height,wave_direction,wave_period,sea_surface_temperature`
-    + `&timezone=Europe%2FRome&cell_selection=sea`;
+    + `&daily=wave_height_max,wave_direction_dominant,wave_period_max`
+    + `&forecast_days=7&timezone=Europe%2FRome&cell_selection=sea`;
 
   const v = (x, unita, cifre = 1) => x != null ? `${Number(x).toFixed(cifre)}<small>${unita}</small>` : "N/D";
 
@@ -1518,16 +1738,44 @@ async function caricaMare(){
 
     const m = dati.current;
     $("mareDettagli").innerHTML = [
-      tile("onda", "Onde", v(m.wave_height, "m")),
+      tile("onda", "Onde", v(m.wave_height, "m"), m.wave_height != null ? "Mare " + statoMare(m.wave_height) : ""),
       tile("termometro", "Acqua", v(m.sea_surface_temperature, "°C")),
       tile("radar", "Direzione", m.wave_direction != null ? cardinale(m.wave_direction) : "N/D",
            m.wave_direction != null ? `${frecciaDirezione(m.wave_direction)} ${Math.round(m.wave_direction)}°` : ""),
       tile("periodo", "Periodo", v(m.wave_period, "s"))
     ].join("");
     $("aggiornamento").textContent = "Ultimo dato: " + m.time.replace("T", " ") + " · Open-Meteo Marine";
+    $("antMare").textContent = m.wave_height != null
+      ? `Mare ${statoMare(m.wave_height)} · onde ${m.wave_height.toFixed(1)} m`
+        + (m.wave_direction != null ? ` da ${cardinale(m.wave_direction)}` : "")
+        + (m.sea_surface_temperature != null ? ` · acqua ${m.sea_surface_temperature.toFixed(1)}°` : "")
+      : "";
+
+    // Prossimi 7 giorni
+    const g = dati.daily;
+    if(g && g.time && g.wave_height_max){
+      const massimo = Math.max(0.5, ...g.wave_height_max.filter(x => x != null));
+      $("mareGiorni").innerHTML = g.time.map((t, i) => {
+        const h = g.wave_height_max[i], dir = g.wave_direction_dominant[i];
+        const nomeG = i === 0 ? "Oggi" : new Date(t + "T12:00:00").toLocaleDateString("it-IT", { weekday:"short" }).replace(".", "");
+        return `<div class="mare-giorno">
+<span class="giorno-nome">${nomeG.charAt(0).toUpperCase() + nomeG.slice(1)}<small>${statoMare(h)}</small></span>
+<span class="barra"><i style="left:0;right:${h != null ? 100 - h / massimo * 100 : 100}%"></i></span>
+<span class="mare-onda">${h != null ? h.toFixed(1) + " m" : "N/D"}</span>
+<span class="mare-dir">${dir != null ? frecciaDirezione(dir) + " da " + cardinale(dir) : ""}</span>
+</div>`;
+      }).join("");
+
+      const iMax = g.wave_height_max.reduce((a, x, i) => (x ?? -1) > (g.wave_height_max[a] ?? -1) ? i : a, 0);
+      const giornoMax = iMax === 0 ? "oggi" : new Date(g.time[iMax] + "T12:00:00").toLocaleDateString("it-IT", { weekday:"long" });
+      $("antMareGiorni").textContent = g.wave_height_max[iMax] != null
+        ? `Onde più alte ${giornoMax}: ${g.wave_height_max[iMax].toFixed(1)} m (${statoMare(g.wave_height_max[iMax])})`
+        : "";
+    }
   }catch(e){
     console.error(e);
     $("aggiornamento").textContent = "Dati del mare temporaneamente non disponibili.";
+    $("mareGiorni").textContent = "Previsioni del mare non disponibili.";
   }
 }
 
@@ -1588,6 +1836,21 @@ const TABELLA_COLORI = (() => {
     t.set(c, i * 4);
   }
   return t;
+})();
+
+(function guidaColoriRadar(){
+  const voci = [
+    [17, "Pioviggine"],
+    [25, "Pioggia debole · circa 1–3 mm/h"],
+    [33, "Pioggia moderata · circa 3–10 mm/h"],
+    [40, "Pioggia forte · circa 10–25 mm/h"],
+    [47, "Molto forte, possibili temporali"],
+    [56, "Grandine possibile"]
+  ];
+  $("radarGuida").innerHTML = voci.map(([dbz, testo]) => {
+    const k = Math.round(dbz / DPC.dbzMax * 255) * 4;
+    return `<div><i style="background:rgb(${TABELLA_COLORI[k]},${TABELLA_COLORI[k + 1]},${TABELLA_COLORI[k + 2]})"></i>${testo}</div>`;
+  }).join("");
 })();
 
 function urlDPC(tempo, z, x, y){
@@ -1862,6 +2125,71 @@ $("listaComuni").addEventListener("click", e => {
   try{ localStorage.setItem("meteoCilento.comune", comuneIndice); }catch(err){}
   chiudiComuni();
   cambiaComune();
+});
+
+/* =========================================================
+   PAGINE A TENDINA
+   Si aprono e chiudono con un'animazione; il sito ricorda
+   quali erano aperte.
+========================================================= */
+
+const CHIAVE_TENDINE = "meteoCilento.tendine";
+let statoTendine = {};
+try{ statoTendine = JSON.parse(localStorage.getItem(CHIAVE_TENDINE)) || {}; }catch(e){}
+
+document.querySelectorAll("details.tendina[data-tendina]").forEach(d => {
+  if(d.dataset.tendina in statoTendine) d.open = statoTendine[d.dataset.tendina];
+});
+
+function salvaTendina(d){
+  if(!d.dataset.tendina) return;
+  statoTendine[d.dataset.tendina] = d.open;
+  try{ localStorage.setItem(CHIAVE_TENDINE, JSON.stringify(statoTendine)); }catch(e){}
+}
+
+function animaTendina(d, apri){
+  const corpo = d.querySelector(":scope > .tendina-corpo, :scope > .ore-giorno");
+  if(d._anim){ d._anim.cancel(); d._anim = null; }
+  if(!corpo || MOTO_RIDOTTO || !corpo.animate){
+    d.open = apri;
+    d._chiudendo = false;
+    salvaTendina(d);
+    return;
+  }
+
+  const stile = getComputedStyle(corpo);
+  const pieno = { opacity:1, paddingTop:stile.paddingTop, paddingBottom:stile.paddingBottom };
+  const vuoto = { height:"0px", opacity:0, paddingTop:"0px", paddingBottom:"0px" };
+  const fine = () => { corpo.style.overflow = ""; d._anim = null; };
+  corpo.style.overflow = "hidden";
+
+  if(apri){
+    d.open = true;
+    d._chiudendo = false;
+    salvaTendina(d);
+    d._anim = corpo.animate([vuoto, { ...pieno, height: corpo.offsetHeight + "px" }],
+      { duration:340, easing:"cubic-bezier(.2,.8,.2,1)" });
+    d._anim.onfinish = fine;
+  }else{
+    d._chiudendo = true;
+    d._anim = corpo.animate([{ ...pieno, height: corpo.offsetHeight + "px" }, vuoto],
+      { duration:240, easing:"cubic-bezier(.4,0,1,1)" });
+    d._anim.onfinish = () => {
+      d.open = false;
+      d._chiudendo = false;
+      fine();
+      salvaTendina(d);
+    };
+  }
+}
+
+document.addEventListener("click", e => {
+  const testa = e.target.closest("summary");
+  if(!testa) return;
+  const d = testa.parentElement;
+  if(!d.matches("details.tendina, details.giorno")) return;
+  e.preventDefault();
+  animaTendina(d, !d.open || d._chiudendo);
 });
 
 /* =========================================================
