@@ -897,6 +897,39 @@ font-size:16px;
 #listaComuni button.corrente{color:var(--blu-chiaro);background:rgba(47,125,255,.12);}
 #listaComuni .vuoto{padding:16px 12px;color:var(--testo-3);}
 
+#listaComuni .zona{
+position:sticky;
+top:0;
+z-index:1;
+padding:16px 12px 10px;
+background:#0f1525;
+box-shadow:0 6px 10px -6px rgba(0,0,0,.6);
+font:600 10px/1 var(--font-tecnico);
+letter-spacing:.2em;
+text-transform:uppercase;
+color:var(--testo-3);
+}
+
+#listaComuni button small{font-size:12px;color:var(--testo-3);margin-left:8px;}
+
+.vicino{
+display:flex;
+align-items:center;
+justify-content:center;
+gap:8px;
+margin-top:10px;
+padding:13px;
+border-radius:14px;
+border:1px solid var(--bordo-blu);
+background:rgba(47,125,255,.14);
+color:var(--blu-chiaro);
+font-size:15px;
+font-weight:600;
+}
+
+.vicino .ico{font-size:17px;}
+.vicino-stato{margin:8px 4px 0;font-size:13px;color:var(--testo-2);}
+
 @media(prefers-reduced-motion:reduce){
 *,*::before,*::after{animation:none !important;transition:none !important;}
 }
@@ -1116,8 +1149,10 @@ font-size:16px;
   <div class="foglio-pannello" role="dialog" aria-label="Scegli il comune">
     <div class="maniglia"></div>
     <label class="cerca"><span data-ico="cerca"></span>
-      <input type="text" id="cercaComune" placeholder="Cerca un comune del Cilento" autocomplete="off">
+      <input type="text" id="cercaComune" placeholder="Cerca tra i paesi del Cilento" autocomplete="off">
     </label>
+    <button type="button" class="vicino" id="vicinoAMe"><span data-ico="pin"></span>Trova il paese più vicino a me</button>
+    <p class="vicino-stato" id="vicinoStato" hidden></p>
     <div id="listaComuni"></div>
   </div>
 </div>
@@ -1131,53 +1166,156 @@ const AGGIORNAMENTO_MS = 15 * 60 * 1000;
 const MOTO_RIDOTTO = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
 /* =========================================================
-   COMUNI
+   PAESI DEL CILENTO
+   Elenco dei comuni dalle voci di Wikipedia "Cilento" e "Parco
+   nazionale del Cilento, Vallo di Diano e Alburni", più le principali
+   località di mare. Coordinate da GeoNames (geocoding Open-Meteo).
 ========================================================= */
 
 const COMUNI = [
-  ["Casal Velino", 40.191, 15.109],
-  ["Agropoli", 40.349, 14.992],
-  ["Ascea", 40.142, 15.187],
-  ["Pisciotta", 40.108, 15.234],
-  ["Centola - Palinuro", 40.035, 15.277],
-  ["Camerota - Marina", 40.003, 15.374],
-  ["Ceraso", 40.195, 15.256],
-  ["Cuccaro Vetere", 40.164, 15.306],
-  ["San Mauro la Bruca", 40.122, 15.291],
-  ["Futani", 40.150, 15.323],
-  ["Vallo della Lucania", 40.229, 15.266],
-  ["Omignano", 40.249, 15.084],
-  ["Salento", 40.248, 15.190],
-  ["Perito", 40.299, 15.147],
-  ["Orria", 40.300, 15.171],
-  ["Gioi", 40.289, 15.218],
-  ["Moio della Civitella", 40.247, 15.270],
-  ["Cannalonga", 40.244, 15.294],
-  ["Stio", 40.310, 15.252],
-  ["Magliano Vetere", 40.348, 15.236],
-  ["Monteforte Cilento", 40.364, 15.194],
-  ["Trentinara", 40.402, 15.113],
-  ["Giungano", 40.395, 15.108],
-  ["Laureana Cilento", 40.300, 15.039],
-  ["Torchiara", 40.321, 15.053],
-  ["Prignano Cilento", 40.334, 15.068],
-  ["Rutino", 40.300, 15.072],
-  ["Lustra", 40.287, 15.069],
-  ["San Mauro Cilento", 40.226, 15.044],
-  ["Pollica - Acciaroli", 40.176, 15.031],
-  ["Montecorice", 40.236, 15.009],
-  ["Castellabate", 40.279, 14.952]
+  ["Marina di Casal Velino", "Località di mare", 40.1767, 15.1222],
+  ["Acciaroli", "Località di mare", 40.181, 15.0272],
+  ["Pioppi", "Località di mare", 40.1744, 15.0887],
+  ["Palinuro", "Località di mare", 40.0368, 15.2881],
+  ["Marina di Camerota", "Località di mare", 40.0036, 15.3672],
+  ["Marina di Ascea", "Località di mare", 40.1426, 15.1837],
+  ["Marina di Pisciotta", "Località di mare", 40.1016, 15.2317],
+  ["Santa Maria di Castellabate", "Località di mare", 40.2978, 14.9521],
+  ["San Marco di Castellabate", "Località di mare", 40.2674, 14.939],
+  ["Ogliastro Marina", "Località di mare", 40.2337, 14.9395],
+  ["Agnone Cilento", "Località di mare", 40.2163, 14.9974],
+  ["Paestum", "Località di mare", 40.4223, 15.0073],
+  ["Scario", "Località di mare", 40.0621, 15.4742],
+  ["Licusati", "Località di mare", 40.0541, 15.3644],
+  ["Agropoli", "Alto Cilento", 40.3492, 14.9907],
+  ["Aquara", "Alto Cilento", 40.4439, 15.2539],
+  ["Ascea", "Alto Cilento", 40.1408, 15.1858],
+  ["Bellosguardo", "Alto Cilento", 40.4222, 15.3122],
+  ["Campora", "Alto Cilento", 40.3054, 15.2924],
+  ["Cannalonga", "Alto Cilento", 40.2446, 15.2933],
+  ["Capaccio Paestum", "Alto Cilento", 40.4243, 15.0798],
+  ["Casal Velino", "Alto Cilento", 40.1903, 15.1114],
+  ["Castellabate", "Alto Cilento", 40.2821, 14.9574],
+  ["Castelnuovo Cilento", "Alto Cilento", 40.2185, 15.178],
+  ["Castel San Lorenzo", "Alto Cilento", 40.4198, 15.2252],
+  ["Ceraso", "Alto Cilento", 40.1943, 15.2561],
+  ["Cicerale", "Alto Cilento", 40.344, 15.1296],
+  ["Felitto", "Alto Cilento", 40.3735, 15.2431],
+  ["Gioi", "Alto Cilento", 40.2897, 15.2181],
+  ["Giungano", "Alto Cilento", 40.3945, 15.1079],
+  ["Laureana Cilento", "Alto Cilento", 40.3011, 15.0388],
+  ["Laurino", "Alto Cilento", 40.3391, 15.3381],
+  ["Lustra", "Alto Cilento", 40.2883, 15.0683],
+  ["Magliano Vetere", "Alto Cilento", 40.347, 15.2367],
+  ["Moio della Civitella", "Alto Cilento", 40.2471, 15.2689],
+  ["Montecorice", "Alto Cilento", 40.2344, 14.985],
+  ["Monteforte Cilento", "Alto Cilento", 40.3648, 15.1949],
+  ["Novi Velia", "Alto Cilento", 40.2226, 15.286],
+  ["Ogliastro Cilento", "Alto Cilento", 40.3511, 15.0464],
+  ["Omignano", "Alto Cilento", 40.2493, 15.0841],
+  ["Orria", "Alto Cilento", 40.2997, 15.1712],
+  ["Perdifumo", "Alto Cilento", 40.2669, 15.0165],
+  ["Perito", "Alto Cilento", 40.2985, 15.1475],
+  ["Piaggine", "Alto Cilento", 40.345, 15.3778],
+  ["Pollica", "Alto Cilento", 40.1907, 15.0572],
+  ["Prignano Cilento", "Alto Cilento", 40.3334, 15.0674],
+  ["Roccadaspide", "Alto Cilento", 40.4233, 15.1912],
+  ["Roscigno", "Alto Cilento", 40.4, 15.3459],
+  ["Rutino", "Alto Cilento", 40.3007, 15.0733],
+  ["Sacco", "Alto Cilento", 40.3767, 15.3778],
+  ["Salento", "Alto Cilento", 40.2491, 15.1894],
+  ["San Mauro Cilento", "Alto Cilento", 40.2263, 15.0448],
+  ["Serramezzana", "Alto Cilento", 40.2446, 15.0325],
+  ["Sessa Cilento", "Alto Cilento", 40.2592, 15.0758],
+  ["Stella Cilento", "Alto Cilento", 40.2318, 15.0929],
+  ["Stio", "Alto Cilento", 40.3102, 15.2515],
+  ["Torchiara", "Alto Cilento", 40.3216, 15.0537],
+  ["Trentinara", "Alto Cilento", 40.4, 15.1154],
+  ["Valle dell'Angelo", "Alto Cilento", 40.3438, 15.3685],
+  ["Vallo della Lucania", "Alto Cilento", 40.2279, 15.2663],
+  ["Alfano", "Basso Cilento", 40.1769, 15.4245],
+  ["Camerota", "Basso Cilento", 40.0326, 15.3705],
+  ["Casaletto Spartano", "Basso Cilento", 40.1513, 15.6206],
+  ["Caselle in Pittari", "Basso Cilento", 40.1732, 15.5431],
+  ["Celle di Bulgheria", "Basso Cilento", 40.0954, 15.4032],
+  ["Centola", "Basso Cilento", 40.0698, 15.3119],
+  ["Cuccaro Vetere", "Basso Cilento", 40.164, 15.3068],
+  ["Futani", "Basso Cilento", 40.1516, 15.3237],
+  ["Ispani", "Basso Cilento", 40.0873, 15.5583],
+  ["Laurito", "Basso Cilento", 40.1692, 15.4074],
+  ["Montano Antilia", "Basso Cilento", 40.1626, 15.3631],
+  ["Morigerati", "Basso Cilento", 40.1406, 15.5551],
+  ["Pisciotta", "Basso Cilento", 40.1089, 15.2346],
+  ["Policastro Bussentino", "Basso Cilento", 40.0751, 15.5216],
+  ["Roccagloriosa", "Basso Cilento", 40.1063, 15.4364],
+  ["Rofrano", "Basso Cilento", 40.2128, 15.4285],
+  ["San Mauro la Bruca", "Basso Cilento", 40.1225, 15.2911],
+  ["San Giovanni a Piro", "Basso Cilento", 40.0515, 15.4462],
+  ["Santa Marina", "Basso Cilento", 40.1052, 15.5415],
+  ["Sanza", "Basso Cilento", 40.2439, 15.5542],
+  ["Sapri", "Basso Cilento", 40.0746, 15.6321],
+  ["Torraca", "Basso Cilento", 40.111, 15.6363],
+  ["Torre Orsaia", "Basso Cilento", 40.1328, 15.4725],
+  ["Tortorella", "Basso Cilento", 40.1424, 15.6062],
+  ["Vibonati", "Basso Cilento", 40.0992, 15.5836],
+  ["Castelcivita", "Alburni", 40.4937, 15.2335],
+  ["Controne", "Alburni", 40.5102, 15.204],
+  ["Corleto Monforte", "Alburni", 40.4376, 15.3801],
+  ["Ottati", "Alburni", 40.4629, 15.3153],
+  ["Petina", "Alburni", 40.5321, 15.3735],
+  ["Postiglione", "Alburni", 40.559, 15.2324],
+  ["Sant'Angelo a Fasanella", "Alburni", 40.4572, 15.3409],
+  ["Sicignano degli Alburni", "Alburni", 40.5588, 15.3056],
+  ["Atena Lucana", "Vallo di Diano", 40.4546, 15.5563],
+  ["Auletta", "Vallo di Diano", 40.5612, 15.4231],
+  ["Buonabitacolo", "Vallo di Diano", 40.2685, 15.6212],
+  ["Caggiano", "Vallo di Diano", 40.5624, 15.4963],
+  ["Casalbuono", "Vallo di Diano", 40.2142, 15.6872],
+  ["Monte San Giacomo", "Vallo di Diano", 40.3441, 15.5422],
+  ["Montesano sulla Marcellana", "Vallo di Diano", 40.2761, 15.7039],
+  ["Padula", "Vallo di Diano", 40.339, 15.6563],
+  ["Pertosa", "Vallo di Diano", 40.5435, 15.4501],
+  ["Polla", "Vallo di Diano", 40.5143, 15.4971],
+  ["Sala Consilina", "Vallo di Diano", 40.4013, 15.5914],
+  ["San Pietro al Tanagro", "Vallo di Diano", 40.4549, 15.4869],
+  ["San Rufo", "Vallo di Diano", 40.4345, 15.4637],
+  ["Sant'Arsenio", "Vallo di Diano", 40.4711, 15.484],
+  ["Sassano", "Vallo di Diano", 40.3403, 15.5655],
+  ["Teggiano", "Vallo di Diano", 40.3792, 15.5405],
+  ["Altavilla Silentina", "Piana del Sele", 40.5301, 15.1315],
+  ["Albanella", "Piana del Sele", 40.4794, 15.1145],
+  ["Serre", "Piana del Sele", 40.5825, 15.1855],
+  ["Buccino", "Monti Eremita-Marzano", 40.6367, 15.3812],
+  ["Palomonte", "Monti Eremita-Marzano", 40.6625, 15.2919],
+  ["Ricigliano", "Monti Eremita-Marzano", 40.668, 15.4779],
+  ["Romagnano al Monte", "Monti Eremita-Marzano", 40.6103, 15.4477],
+  ["San Gregorio Magno", "Monti Eremita-Marzano", 40.6599, 15.3991],
+  ["Salvitelle", "Monti Eremita-Marzano", 40.5906, 15.4576]
 ];
 
-let comuneIndice = 0;
+const ZONE = ["Località di mare", "Alto Cilento", "Basso Cilento", "Alburni", "Vallo di Diano", "Piana del Sele", "Monti Eremita-Marzano"];
+
+// Nomi usati dalle versioni precedenti, per ritrovare il comune salvato
+const NOMI_VECCHI = { "Centola - Palinuro":"Palinuro", "Camerota - Marina":"Marina di Camerota", "Pollica - Acciaroli":"Acciaroli" };
+const ELENCO_VECCHIO = ["Casal Velino","Agropoli","Ascea","Pisciotta","Centola - Palinuro","Camerota - Marina","Ceraso","Cuccaro Vetere","San Mauro la Bruca","Futani","Vallo della Lucania","Omignano","Salento","Perito","Orria","Gioi","Moio della Civitella","Cannalonga","Stio","Magliano Vetere","Monteforte Cilento","Trentinara","Giungano","Laureana Cilento","Torchiara","Prignano Cilento","Rutino","Lustra","San Mauro Cilento","Pollica - Acciaroli","Montecorice","Castellabate"];
+
+const indiceDiNome = nome => {
+  nome = NOMI_VECCHI[nome] || nome;
+  return COMUNI.findIndex(c => c[0].toLowerCase() === String(nome).toLowerCase());
+};
+
+let comuneIndice = Math.max(0, indiceDiNome("Casal Velino"));
 try{
-  const salvato = Number(localStorage.getItem("meteoCilento.comune"));
-  if(COMUNI[salvato]) comuneIndice = salvato;
+  let salvato = localStorage.getItem("meteoCilento.comuneNome");
+  if(salvato === null && localStorage.getItem("meteoCilento.comune") !== null){
+    salvato = ELENCO_VECCHIO[Number(localStorage.getItem("meteoCilento.comune"))];
+  }
+  if(salvato && indiceDiNome(salvato) >= 0) comuneIndice = indiceDiNome(salvato);
 }catch(e){}
 
 function comuneCorrente(){
-  const [nome, lat, lon] = COMUNI[comuneIndice];
-  return { nome, lat, lon };
+  const [nome, zona, lat, lon] = COMUNI[comuneIndice];
+  return { nome, zona, lat, lon };
 }
 
 function slug(nome){
@@ -2091,22 +2229,80 @@ $("radarCursore").addEventListener("input", e => {
 const foglio = $("foglioComuni");
 const cercaComune = $("cercaComune");
 
-function disegnaListaComuni(){
-  const ricerca = cercaComune.value.toLowerCase().trim();
-  const voci = COMUNI
-    .map(([nome], i) => ({ nome, i }))
-    .filter(v => v.nome.toLowerCase().includes(ricerca));
+const normalizza = t => t.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/['’\-]/g, " ").replace(/\s+/g, " ").trim();
 
-  $("listaComuni").innerHTML = voci.length
-    ? voci.map(v => `<button type="button" data-i="${v.i}" class="${v.i === comuneIndice ? "corrente" : ""}">${v.nome}${v.i === comuneIndice ? ui("pin") : ""}</button>`).join("")
-    : '<div class="vuoto">Nessun comune trovato.</div>';
+function disegnaListaComuni(){
+  const ricerca = normalizza(cercaComune.value);
+  const voci = COMUNI
+    .map(([nome, zona], i) => ({ nome, zona, i }))
+    .filter(v => !ricerca || normalizza(v.nome).includes(ricerca) || normalizza(v.zona).includes(ricerca));
+
+  $("vicinoAMe").hidden = !!ricerca;
+
+  if(!voci.length){
+    $("listaComuni").innerHTML = '<div class="vuoto">Nessun paese trovato.</div>';
+    return;
+  }
+
+  $("listaComuni").innerHTML = ZONE.map(zona => {
+    const gruppo = voci.filter(v => v.zona === zona).sort((a, b) => a.nome.localeCompare(b.nome, "it"));
+    if(!gruppo.length) return "";
+    return `<div class="zona">${zona} · ${gruppo.length}</div>` + gruppo.map(v =>
+      `<button type="button" data-i="${v.i}" class="${v.i === comuneIndice ? "corrente" : ""}">${v.nome}${v.i === comuneIndice ? ui("pin") : ""}</button>`
+    ).join("");
+  }).join("");
 }
+
+function scegliComune(i){
+  comuneIndice = i;
+  try{ localStorage.setItem("meteoCilento.comuneNome", COMUNI[i][0]); }catch(err){}
+  chiudiComuni();
+  cambiaComune();
+}
+
+function distanzaKm(lat1, lon1, lat2, lon2){
+  const r = Math.PI / 180;
+  const a = Math.sin((lat2 - lat1) * r / 2) ** 2 + Math.cos(lat1 * r) * Math.cos(lat2 * r) * Math.sin((lon2 - lon1) * r / 2) ** 2;
+  return 12742 * Math.asin(Math.sqrt(a));
+}
+
+$("vicinoAMe").addEventListener("click", () => {
+  const stato = $("vicinoStato");
+  stato.hidden = false;
+  if(!navigator.geolocation){
+    stato.textContent = "Il tuo dispositivo non permette di trovare la posizione.";
+    return;
+  }
+  stato.textContent = "Cerco la tua posizione…";
+  navigator.geolocation.getCurrentPosition(pos => {
+    const { latitude, longitude } = pos.coords;
+    let migliore = 0, dist = Infinity;
+    COMUNI.forEach(([, , lat, lon], i) => {
+      const d = distanzaKm(latitude, longitude, lat, lon);
+      if(d < dist){ dist = d; migliore = i; }
+    });
+    if(dist > 60){
+      stato.textContent = `Sei a circa ${Math.round(dist)} km dal Cilento: il paese più vicino è ${COMUNI[migliore][0]}.`;
+      return;
+    }
+    stato.hidden = true;
+    scegliComune(migliore);
+  }, err => {
+    stato.textContent = err.code === 1
+      ? "Permesso di posizione negato: puoi attivarlo nelle impostazioni del browser."
+      : "Non riesco a trovare la tua posizione in questo momento.";
+  }, { enableHighAccuracy:false, timeout:10000, maximumAge:600000 });
+});
 
 function apriComuni(){
   cercaComune.value = "";
+  $("vicinoStato").hidden = true;
   disegnaListaComuni();
   foglio.hidden = false;
-  setTimeout(() => cercaComune.focus(), 50);
+  setTimeout(() => {
+    const corrente = $("listaComuni").querySelector(".corrente");
+    if(corrente) corrente.scrollIntoView({ block:"center" });
+  }, 60);
 }
 
 function chiudiComuni(){
@@ -2120,11 +2316,7 @@ document.addEventListener("keydown", e => { if(e.key === "Escape") chiudiComuni(
 
 $("listaComuni").addEventListener("click", e => {
   const b = e.target.closest("button[data-i]");
-  if(!b) return;
-  comuneIndice = Number(b.dataset.i);
-  try{ localStorage.setItem("meteoCilento.comune", comuneIndice); }catch(err){}
-  chiudiComuni();
-  cambiaComune();
+  if(b) scegliComune(Number(b.dataset.i));
 });
 
 /* =========================================================
