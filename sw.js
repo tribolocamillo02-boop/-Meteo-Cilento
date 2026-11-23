@@ -4,12 +4,15 @@
      gli ultimi scaricati.
    - Librerie, font e icone vengono salvati alla prima visita. */
 
-const VERSIONE = "meteo-cilento-v1";
-const GUSCIO = ["./", "index.html", "manifest.webmanifest", "sponsor.json",
+const VERSIONE = "meteo-cilento-v3";
+const GUSCIO = ["./", "index.html", "lingue.js", "manifest.webmanifest", "sponsor.json", "notifiche.json", "allerta.json",
   "icone/icona-192.png", "icone/icona-512.png", "icone/apple-touch-icon.png", "icone/favicon-32.png"];
 
 self.addEventListener("install", e => {
-  e.waitUntil(caches.open(VERSIONE).then(c => c.addAll(GUSCIO)).then(() => self.skipWaiting()));
+  // ogni file è salvato da solo: se uno manca, gli altri vengono comunque salvati
+  e.waitUntil(caches.open(VERSIONE)
+    .then(c => Promise.all(GUSCIO.map(f => c.add(f).catch(() => null))))
+    .then(() => self.skipWaiting()));
 });
 
 self.addEventListener("activate", e => {
@@ -87,4 +90,30 @@ self.addEventListener("fetch", e => {
     e.respondWith(salvataPrima(r));
   }
   // Tutto il resto (radar, mappe, foto) va direttamente in rete
+});
+
+// Notifiche push (allerte e pioggia in arrivo)
+self.addEventListener("push", e => {
+  let dati = {};
+  try{ dati = e.data ? e.data.json() : {}; }catch(err){ dati = { testo: e.data && e.data.text() }; }
+  e.waitUntil(self.registration.showNotification(dati.titolo || "Meteo Cilento", {
+    body: dati.testo || "",
+    icon: "icone/icona-192.png",
+    badge: "icone/favicon-32.png",
+    tag: dati.tag || undefined,
+    renotify: !!dati.tag,
+    data: { url: dati.url || "./" }
+  }));
+});
+
+self.addEventListener("notificationclick", e => {
+  e.notification.close();
+  const destinazione = new URL(e.notification.data?.url || "./", self.registration.scope).href;
+  e.waitUntil((async () => {
+    const finestre = await self.clients.matchAll({ type:"window", includeUncontrolled:true });
+    for(const f of finestre){
+      if(f.url.startsWith(self.registration.scope)){ await f.focus(); f.navigate(destinazione); return; }
+    }
+    await self.clients.openWindow(destinazione);
+  })());
 });

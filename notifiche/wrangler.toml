@@ -1,0 +1,17 @@
+# Configurazione del server delle notifiche su Cloudflare Workers.
+# Istruzioni passo passo in LEGGIMI.md.
+name = "meteo-cilento-notifiche"
+main = "worker.js"
+compatibility_date = "2025-01-01"
+
+[triggers]
+crons = ["*/15 * * * *"]
+
+[[kv_namespaces]]
+binding = "ISCRITTI"
+id = "INCOLLA_QUI_L_ID_DEL_KV"
+
+[vars]
+SITO = "https://tribolocamillo02-boop.github.io/-Meteo-Cilento/"
+VAPID_PUBBLICA = "INCOLLA_QUI_LA_CHIAVE_PUBBLICA"
+VAPID_SOGGETTO = "https://tribolocamillo02-boop.github.io/-Meteo-Cilento/"

@@ -1,0 +1,35 @@
+# Aggiorna allerta.json con il bollettino di allerta della Protezione Civile.
+# Gira ogni ora; crea un commit solo quando esce un bollettino nuovo
+# (di solito una volta al giorno, verso le 16).
+name: Aggiorna allerta
+
+on:
+  schedule:
+    - cron: "23 * * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: allerta
+  cancel-in-progress: false
+
+jobs:
+  aggiorna:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Scarica il bollettino e aggiorna allerta.json
+        run: python3 scripts/aggiorna_allerta.py allerta.json
+      - name: Salva se è cambiato
+        run: |
+          if [ -n "$(git status --porcelain allerta.json)" ]; then
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add allerta.json
+            git commit -m "Aggiorna allerta dal bollettino della Protezione Civile"
+            git push
+          else
+            echo "Nessun bollettino nuovo"
+          fi

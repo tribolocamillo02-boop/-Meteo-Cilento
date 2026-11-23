@@ -300,6 +300,14 @@ letter-spacing:.08em;
 color:var(--testo-2);
 }
 
+.topbar-destra{display:flex;align-items:center;gap:8px;}
+#sceltaLingua{border-color:var(--bordo);cursor:pointer;}
+#sceltaLingua .ico{font-size:13px;}
+.lingua-box{position:relative;}
+.menu-lingua{position:absolute;right:0;top:calc(100% + 8px);z-index:20;min-width:150px;padding:6px;border-radius:16px;background:rgba(10,14,26,.92);border:1px solid var(--bordo);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);box-shadow:0 14px 40px rgba(0,0,0,.5);}
+.menu-lingua button{display:flex;justify-content:space-between;align-items:center;gap:10px;width:100%;padding:11px 12px;border:0;border-radius:11px;background:none;font-size:15px;text-align:left;}
+.menu-lingua button.attiva{color:var(--blu-chiaro);background:rgba(47,125,255,.14);}
+
 .live-punto{
 width:6px;
 height:6px;
@@ -345,6 +353,8 @@ letter-spacing:.01em;
 .chip-comune > .ico:last-child{font-size:14px;color:var(--testo-2);}
 
 .riga-comune{display:flex;align-items:center;gap:8px;}
+.riga-comune .chip-comune{min-width:0;flex:0 1 auto;}
+.nome-luogo span,.nome-luogo small{max-width:46vw;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 
 .nome-luogo{display:flex;flex-direction:column;align-items:flex-start;line-height:1.15;text-align:left;}
 .nome-luogo small{font-size:11px;font-weight:500;color:var(--testo-2);letter-spacing:.02em;}
@@ -535,6 +545,99 @@ color:var(--blu-chiaro);
 
 #riassunto{margin:12px 0 0;font-size:17px;line-height:1.5;font-weight:500;}
 
+/* ---------- Pioggia nelle prossime 2 ore ---------- */
+
+.pioggia2h{display:grid;grid-template-columns:repeat(8,1fr);gap:6px;align-items:end;}
+.p2-col{display:flex;flex-direction:column;align-items:center;gap:6px;}
+.p2-barra{width:100%;height:64px;border-radius:10px;background:rgba(255,255,255,.05);position:relative;overflow:hidden;}
+.p2-barra i{position:absolute;left:0;right:0;bottom:0;border-radius:10px;background:linear-gradient(180deg,#8cc4ff,#2f7dff);box-shadow:0 0 14px rgba(47,125,255,.5);}
+.p2-barra b{position:absolute;left:0;right:0;bottom:0;background:rgba(140,196,255,.18);}
+.p2-ora{font:500 11px/1 var(--font-tecnico);color:var(--testo-3);font-variant-numeric:tabular-nums;}
+.p2-val{font-size:11px;color:var(--blu-chiaro);min-height:12px;}
+.radar-vicino{display:flex;align-items:flex-start;gap:8px;margin:14px 0 0;font-size:14px;line-height:1.45;color:var(--testo-2);}
+.radar-vicino:empty{display:none;}
+.radar-vicino .ico{font-size:16px;color:var(--blu-chiaro);margin-top:2px;}
+
+/* ---------- Aria e pollini ---------- */
+
+.aqi{display:flex;align-items:center;gap:16px;}
+.aqi-numero{font-size:44px;font-weight:300;letter-spacing:-.03em;line-height:1;font-variant-numeric:tabular-nums;}
+.aqi-testo b{display:block;font-size:17px;}
+.aqi-testo span{font-size:13px;color:var(--testo-2);}
+.aqi-scala{position:relative;height:6px;border-radius:3px;margin:16px 0 4px;background:linear-gradient(90deg,#50f0e6,#50ccaa,#f0e641,#ff5050,#960032,#7d2181);}
+.aqi-scala i{position:absolute;top:-4px;width:14px;height:14px;margin-left:-7px;border-radius:50%;background:#fff;box-shadow:0 0 10px rgba(255,255,255,.7);}
+.inquinanti{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:14px;text-align:center;}
+.inquinanti div{padding:10px 4px;border-radius:14px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06);}
+.inquinanti b{display:block;font-size:16px;font-variant-numeric:tabular-nums;}
+.inquinanti span{font:500 10px/1.3 var(--font-tecnico);letter-spacing:.08em;color:var(--testo-3);}
+.pollini{margin-top:16px;}
+.polline{display:grid;grid-template-columns:1fr 90px 64px;align-items:center;gap:10px;padding:9px 0;border-top:1px solid rgba(255,255,255,.06);font-size:14px;}
+.polline .livello{text-align:right;font-weight:600;}
+.polline .livello.l0{color:var(--testo-3);font-weight:400;}
+.polline .livello.l1{color:#8cc4ff;}
+.polline .livello.l2{color:#ffd166;}
+.polline .livello.l3{color:#ff7a7a;}
+.nota{margin:12px 0 0;font-size:12px;color:var(--testo-3);line-height:1.5;}
+
+/* ---------- Allerta ufficiale ---------- */
+
+.banner-allerta{
+display:flex;
+align-items:center;
+gap:12px;
+width:100%;
+text-align:left;
+font-size:15px;
+font-weight:600;
+line-height:1.35;
+}
+
+.banner-allerta .ico{font-size:22px;flex:none;}
+.banner-allerta small{display:block;font-size:12px;font-weight:400;opacity:.85;margin-top:2px;}
+.banner-allerta.giallo{background:linear-gradient(135deg,rgba(255,209,102,.28),rgba(255,209,102,.08));border-color:rgba(255,209,102,.45);color:#ffe7a8;}
+.banner-allerta.arancione{background:linear-gradient(135deg,rgba(255,150,60,.32),rgba(255,150,60,.1));border-color:rgba(255,150,60,.55);color:#ffd2ad;}
+.banner-allerta.rosso{background:linear-gradient(135deg,rgba(255,70,70,.36),rgba(255,70,70,.12));border-color:rgba(255,90,90,.6);color:#ffc4c4;}
+
+.allerta-giorno{padding:14px 0;border-top:1px solid rgba(255,255,255,.06);}
+.allerta-giorno:first-child{border-top:0;padding-top:0;}
+.allerta-testa{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px;}
+.allerta-testa b{font-size:16px;}
+.pillola-allerta{padding:6px 12px;border-radius:999px;font-size:12.5px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;}
+.pillola-allerta.verde{background:rgba(80,220,140,.14);color:#8ff0b8;}
+.pillola-allerta.giallo{background:rgba(255,209,102,.18);color:#ffd166;}
+.pillola-allerta.arancione{background:rgba(255,150,60,.2);color:#ffa25a;}
+.pillola-allerta.rosso{background:rgba(255,70,70,.22);color:#ff7a7a;}
+.rischi{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;}
+.rischi div{padding:10px;border-radius:14px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06);font-size:12px;color:var(--testo-2);}
+.rischi div b{display:flex;align-items:center;gap:6px;margin-top:4px;font-size:13px;color:#fff;text-transform:capitalize;}
+.rischi div b::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--colore);box-shadow:0 0 8px var(--colore);}
+.tab .punto-allerta{position:absolute;top:6px;right:calc(50% - 18px);width:8px;height:8px;border-radius:50%;background:var(--colore);box-shadow:0 0 8px var(--colore);}
+.tab{position:relative;}
+
+/* ---------- Notifiche ---------- */
+
+.interruttore{display:flex;align-items:center;gap:12px;padding:10px 0;font-size:15px;cursor:pointer;}
+.interruttore input{position:absolute;opacity:0;pointer-events:none;}
+.interruttore span{position:relative;flex:none;width:46px;height:28px;border-radius:999px;background:rgba(255,255,255,.12);border:1px solid var(--bordo);transition:background .25s;}
+.interruttore span::after{content:"";position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;background:#fff;transition:transform .25s cubic-bezier(.2,.8,.2,1);}
+.interruttore input:checked + span{background:linear-gradient(180deg,#3d8bff,#1f5fd6);border-color:var(--bordo-blu);}
+.interruttore input:checked + span::after{transform:translateX(18px);}
+.interruttore input:focus-visible + span{outline:2px solid var(--blu-chiaro);outline-offset:2px;}
+#notificheAttiva.attive{background:rgba(255,255,255,.08);box-shadow:none;}
+
+/* ---------- Montagna ---------- */
+
+.giudizio{display:inline-flex;align-items:center;gap:6px;padding:5px 10px;border-radius:999px;font-size:12px;font-weight:600;letter-spacing:.02em;}
+.giudizio::before{content:"";width:7px;height:7px;border-radius:50%;background:currentColor;box-shadow:0 0 8px currentColor;}
+.giudizio.buono{color:#8cc4ff;background:rgba(47,125,255,.16);}
+.giudizio.attenzione{color:#ffd166;background:rgba(255,209,102,.12);}
+.giudizio.sconsigliato{color:#ff7a7a;background:rgba(255,122,122,.12);}
+.monte-giorno{display:grid;grid-template-columns:70px 1fr;gap:4px 12px;padding:12px 0;border-top:1px solid rgba(255,255,255,.06);align-items:center;}
+.monte-giorno .giorno-nome{grid-row:span 2;}
+.monte-giorno .dati{font-size:13px;color:var(--testo-2);font-variant-numeric:tabular-nums;}
+.monte-giorno .motivi{grid-column:2;font-size:12.5px;color:var(--testo-3);}
+.monte-quota{font:500 11px/1 var(--font-tecnico);letter-spacing:.12em;color:var(--testo-3);margin-left:4px;white-space:nowrap;}
+
 /* ---------- Grafico temperature ---------- */
 
 .grafico{margin:0 0 14px;}
@@ -586,6 +689,8 @@ box-shadow:inset 0 0 0 1px var(--bordo-blu);
 .mare-posto .nome small{display:block;font-size:11px;font-weight:400;color:var(--testo-3);margin-top:2px;}
 .mare-posto .onda{text-align:right;font-weight:600;}
 .mare-posto .acqua{text-align:right;font-size:12px;color:var(--blu-chiaro);}
+.tramonto-mare{margin:0 0 10px;font:600 12px/1 var(--font-tecnico);letter-spacing:.12em;text-transform:uppercase;color:var(--blu-chiaro);}
+.tramonto-mare:empty{display:none;}
 
 /* ---------- Installa ---------- */
 
@@ -974,8 +1079,8 @@ bottom:calc(14px + env(safe-area-inset-bottom));
 transform:translateX(-50%);
 width:min(calc(100% - 28px),480px);
 display:grid;
-grid-template-columns:repeat(4,1fr);
-gap:4px;
+grid-template-columns:repeat(5,1fr);
+gap:3px;
 padding:6px;
 border-radius:28px;
 background:rgba(8,12,22,.55);
@@ -995,9 +1100,9 @@ border:0;
 border-radius:22px;
 background:none;
 color:var(--testo-3);
-font-size:11px;
+font-size:10.5px;
 font-weight:500;
-letter-spacing:.03em;
+letter-spacing:.01em;
 transition:color .3s,background .3s,box-shadow .3s;
 }
 
@@ -1148,7 +1253,13 @@ font-weight:600;
 
   <div class="topbar">
     <div class="logo"><span class="logo-punto"></span>METEO CILENTO</div>
-    <div class="pillola"><span class="live-punto"></span><span id="aggiornato">LIVE</span></div>
+    <div class="topbar-destra">
+      <div class="lingua-box">
+        <button type="button" class="pillola" id="sceltaLingua" aria-label="Lingua" aria-haspopup="true"><span data-ico="lingua"></span><span id="codiceLingua">IT</span></button>
+        <div class="menu-lingua" id="menuLingua" hidden role="menu" aria-label="Scegli la lingua"></div>
+      </div>
+      <div class="pillola"><span class="live-punto"></span><span id="aggiornato">LIVE</span></div>
+    </div>
   </div>
 
   <div class="hero-contenuto">
@@ -1157,6 +1268,7 @@ font-weight:600;
         <span id="iconaLuogo"></span><span class="nome-luogo"><span id="name">Casal Velino</span><small id="vicinoA" hidden></small></span><span data-ico="giu"></span>
       </button>
       <button class="chip-gps" id="gpsHero" type="button" aria-label="Usa la mia posizione esatta" title="Usa la mia posizione esatta"><span data-ico="mirino"></span></button>
+      <button class="chip-gps" id="condividi" type="button" aria-label="Condividi il meteo" title="Condividi il meteo"><span data-ico="condividi"></span></button>
     </div>
     <div class="temp" id="temp">--°</div>
     <div class="condizione"><span id="weatherIcon"></span><span id="description">Caricamento…</span></div>
@@ -1171,10 +1283,24 @@ font-weight:600;
 <main>
 
   <section id="sezione-meteo">
+    <button type="button" class="card banner-allerta" id="bannerAllerta" hidden></button>
+
     <div class="card riassunto">
       <div class="riassunto-testa"><span data-ico="scintilla"></span>Oggi in breve</div>
       <p id="riassunto"><span class="scheletro riga"></span><span class="scheletro riga corta"></span></p>
     </div>
+
+    <details class="card tendina" data-tendina="pioggia2h" open>
+      <summary class="tendina-testa">
+        <span class="card-titolo"><span data-ico="ombrello"></span>Pioggia nelle prossime 2 ore</span>
+        <span class="tendina-chevron"><span data-ico="giu"></span></span>
+        <span class="tendina-anteprima" id="antPioggia2h"></span>
+      </summary>
+      <div class="tendina-corpo">
+        <div id="pioggia2h" class="pioggia2h"><div class="scheletro" style="height:96px"></div></div>
+        <p id="radarVicino" class="radar-vicino"></p>
+      </div>
+    </details>
 
     <details class="card tendina" data-tendina="dettagli" open>
       <summary class="tendina-testa">
@@ -1223,6 +1349,17 @@ font-weight:600;
       </div>
     </details>
 
+    <details class="card tendina" data-tendina="aria">
+      <summary class="tendina-testa">
+        <span class="card-titolo"><span data-ico="foglia"></span>Aria e pollini</span>
+        <span class="tendina-chevron"><span data-ico="giu"></span></span>
+        <span class="tendina-anteprima" id="antAria"></span>
+      </summary>
+      <div class="tendina-corpo">
+        <div id="aria"><div class="scheletro" style="height:120px"></div></div>
+      </div>
+    </details>
+
     <div class="card installa" id="installa" hidden>
       <img src="icone/icona-192.png" alt="" width="52" height="52">
       <div class="installa-testo">
@@ -1239,12 +1376,13 @@ font-weight:600;
   <section id="sezione-mare">
     <details class="card tendina" data-tendina="mare-migliore" open>
       <summary class="tendina-testa">
-        <span class="card-titolo"><span data-ico="scintilla"></span>Dove andare al mare adesso</span>
+        <span class="card-titolo"><span data-ico="scintilla"></span>Dove andare al mare oggi</span>
         <span class="tendina-chevron"><span data-ico="giu"></span></span>
         <span class="tendina-anteprima" id="antMareMigliore"></span>
       </summary>
       <div class="tendina-corpo">
-        <p class="suggerimento" style="margin-top:0">Le località di mare del Cilento in ordine di mare più calmo. Tocca per aprirne il meteo.</p>
+        <p class="suggerimento" style="margin-top:0">Le località di mare in ordine: prima il mare più calmo e il vento da terra, che lascia l'acqua liscia sotto riva. Tocca per aprirne il meteo.</p>
+        <p class="tramonto-mare" id="mareTramonto"></p>
         <div id="mareMigliore"><div class="scheletro" style="height:220px"></div></div>
       </div>
     </details>
@@ -1271,6 +1409,15 @@ font-weight:600;
         <div id="mareGiorni"><div class="scheletro" style="height:180px"></div></div>
       </div>
     </details>
+  </section>
+
+  <section id="sezione-montagna">
+    <div class="card">
+      <h2 class="card-titolo"><span data-ico="montagna"></span>Montagna ed escursioni</h2>
+      <p class="card-testo" style="margin:0">Meteo calcolato alla quota della vetta: temperatura, vento in cima, quota dello zero termico e un giudizio per salire oggi e nei prossimi due giorni.</p>
+    </div>
+    <div id="montagne"><div class="card"><div class="scheletro" style="height:200px"></div></div></div>
+    <p class="nota" style="margin:4px 6px 0">Il giudizio è indicativo: in montagna il tempo cambia in fretta. Informati sui sentieri e non partire con allerte in corso.</p>
   </section>
 
   <section id="sezione-radar">
@@ -1300,6 +1447,21 @@ font-weight:600;
   </section>
 
   <section id="sezione-allerte">
+    <div class="card" id="livelloAllerta">
+      <h2 class="card-titolo"><span data-ico="allerta"></span><span id="titoloAllerta">Livello di allerta</span></h2>
+      <div id="allertaGiorni"><div class="scheletro" style="height:120px"></div></div>
+      <p class="nota" id="allertaFonte"></p>
+    </div>
+
+    <div class="card notifiche" id="schedaNotifiche" hidden>
+      <h2 class="card-titolo"><span data-ico="campana"></span>Notifiche</h2>
+      <p class="card-testo" id="notificheTesto">Ricevi un avviso sul telefono quando c'è un'allerta per il tuo paese o quando sta per piovere.</p>
+      <label class="interruttore"><input type="checkbox" id="notAllerte" checked><span></span>Allerte gialle, arancioni e rosse</label>
+      <label class="interruttore"><input type="checkbox" id="notPioggia" checked><span></span>Pioggia in arrivo entro un'ora</label>
+      <button type="button" class="bottone-blu" id="notificheAttiva" style="width:100%;border:0;margin-top:14px">Attiva le notifiche</button>
+      <p class="nota" id="notificheStato"></p>
+    </div>
+
     <div class="card">
       <h2 class="card-titolo"><span data-ico="allerta"></span>Allerte meteo</h2>
       <p class="card-testo">Gli avvisi ufficiali per il Cilento sono emessi dalla Protezione Civile della Regione Campania. Controllali prima di uscire quando è previsto maltempo.</p>
@@ -1375,6 +1537,7 @@ font-weight:600;
 <nav class="tabbar" aria-label="Sezioni">
   <button class="tab attiva" data-sezione="meteo" type="button"><span data-ico="casa"></span>Meteo</button>
   <button class="tab" data-sezione="mare" type="button"><span data-ico="onda"></span>Mare</button>
+  <button class="tab" data-sezione="montagna" type="button"><span data-ico="montagna"></span>Montagna</button>
   <button class="tab" data-sezione="radar" type="button"><span data-ico="radar"></span>Radar</button>
   <button class="tab" data-sezione="allerte" type="button"><span data-ico="allerta"></span>Allerte</button>
 </nav>
@@ -1391,6 +1554,7 @@ font-weight:600;
   </div>
 </div>
 
+<script src="lingue.js"></script>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
 const $ = id => document.getElementById(id);
@@ -1407,125 +1571,128 @@ const MOTO_RIDOTTO = window.matchMedia("(prefers-reduced-motion: reduce)").match
 ========================================================= */
 
 const COMUNI = [
-  ["Marina di Casal Velino", "Località di mare", 40.1767, 15.1222],
-  ["Acciaroli", "Località di mare", 40.181, 15.0272],
-  ["Pioppi", "Località di mare", 40.1744, 15.0887],
-  ["Palinuro", "Località di mare", 40.0368, 15.2881],
-  ["Marina di Camerota", "Località di mare", 40.0036, 15.3672],
-  ["Marina di Ascea", "Località di mare", 40.1426, 15.1837],
-  ["Marina di Pisciotta", "Località di mare", 40.1016, 15.2317],
-  ["Santa Maria di Castellabate", "Località di mare", 40.2978, 14.9521],
-  ["San Marco di Castellabate", "Località di mare", 40.2674, 14.939],
-  ["Ogliastro Marina", "Località di mare", 40.2337, 14.9395],
-  ["Agnone Cilento", "Località di mare", 40.2163, 14.9974],
-  ["Paestum", "Località di mare", 40.4223, 15.0073],
-  ["Scario", "Località di mare", 40.0621, 15.4742],
-  ["Licusati", "Basso Cilento", 40.0541, 15.3644],
-  ["Agropoli", "Alto Cilento", 40.3492, 14.9907],
-  ["Aquara", "Alto Cilento", 40.4439, 15.2539],
-  ["Ascea", "Alto Cilento", 40.1408, 15.1858],
-  ["Bellosguardo", "Alto Cilento", 40.4222, 15.3122],
-  ["Campora", "Alto Cilento", 40.3054, 15.2924],
-  ["Cannalonga", "Alto Cilento", 40.2446, 15.2933],
-  ["Capaccio Paestum", "Alto Cilento", 40.4243, 15.0798],
-  ["Casal Velino", "Alto Cilento", 40.1903, 15.1114],
-  ["Castellabate", "Alto Cilento", 40.2821, 14.9574],
-  ["Castelnuovo Cilento", "Alto Cilento", 40.2185, 15.178],
-  ["Castel San Lorenzo", "Alto Cilento", 40.4198, 15.2252],
-  ["Ceraso", "Alto Cilento", 40.1943, 15.2561],
-  ["Cicerale", "Alto Cilento", 40.344, 15.1296],
-  ["Felitto", "Alto Cilento", 40.3735, 15.2431],
-  ["Gioi", "Alto Cilento", 40.2897, 15.2181],
-  ["Giungano", "Alto Cilento", 40.3945, 15.1079],
-  ["Laureana Cilento", "Alto Cilento", 40.3011, 15.0388],
-  ["Laurino", "Alto Cilento", 40.3391, 15.3381],
-  ["Lustra", "Alto Cilento", 40.2883, 15.0683],
-  ["Magliano Vetere", "Alto Cilento", 40.347, 15.2367],
-  ["Moio della Civitella", "Alto Cilento", 40.2471, 15.2689],
-  ["Montecorice", "Alto Cilento", 40.2344, 14.985],
-  ["Monteforte Cilento", "Alto Cilento", 40.3648, 15.1949],
-  ["Novi Velia", "Alto Cilento", 40.2226, 15.286],
-  ["Ogliastro Cilento", "Alto Cilento", 40.3511, 15.0464],
-  ["Omignano", "Alto Cilento", 40.2493, 15.0841],
-  ["Orria", "Alto Cilento", 40.2997, 15.1712],
-  ["Perdifumo", "Alto Cilento", 40.2669, 15.0165],
-  ["Perito", "Alto Cilento", 40.2985, 15.1475],
-  ["Piaggine", "Alto Cilento", 40.345, 15.3778],
-  ["Pollica", "Alto Cilento", 40.1907, 15.0572],
-  ["Prignano Cilento", "Alto Cilento", 40.3334, 15.0674],
-  ["Roccadaspide", "Alto Cilento", 40.4233, 15.1912],
-  ["Roscigno", "Alto Cilento", 40.4, 15.3459],
-  ["Rutino", "Alto Cilento", 40.3007, 15.0733],
-  ["Sacco", "Alto Cilento", 40.3767, 15.3778],
-  ["Salento", "Alto Cilento", 40.2491, 15.1894],
-  ["San Mauro Cilento", "Alto Cilento", 40.2263, 15.0448],
-  ["Serramezzana", "Alto Cilento", 40.2446, 15.0325],
-  ["Sessa Cilento", "Alto Cilento", 40.2592, 15.0758],
-  ["Stella Cilento", "Alto Cilento", 40.2318, 15.0929],
-  ["Stio", "Alto Cilento", 40.3102, 15.2515],
-  ["Torchiara", "Alto Cilento", 40.3216, 15.0537],
-  ["Trentinara", "Alto Cilento", 40.4, 15.1154],
-  ["Valle dell'Angelo", "Alto Cilento", 40.3438, 15.3685],
-  ["Vallo della Lucania", "Alto Cilento", 40.2279, 15.2663],
-  ["Alfano", "Basso Cilento", 40.1769, 15.4245],
-  ["Camerota", "Basso Cilento", 40.0326, 15.3705],
-  ["Casaletto Spartano", "Basso Cilento", 40.1513, 15.6206],
-  ["Caselle in Pittari", "Basso Cilento", 40.1732, 15.5431],
-  ["Celle di Bulgheria", "Basso Cilento", 40.0954, 15.4032],
-  ["Centola", "Basso Cilento", 40.0698, 15.3119],
-  ["Cuccaro Vetere", "Basso Cilento", 40.164, 15.3068],
-  ["Futani", "Basso Cilento", 40.1516, 15.3237],
-  ["Ispani", "Basso Cilento", 40.0873, 15.5583],
-  ["Laurito", "Basso Cilento", 40.1692, 15.4074],
-  ["Montano Antilia", "Basso Cilento", 40.1626, 15.3631],
-  ["Morigerati", "Basso Cilento", 40.1406, 15.5551],
-  ["Pisciotta", "Basso Cilento", 40.1089, 15.2346],
-  ["Policastro Bussentino", "Basso Cilento", 40.0751, 15.5216],
-  ["Roccagloriosa", "Basso Cilento", 40.1063, 15.4364],
-  ["Rofrano", "Basso Cilento", 40.2128, 15.4285],
-  ["San Mauro la Bruca", "Basso Cilento", 40.1225, 15.2911],
-  ["San Giovanni a Piro", "Basso Cilento", 40.0515, 15.4462],
-  ["Santa Marina", "Basso Cilento", 40.1052, 15.5415],
-  ["Sanza", "Basso Cilento", 40.2439, 15.5542],
-  ["Sapri", "Basso Cilento", 40.0746, 15.6321],
-  ["Torraca", "Basso Cilento", 40.111, 15.6363],
-  ["Torre Orsaia", "Basso Cilento", 40.1328, 15.4725],
-  ["Tortorella", "Basso Cilento", 40.1424, 15.6062],
-  ["Vibonati", "Basso Cilento", 40.0992, 15.5836],
-  ["Castelcivita", "Alburni", 40.4937, 15.2335],
-  ["Controne", "Alburni", 40.5102, 15.204],
-  ["Corleto Monforte", "Alburni", 40.4376, 15.3801],
-  ["Ottati", "Alburni", 40.4629, 15.3153],
-  ["Petina", "Alburni", 40.5321, 15.3735],
-  ["Postiglione", "Alburni", 40.559, 15.2324],
-  ["Sant'Angelo a Fasanella", "Alburni", 40.4572, 15.3409],
-  ["Sicignano degli Alburni", "Alburni", 40.5588, 15.3056],
-  ["Atena Lucana", "Vallo di Diano", 40.4546, 15.5563],
-  ["Auletta", "Vallo di Diano", 40.5612, 15.4231],
-  ["Buonabitacolo", "Vallo di Diano", 40.2685, 15.6212],
-  ["Caggiano", "Vallo di Diano", 40.5624, 15.4963],
-  ["Casalbuono", "Vallo di Diano", 40.2142, 15.6872],
-  ["Monte San Giacomo", "Vallo di Diano", 40.3441, 15.5422],
-  ["Montesano sulla Marcellana", "Vallo di Diano", 40.2761, 15.7039],
-  ["Padula", "Vallo di Diano", 40.339, 15.6563],
-  ["Pertosa", "Vallo di Diano", 40.5435, 15.4501],
-  ["Polla", "Vallo di Diano", 40.5143, 15.4971],
-  ["Sala Consilina", "Vallo di Diano", 40.4013, 15.5914],
-  ["San Pietro al Tanagro", "Vallo di Diano", 40.4549, 15.4869],
-  ["San Rufo", "Vallo di Diano", 40.4345, 15.4637],
-  ["Sant'Arsenio", "Vallo di Diano", 40.4711, 15.484],
-  ["Sassano", "Vallo di Diano", 40.3403, 15.5655],
-  ["Teggiano", "Vallo di Diano", 40.3792, 15.5405],
-  ["Altavilla Silentina", "Piana del Sele", 40.5301, 15.1315],
-  ["Albanella", "Piana del Sele", 40.4794, 15.1145],
-  ["Serre", "Piana del Sele", 40.5825, 15.1855],
-  ["Buccino", "Monti Eremita-Marzano", 40.6367, 15.3812],
-  ["Palomonte", "Monti Eremita-Marzano", 40.6625, 15.2919],
-  ["Ricigliano", "Monti Eremita-Marzano", 40.668, 15.4779],
-  ["Romagnano al Monte", "Monti Eremita-Marzano", 40.6103, 15.4477],
-  ["San Gregorio Magno", "Monti Eremita-Marzano", 40.6599, 15.3991],
-  ["Salvitelle", "Monti Eremita-Marzano", 40.5906, 15.4576]
+  ["Marina di Casal Velino", "Località di mare", 40.1767, 15.1222, "S"],
+  ["Acciaroli", "Località di mare", 40.181, 15.0272, "S"],
+  ["Pioppi", "Località di mare", 40.1744, 15.0887, "S"],
+  ["Palinuro", "Località di mare", 40.0368, 15.2881, "B"],
+  ["Marina di Camerota", "Località di mare", 40.0036, 15.3672, "B"],
+  ["Marina di Ascea", "Località di mare", 40.1426, 15.1837, "S"],
+  ["Marina di Pisciotta", "Località di mare", 40.1016, 15.2317, "S"],
+  ["Santa Maria di Castellabate", "Località di mare", 40.2978, 14.9521, "S"],
+  ["San Marco di Castellabate", "Località di mare", 40.2674, 14.939, "S"],
+  ["Ogliastro Marina", "Località di mare", 40.2337, 14.9395, "S"],
+  ["Agnone Cilento", "Località di mare", 40.2163, 14.9974, "S"],
+  ["Paestum", "Località di mare", 40.4223, 15.0073, "S"],
+  ["Scario", "Località di mare", 40.0621, 15.4742, "B"],
+  ["Licusati", "Basso Cilento", 40.0541, 15.3644, "B"],
+  ["Agropoli", "Alto Cilento", 40.3492, 14.9907, "S"],
+  ["Aquara", "Alto Cilento", 40.4439, 15.2539, "S"],
+  ["Ascea", "Alto Cilento", 40.1408, 15.1858, "S"],
+  ["Bellosguardo", "Alto Cilento", 40.4222, 15.3122, "S"],
+  ["Campora", "Alto Cilento", 40.3054, 15.2924, "S"],
+  ["Cannalonga", "Alto Cilento", 40.2446, 15.2933, "S"],
+  ["Capaccio Paestum", "Alto Cilento", 40.4243, 15.0798, "S"],
+  ["Casal Velino", "Alto Cilento", 40.1903, 15.1114, "S"],
+  ["Castellabate", "Alto Cilento", 40.2821, 14.9574, "S"],
+  ["Castelnuovo Cilento", "Alto Cilento", 40.2185, 15.178, "S"],
+  ["Castel San Lorenzo", "Alto Cilento", 40.4198, 15.2252, "S"],
+  ["Ceraso", "Alto Cilento", 40.1943, 15.2561, "S"],
+  ["Cicerale", "Alto Cilento", 40.344, 15.1296, "S"],
+  ["Felitto", "Alto Cilento", 40.3735, 15.2431, "S"],
+  ["Gioi", "Alto Cilento", 40.2897, 15.2181, "S"],
+  ["Giungano", "Alto Cilento", 40.3945, 15.1079, "S"],
+  ["Laureana Cilento", "Alto Cilento", 40.3011, 15.0388, "S"],
+  ["Laurino", "Alto Cilento", 40.3391, 15.3381, "S"],
+  ["Lustra", "Alto Cilento", 40.2883, 15.0683, "S"],
+  ["Magliano Vetere", "Alto Cilento", 40.347, 15.2367, "S"],
+  ["Moio della Civitella", "Alto Cilento", 40.2471, 15.2689, "S"],
+  ["Montecorice", "Alto Cilento", 40.2344, 14.985, "S"],
+  ["Monteforte Cilento", "Alto Cilento", 40.3648, 15.1949, "S"],
+  ["Novi Velia", "Alto Cilento", 40.2226, 15.286, "S"],
+  ["Ogliastro Cilento", "Alto Cilento", 40.3511, 15.0464, "S"],
+  ["Omignano", "Alto Cilento", 40.2493, 15.0841, "S"],
+  ["Orria", "Alto Cilento", 40.2997, 15.1712, "S"],
+  ["Perdifumo", "Alto Cilento", 40.2669, 15.0165, "S"],
+  ["Perito", "Alto Cilento", 40.2985, 15.1475, "S"],
+  ["Piaggine", "Alto Cilento", 40.345, 15.3778, "S"],
+  ["Pollica", "Alto Cilento", 40.1907, 15.0572, "S"],
+  ["Prignano Cilento", "Alto Cilento", 40.3334, 15.0674, "S"],
+  ["Roccadaspide", "Alto Cilento", 40.4233, 15.1912, "S"],
+  ["Roscigno", "Alto Cilento", 40.4, 15.3459, "S"],
+  ["Rutino", "Alto Cilento", 40.3007, 15.0733, "S"],
+  ["Sacco", "Alto Cilento", 40.3767, 15.3778, "S"],
+  ["Salento", "Alto Cilento", 40.2491, 15.1894, "S"],
+  ["San Mauro Cilento", "Alto Cilento", 40.2263, 15.0448, "S"],
+  ["Serramezzana", "Alto Cilento", 40.2446, 15.0325, "S"],
+  ["Sessa Cilento", "Alto Cilento", 40.2592, 15.0758, "S"],
+  ["Stella Cilento", "Alto Cilento", 40.2318, 15.0929, "S"],
+  ["Stio", "Alto Cilento", 40.3102, 15.2515, "S"],
+  ["Torchiara", "Alto Cilento", 40.3216, 15.0537, "S"],
+  ["Trentinara", "Alto Cilento", 40.4, 15.1154, "S"],
+  ["Valle dell'Angelo", "Alto Cilento", 40.3438, 15.3685, "S"],
+  ["Vallo della Lucania", "Alto Cilento", 40.2279, 15.2663, "S"],
+  ["Alfano", "Basso Cilento", 40.1769, 15.4245, "B"],
+  ["Camerota", "Basso Cilento", 40.0326, 15.3705, "B"],
+  ["Casaletto Spartano", "Basso Cilento", 40.1513, 15.6206, "B"],
+  ["Caselle in Pittari", "Basso Cilento", 40.1732, 15.5431, "B"],
+  ["Celle di Bulgheria", "Basso Cilento", 40.0954, 15.4032, "B"],
+  ["Centola", "Basso Cilento", 40.0698, 15.3119, "B"],
+  ["Cuccaro Vetere", "Basso Cilento", 40.164, 15.3068, "B"],
+  ["Futani", "Basso Cilento", 40.1516, 15.3237, "B"],
+  ["Ispani", "Basso Cilento", 40.0873, 15.5583, "B"],
+  ["Laurito", "Basso Cilento", 40.1692, 15.4074, "B"],
+  ["Montano Antilia", "Basso Cilento", 40.1626, 15.3631, "B"],
+  ["Morigerati", "Basso Cilento", 40.1406, 15.5551, "B"],
+  ["Pisciotta", "Basso Cilento", 40.1089, 15.2346, "S"],
+  ["Policastro Bussentino", "Basso Cilento", 40.0751, 15.5216, "B"],
+  ["Roccagloriosa", "Basso Cilento", 40.1063, 15.4364, "B"],
+  ["Rofrano", "Basso Cilento", 40.2128, 15.4285, "B"],
+  ["San Mauro la Bruca", "Basso Cilento", 40.1225, 15.2911, "B"],
+  ["San Giovanni a Piro", "Basso Cilento", 40.0515, 15.4462, "B"],
+  ["Santa Marina", "Basso Cilento", 40.1052, 15.5415, "B"],
+  ["Sanza", "Basso Cilento", 40.2439, 15.5542, "B"],
+  ["Sapri", "Basso Cilento", 40.0746, 15.6321, "B"],
+  ["Torraca", "Basso Cilento", 40.111, 15.6363, "B"],
+  ["Torre Orsaia", "Basso Cilento", 40.1328, 15.4725, "B"],
+  ["Tortorella", "Basso Cilento", 40.1424, 15.6062, "B"],
+  ["Vibonati", "Basso Cilento", 40.0992, 15.5836, "B"],
+  ["Castelcivita", "Alburni", 40.4937, 15.2335, "S"],
+  ["Controne", "Alburni", 40.5102, 15.204, "S"],
+  ["Corleto Monforte", "Alburni", 40.4376, 15.3801, "S"],
+  ["Ottati", "Alburni", 40.4629, 15.3153, "S"],
+  ["Petina", "Alburni", 40.5321, 15.3735, "T"],
+  ["Postiglione", "Alburni", 40.559, 15.2324, "S"],
+  ["Sant'Angelo a Fasanella", "Alburni", 40.4572, 15.3409, "S"],
+  ["Sicignano degli Alburni", "Alburni", 40.5588, 15.3056, "T"],
+  ["Atena Lucana", "Vallo di Diano", 40.4546, 15.5563, "T"],
+  ["Auletta", "Vallo di Diano", 40.5612, 15.4231, "T"],
+  ["Buonabitacolo", "Vallo di Diano", 40.2685, 15.6212, "T"],
+  ["Caggiano", "Vallo di Diano", 40.5624, 15.4963, "T"],
+  ["Casalbuono", "Vallo di Diano", 40.2142, 15.6872, "T"],
+  ["Monte San Giacomo", "Vallo di Diano", 40.3441, 15.5422, "T"],
+  ["Montesano sulla Marcellana", "Vallo di Diano", 40.2761, 15.7039, "T"],
+  ["Padula", "Vallo di Diano", 40.339, 15.6563, "T"],
+  ["Pertosa", "Vallo di Diano", 40.5435, 15.4501, "T"],
+  ["Polla", "Vallo di Diano", 40.5143, 15.4971, "T"],
+  ["Sala Consilina", "Vallo di Diano", 40.4013, 15.5914, "T"],
+  ["San Pietro al Tanagro", "Vallo di Diano", 40.4549, 15.4869, "T"],
+  ["San Rufo", "Vallo di Diano", 40.4345, 15.4637, "T"],
+  ["Sant'Arsenio", "Vallo di Diano", 40.4711, 15.484, "T"],
+  ["Sassano", "Vallo di Diano", 40.3403, 15.5655, "T"],
+  ["Teggiano", "Vallo di Diano", 40.3792, 15.5405, "T"],
+  ["Altavilla Silentina", "Piana del Sele", 40.5301, 15.1315, "S"],
+  ["Albanella", "Piana del Sele", 40.4794, 15.1145, "S"],
+  ["Serre", "Piana del Sele", 40.5825, 15.1855, "S"],
+  ["Buccino", "Monti Eremita-Marzano", 40.6367, 15.3812, "T"],
+  ["Palomonte", "Monti Eremita-Marzano", 40.6625, 15.2919, "T"],
+  ["Ricigliano", "Monti Eremita-Marzano", 40.668, 15.4779, "T"],
+  ["Romagnano al Monte", "Monti Eremita-Marzano", 40.6103, 15.4477, "T"],
+  ["San Gregorio Magno", "Monti Eremita-Marzano", 40.6599, 15.3991, "T"],
+  ["Salvitelle", "Monti Eremita-Marzano", 40.5906, 15.4576, "T"]
 ];
+
+// Zone di allerta della Protezione Civile Campania (dal bollettino nazionale)
+const ZONE_ALLERTA = { S:"Piana Sele e Alto Cilento", B:"Basso Cilento", T:"Tanagro" };
 
 const ZONE = ["Località di mare", "Alto Cilento", "Basso Cilento", "Alburni", "Vallo di Diano", "Piana del Sele", "Monti Eremita-Marzano"];
 
@@ -1583,11 +1750,12 @@ function comuneCorrente(){
       vicino: vicino ? vicino[0] : null,
       fotoNome: vicino ? vicino[0] : null,
       fotoLat: vicino ? vicino[2] : null,
-      fotoLon: vicino ? vicino[3] : null
+      fotoLon: vicino ? vicino[3] : null,
+      zonaAllerta: vicino ? vicino[4] : null
     };
   }
-  const [nome, zona, lat, lon] = COMUNI[comuneIndice];
-  return { nome, zona, lat, lon, chiave: nome, posizione: false, fotoNome: nome, fotoLat: lat, fotoLon: lon };
+  const [nome, zona, lat, lon, za] = COMUNI[comuneIndice];
+  return { nome, zona, lat, lon, chiave: nome, posizione: false, fotoNome: nome, fotoLat: lat, fotoLon: lon, zonaAllerta: za };
 }
 
 function slug(nome){
@@ -1621,6 +1789,11 @@ const UI = {
   sensore:'<circle cx="12" cy="12" r="2.5"/><path d="M7.8 7.8a6 6 0 0 0 0 8.4M16.2 7.8a6 6 0 0 1 0 8.4M5 5a10 10 0 0 0 0 14M19 5a10 10 0 0 1 0 14"/>',
   esterno:'<path d="M14 4h6v6M20 4l-9 9M18 14v6H4V6h6"/>',
   periodo:'<path d="M3 12h4l3-7 4 14 3-7h4"/>',
+  foglia:'<path d="M5 19c0-8 6-14 15-14 0 9-6 15-14 15"/><path d="M5 19c3-4 6-6 9-8"/>',
+  montagna:'<path d="M3 20l6-11 4 6 2-3 6 8z"/><path d="M8.2 10.5l1.8 1.5 1.6-1.2"/>',
+  condividi:'<path d="M12 15V3M7 8l5-5 5 5"/><path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7"/>',
+  campana:'<path d="M6 16V11a6 6 0 0 1 12 0v5l2 2H4z"/><path d="M10 21a2 2 0 0 0 4 0"/>',
+  lingua:'<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.6 3.8 5.6 3.8 9s-1.3 6.4-3.8 9c-2.5-2.6-3.8-5.6-3.8-9S9.5 5.6 12 3z"/>',
   scintilla:'<path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/><path d="M19 15l.7 1.8 1.8.7-1.8.7L19 20l-.7-1.8-1.8-.7 1.8-.7z"/>',
   mirino:'<circle cx="12" cy="12" r="7"/><circle cx="12" cy="12" r="2.5" fill="currentColor"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/>'
 };
@@ -1690,7 +1863,7 @@ function livelloUV(uv){
   return "Estremo";
 }
 
-const oraLocale = data => data.toLocaleTimeString("it-IT", { hour:"2-digit", minute:"2-digit" });
+const oraLocale = data => data.toLocaleTimeString(LOCALE, { hour:"2-digit", minute:"2-digit" });
 
 /* =========================================================
    EFFETTI METEO ANIMATI (canvas sopra la foto)
@@ -1889,14 +2062,14 @@ async function cercaFotoCommons(nome, lat, lon){
   const params = new URLSearchParams({
     action:"query", generator:"geosearch",
     ggscoord:lat + "|" + lon, ggsradius:"10000", ggsnamespace:"6", ggsprimary:"all", ggslimit:"40",
-    prop:"imageinfo", iiprop:"url|extmetadata|size|mime", iiurlwidth:"1600",
+    prop:"imageinfo", iiprop:"url|extmetadata|size|mime", iiurlwidth:"1280",   // Wikimedia accetta solo larghezze standard
     format:"json", origin:"*"
   });
 
   const r = await fetch("https://commons.wikimedia.org/w/api.php?" + params);
   const data = await r.json();
   const parti = nome.toLowerCase().split(/[\s-]+/).filter(p => p.length > 3);
-  const scarta = /stemma|coat|map|mappa|carta|locator|logo|flag|bandiera|scheme|schema|diagram|plan/i;
+  const scarta = /stemma|coat|map|mappa|carta|locator|logo|flag|bandiera|scheme|schema|diagram|plan|ISS\d|iss0|earth|terra vista|nasa|satellite|sentinel|astronaut/i;
 
   const candidate = Object.values(data.query?.pages || {})
     .filter(p => {
@@ -1951,7 +2124,7 @@ async function aggiornaFoto(nome, lat, lon, atm, notte){
 }
 
 // Foto iniziale, in attesa dei dati (usata anche fuori dal Cilento)
-const FOTO_GENERICA = "https://commons.wikimedia.org/wiki/Special:FilePath/Marina_di_Casal_Velino.jpg?width=1600";
+const FOTO_GENERICA = "https://upload.wikimedia.org/wikipedia/commons/thumb/d/dc/Marina_di_Casal_Velino.jpg/1280px-Marina_di_Casal_Velino.jpg";
 impostaFoto(FOTO_GENERICA, "", false);
 
 /* =========================================================
@@ -2042,6 +2215,168 @@ function disegnaRiassunto(c, h, g, start, meteo, notte){
   }
 
   $("riassunto").textContent = frasi.join(" ");
+}
+
+/* ---------- Pioggia nelle prossime 2 ore (dati ogni 15 minuti) ---------- */
+
+function disegnaPioggia2h(m){
+  const n = Math.min(8, m.time.length);
+  const mm = m.precipitation.slice(0, n).map(x => x || 0);
+  const prob = (m.precipitation_probability || []).slice(0, n).map(x => x || 0);
+  const scala = Math.max(1, ...mm);   // 1 mm in 15 minuti = barra piena (pioggia forte)
+
+  $("pioggia2h").innerHTML = mm.map((v, k) => `<div class="p2-col">
+<span class="p2-val">${v >= 0.1 ? v.toFixed(1) : ""}</span>
+<span class="p2-barra" title="${prob[k]}%"><b style="height:${prob[k]}%"></b><i style="height:${v > 0 ? Math.max(8, v / scala * 100) : 0}%"></i></span>
+<span class="p2-ora">${m.time[k].slice(11, 16)}</span>
+</div>`).join("");
+
+  const ora = k => m.time[k].slice(11, 16);
+  const pioveOra = mm[0] >= 0.1;
+  const inizio = mm.findIndex(v => v >= 0.1);
+  let testo;
+  if(pioveOra){
+    const fine = mm.findIndex(v => v < 0.1);
+    testo = fine > 0 ? `Piove ora, dovrebbe smettere verso le ${ora(fine)}` : "Pioggia per tutte le prossime 2 ore";
+  }else if(inizio > 0){
+    testo = `Pioggia in arrivo verso le ${ora(inizio)}`;
+  }else{
+    const maxP = Math.max(0, ...prob);
+    testo = maxP >= 40 ? `Possibile pioggia (fino al ${maxP}%)` : "Niente pioggia nelle prossime 2 ore";
+  }
+  $("antPioggia2h").textContent = testo;
+}
+
+/* ---------- Il radar cerca la pioggia più vicina al luogo scelto ---------- */
+
+const RAGGIO_RADAR_PX = 48;                      // circa 45 km a zoom 7
+const KM_PER_PX_RADAR = 156.543 * Math.cos(40.3 * Math.PI / 180) / Math.pow(2, 7);
+
+async function pioggiaRadarVicina(tempo, lat, lon){
+  const z = 7, n = Math.pow(2, z) * 256;
+  const px = (lon + 180) / 360 * n;
+  const r = lat * Math.PI / 180;
+  const py = (1 - Math.log(Math.tan(r) + 1 / Math.cos(r)) / Math.PI) / 2 * n;
+  const R = RAGGIO_RADAR_PX, lato = 2 * R + 1;
+  const x0 = Math.floor(px) - R, y0 = Math.floor(py) - R;
+
+  const tela = document.createElement("canvas");
+  tela.width = tela.height = lato;
+  const ctx = tela.getContext("2d", { willReadFrequently:true });
+  let trovate = 0;
+  for(let tx = Math.floor(x0 / 256); tx <= Math.floor((x0 + lato) / 256); tx++){
+    for(let ty = Math.floor(y0 / 256); ty <= Math.floor((y0 + lato) / 256); ty++){
+      const img = await caricaImmagineRadar(urlDPC(tempo, z, tx, ty), tempo);
+      if(img){ ctx.drawImage(img, tx * 256 - x0, ty * 256 - y0); trovate++; }
+    }
+  }
+  if(!trovate) return null;
+
+  let dati;
+  try{ dati = ctx.getImageData(0, 0, lato, lato).data; }catch(e){ return null; }
+  const soglia = Math.round(15 / DPC.dbzMax * 255);   // 15 dBZ: pioggia debole
+  let minimo = Infinity, alCentro = 0;
+  for(let y = 0; y < lato; y++){
+    for(let x = 0; x < lato; x++){
+      const i = (y * lato + x) * 4;
+      if(dati[i + 3] < 8 || dati[i] < soglia) continue;
+      const d = Math.hypot(x - R, y - R);
+      if(d < minimo) minimo = d;
+      if(d <= 1.5) alCentro = Math.max(alCentro, dati[i] / 255 * DPC.dbzMax);
+    }
+  }
+  return { km: isFinite(minimo) ? minimo * KM_PER_PX_RADAR : null, dbzCentro: alCentro };
+}
+
+async function aggiornaRadarVicino(){
+  const el = $("radarVicino");
+  if(!radar.ultimoDPC){ el.textContent = ""; return; }
+  const luogo = comuneCorrente();
+  const chiave = luogo.chiave;
+  const adesso = await pioggiaRadarVicina(radar.ultimoDPC, luogo.lat, luogo.lon);
+  const prima = await pioggiaRadarVicina(radar.ultimoDPC - 30 * 60 * 1000, luogo.lat, luogo.lon);
+  if(comuneCorrente().chiave !== chiave || !adesso) return;
+
+  const oraRadar = oraLocale(new Date(radar.ultimoDPC));
+  let testo;
+  if(adesso.km !== null && adesso.km < 1.5){
+    const intensita = adesso.dbzCentro >= 40 ? "forte" : adesso.dbzCentro >= 30 ? "moderata" : "debole";
+    testo = `Il radar vede pioggia ${intensita} proprio qui (${oraRadar}).`;
+  }else if(adesso.km !== null){
+    let tendenza = "";
+    if(prima && prima.km !== null){
+      if(prima.km - adesso.km > 3) tendenza = ", in avvicinamento";
+      else if(adesso.km - prima.km > 3) tendenza = ", in allontanamento";
+    }
+    testo = `Il radar vede pioggia a circa ${Math.round(adesso.km)} km${tendenza} (${oraRadar}).`;
+  }else{
+    testo = `Il radar non vede pioggia entro ${Math.round(RAGGIO_RADAR_PX * KM_PER_PX_RADAR)} km (${oraRadar}).`;
+  }
+  el.innerHTML = ui("radar") + `<span>${testo}</span>`;
+}
+
+/* ---------- Aria e pollini ---------- */
+
+const LIVELLI_AQI = [[20,"Buona"],[40,"Discreta"],[60,"Moderata"],[80,"Scadente"],[100,"Molto scadente"],[Infinity,"Estremamente scadente"]];
+const POLLINI = [
+  ["grass_pollen", "Graminacee", [5, 30, 80]],
+  ["olive_pollen", "Olivo", [5, 30, 80]],
+  ["birch_pollen", "Betulla", [5, 30, 80]],
+  ["alder_pollen", "Ontano", [5, 30, 80]],
+  ["mugwort_pollen", "Artemisia", [3, 15, 40]],
+  ["ragweed_pollen", "Ambrosia", [3, 15, 40]]
+];
+const NOMI_LIVELLO_POLLINE = ["Assente", "Basso", "Medio", "Alto"];
+
+async function caricaAria(){
+  const luogo = comuneCorrente();
+  const { lat, lon, chiave } = luogo;
+  const url = `https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${lat}&longitude=${lon}`
+    + `&current=european_aqi,pm10,pm2_5,nitrogen_dioxide,ozone`
+    + `&hourly=${POLLINI.map(p => p[0]).join(",")}&forecast_days=1&timezone=Europe%2FRome`;
+  try{
+    const r = await fetch(url);
+    if(!r.ok) throw new Error("risposta " + r.status);
+    const d = await r.json();
+    if(comuneCorrente().chiave !== chiave) return;
+
+    const c = d.current;
+    const aqi = Math.round(c.european_aqi);
+    const etichetta = LIVELLI_AQI.find(([max]) => aqi <= max)[1];
+    const posizioneScala = Math.min(100, aqi / 120 * 100);
+
+    const pollini = POLLINI.map(([chiaveP, nome, soglie]) => {
+      const valori = (d.hourly[chiaveP] || []).filter(v => v != null);
+      const max = valori.length ? Math.max(...valori) : 0;
+      const livello = max < soglie[0] ? 0 : max < soglie[1] ? 1 : max < soglie[2] ? 2 : 3;
+      return { nome, max, livello };
+    }).sort((a, b) => b.max - a.max);
+    const presenti = pollini.filter(p => p.livello > 0);
+
+    $("aria").innerHTML = `
+<div class="aqi">
+  <div class="aqi-numero">${aqi}</div>
+  <div class="aqi-testo"><b>Aria ${etichetta.toLowerCase()}</b><span>Indice europeo della qualità dell'aria</span></div>
+</div>
+<div class="aqi-scala"><i style="left:${posizioneScala}%"></i></div>
+<div class="inquinanti">
+  <div><b>${Math.round(c.pm2_5)}</b><span>PM2.5</span></div>
+  <div><b>${Math.round(c.pm10)}</b><span>PM10</span></div>
+  <div><b>${Math.round(c.ozone)}</b><span>OZONO</span></div>
+  <div><b>${Math.round(c.nitrogen_dioxide)}</b><span>NO₂</span></div>
+</div>
+<div class="pollini">
+  ${presenti.length ? pollini.map(p => `<div class="polline"><span>${p.nome}</span><span class="tile-nota" style="margin:0">${Math.round(p.max)} granuli/m³</span><span class="livello l${p.livello}">${NOMI_LIVELLO_POLLINE[p.livello]}</span></div>`).join("")
+    : `<div class="polline"><span>Pollini</span><span></span><span class="livello l0">Assenti</span></div>`}
+</div>
+<p class="nota">Valori in µg/m³ e previsione dei pollini per oggi (modello europeo CAMS). Livelli dei pollini indicativi.</p>`;
+
+    $("antAria").textContent = `Aria ${etichetta.toLowerCase()} (indice ${aqi})`
+      + (presenti.length ? ` · pollini: ${presenti.slice(0, 2).map(p => p.nome.toLowerCase() + " " + NOMI_LIVELLO_POLLINE[p.livello].toLowerCase()).join(", ")}` : " · niente pollini");
+  }catch(e){
+    console.error(e);
+    $("aria").innerHTML = '<p class="suggerimento">Dati sulla qualità dell\'aria non disponibili.</p>';
+  }
 }
 
 /* ---------- Grafico delle temperature nelle prossime 24 ore ---------- */
@@ -2138,6 +2473,7 @@ async function loadWeather(){
     + `&current=temperature_2m,relative_humidity_2m,apparent_temperature,precipitation,weather_code,wind_speed_10m,wind_direction_10m,wind_gusts_10m,cloud_cover,pressure_msl,is_day`
     + `&hourly=temperature_2m,precipitation_probability,weather_code,wind_speed_10m,is_day`
     + `&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max,sunrise,sunset,uv_index_max`
+    + `&minutely_15=precipitation,precipitation_probability&forecast_minutely_15=8`
     + `&forecast_days=7&timezone=Europe%2FRome`;
 
   try{
@@ -2145,6 +2481,7 @@ async function loadWeather(){
     if(!r.ok) throw new Error("risposta " + r.status);
     const d = await r.json();
     if(comuneCorrente().chiave !== chiave) return;
+    if(d.minutely_15) disegnaPioggia2h(d.minutely_15);
     const salvatoIl = r.headers.get("x-salvato");
 
     const c = d.current, h = d.hourly, g = d.daily;
@@ -2207,8 +2544,8 @@ async function loadWeather(){
     html = "";
     for(let i = 0; i < g.time.length; i++){
       const giorno = new Date(g.time[i] + "T12:00:00");
-      const nomeGiorno = i === 0 ? "Oggi" : giorno.toLocaleDateString("it-IT", { weekday:"short" }).replace(".", "");
-      const dataBreve = giorno.toLocaleDateString("it-IT", { day:"numeric", month:"short" });
+      const nomeGiorno = i === 0 ? "Oggi" : giorno.toLocaleDateString(LOCALE, { weekday:"short" }).replace(".", "");
+      const dataBreve = giorno.toLocaleDateString(LOCALE, { day:"numeric", month:"short" });
       const min = g.temperature_2m_min[i], max = g.temperature_2m_max[i];
       const p = g.precipitation_probability_max[i];
 
@@ -2233,7 +2570,7 @@ ${iconaMeteo(infoMeteo(g.weather_code[i]).tipo)}
     $("days").innerHTML = html;
 
     const giorniPioggia = g.time
-      .map((t, i) => ({ i, nome: i === 0 ? "oggi" : new Date(t + "T12:00:00").toLocaleDateString("it-IT", { weekday:"short" }).replace(".", "") }))
+      .map((t, i) => ({ i, nome: i === 0 ? "oggi" : new Date(t + "T12:00:00").toLocaleDateString(LOCALE, { weekday:"short" }).replace(".", "") }))
       .filter(x => g.precipitation_probability_max[x.i] >= 50)
       .map(x => x.nome);
     $("antSettimana").textContent =
@@ -2303,7 +2640,7 @@ async function caricaMare(){
       const massimo = Math.max(0.5, ...g.wave_height_max.filter(x => x != null));
       $("mareGiorni").innerHTML = g.time.map((t, i) => {
         const h = g.wave_height_max[i], dir = g.wave_direction_dominant[i];
-        const nomeG = i === 0 ? "Oggi" : new Date(t + "T12:00:00").toLocaleDateString("it-IT", { weekday:"short" }).replace(".", "");
+        const nomeG = i === 0 ? "Oggi" : new Date(t + "T12:00:00").toLocaleDateString(LOCALE, { weekday:"short" }).replace(".", "");
         return `<div class="mare-giorno">
 <span class="giorno-nome">${nomeG.charAt(0).toUpperCase() + nomeG.slice(1)}<small>${statoMare(h)}</small></span>
 <span class="barra"><i style="left:0;right:${h != null ? 100 - h / massimo * 100 : 100}%"></i></span>
@@ -2313,7 +2650,7 @@ async function caricaMare(){
       }).join("");
 
       const iMax = g.wave_height_max.reduce((a, x, i) => (x ?? -1) > (g.wave_height_max[a] ?? -1) ? i : a, 0);
-      const giornoMax = iMax === 0 ? "oggi" : new Date(g.time[iMax] + "T12:00:00").toLocaleDateString("it-IT", { weekday:"long" });
+      const giornoMax = iMax === 0 ? "oggi" : new Date(g.time[iMax] + "T12:00:00").toLocaleDateString(LOCALE, { weekday:"long" });
       $("antMareGiorni").textContent = g.wave_height_max[iMax] != null
         ? `Onde più alte ${giornoMax}: ${g.wave_height_max[iMax].toFixed(1)} m (${statoMare(g.wave_height_max[iMax])})`
         : "";
@@ -2578,6 +2915,7 @@ async function radarProtezioneCivile(){
 
   $("radarScala").style.background = "linear-gradient(90deg," +
     SCALA_DBZ.slice(1).map(([, c]) => `rgb(${c[0]},${c[1]},${c[2]})`).join(",") + ")";
+  aggiornaRadarVicino();
   $("radarStatus").textContent =
     `Radar Protezione Civile · aggiornato ogni 5 minuti · dalle ${oraRadar(fotogrammi[0].time)} alle ${oraRadar(fotogrammi[fotogrammi.length - 1].time)}.`;
   return true;
@@ -2850,7 +3188,7 @@ document.addEventListener("click", e => {
    SEZIONI
 ========================================================= */
 
-const SEZIONI = ["meteo", "mare", "radar", "allerte"];
+const SEZIONI = ["meteo", "mare", "montagna", "radar", "allerte"];
 
 function mostraSezione(sezione){
   SEZIONI.forEach(s => { $("sezione-" + s).hidden = s !== sezione; });
@@ -2876,28 +3214,63 @@ document.querySelectorAll(".tab").forEach(t =>
    DOVE ANDARE AL MARE: tutte le località di mare a confronto
 ========================================================= */
 
+// Verso dove guarda il mare da ogni spiaggia (gradi, 0 = nord). Valori approssimati:
+// servono a capire se il vento arriva dal mare (onde a riva) o da terra (mare liscio sotto costa).
+const ESPOSIZIONE_SPIAGGE = {
+  "Paestum":250, "Santa Maria di Castellabate":280, "San Marco di Castellabate":250, "Ogliastro Marina":230,
+  "Agnone Cilento":225, "Acciaroli":225, "Pioppi":200, "Marina di Casal Velino":230, "Marina di Ascea":225,
+  "Marina di Pisciotta":215, "Palinuro":200, "Marina di Camerota":190, "Scario":150
+};
+
+function ventoSullaSpiaggia(nome, da, kmh){
+  const verso = ESPOSIZIONE_SPIAGGE[nome];
+  if(verso == null || da == null) return { tipo:"?", testo:"" };
+  const diff = Math.abs(((da - verso) % 360 + 540) % 360 - 180);   // 0 = vento che arriva dal mare
+  if(kmh < 8) return { tipo:"calmo", testo:"Quasi senza vento" };
+  if(diff <= 60) return { tipo:"mare", testo:`Vento dal mare ${Math.round(kmh)} km/h` };
+  if(diff >= 120) return { tipo:"terra", testo:`Vento da terra ${Math.round(kmh)} km/h` };
+  return { tipo:"lato", testo:`Vento laterale ${Math.round(kmh)} km/h` };
+}
+
 async function caricaMareMigliore(){
   const posti = COMUNI.map((c, i) => ({ nome:c[0], zona:c[1], lat:c[2], lon:c[3], i })).filter(c => c.zona === "Località di mare");
-  const url = `https://marine-api.open-meteo.com/v1/marine?latitude=${posti.map(p => p.lat).join(",")}&longitude=${posti.map(p => p.lon).join(",")}`
+  const lats = posti.map(p => p.lat).join(","), lons = posti.map(p => p.lon).join(",");
+  const urlMare = `https://marine-api.open-meteo.com/v1/marine?latitude=${lats}&longitude=${lons}`
     + `&current=wave_height,sea_surface_temperature&timezone=Europe%2FRome&cell_selection=sea`;
+  const urlVento = `https://api.open-meteo.com/v1/forecast?latitude=${lats}&longitude=${lons}`
+    + `&current=wind_speed_10m,wind_direction_10m&daily=sunset&forecast_days=1&timezone=Europe%2FRome`;
   try{
-    const r = await fetch(url);
-    if(!r.ok) throw new Error("risposta " + r.status);
-    let dati = await r.json();
-    if(!Array.isArray(dati)) dati = [dati];
+    const [rm, rv] = await Promise.all([fetch(urlMare), fetch(urlVento).catch(() => null)]);
+    if(!rm.ok) throw new Error("risposta " + rm.status);
+    let mare = await rm.json();
+    if(!Array.isArray(mare)) mare = [mare];
+    let vento = rv && rv.ok ? await rv.json() : [];
+    if(!Array.isArray(vento)) vento = [vento];
 
-    const lista = posti.map((p, k) => ({ ...p, onda: dati[k]?.current?.wave_height, acqua: dati[k]?.current?.sea_surface_temperature }))
-      .filter(p => p.onda != null)
-      .sort((a, b) => a.onda - b.onda);
+    const lista = posti.map((p, k) => {
+      const v = vento[k]?.current;
+      const vs = ventoSullaSpiaggia(p.nome, v?.wind_direction_10m, v?.wind_speed_10m ?? 0);
+      const onda = mare[k]?.current?.wave_height;
+      // punteggio: onde, più una penalità per il vento che soffia dal mare
+      const kmh = v?.wind_speed_10m ?? 0;
+      const punteggio = onda == null ? Infinity : onda + (vs.tipo === "mare" ? kmh / 25 : vs.tipo === "lato" ? kmh / 60 : 0);
+      return { ...p, onda, acqua: mare[k]?.current?.sea_surface_temperature, vento: vs, punteggio };
+    }).filter(p => p.onda != null).sort((a, b) => a.punteggio - b.punteggio);
     if(!lista.length) throw new Error("nessun dato");
+
+    const tramonto = vento[0]?.daily?.sunset?.[0];
+    $("mareTramonto").textContent = tramonto ? `Tramonto alle ${tramonto.slice(11, 16)}` : "";
 
     $("mareMigliore").innerHTML = lista.map((p, k) => `<button type="button" class="mare-posto${k === 0 ? " primo" : ""}" data-i="${p.i}">
 <span class="pos">${k + 1}</span>
-<span class="nome">${p.nome}<small>${k === 0 ? "Il mare più calmo · " : ""}mare ${statoMare(p.onda)}</small></span>
+<span class="nome">${p.nome}<small>${k === 0 ? "Il posto migliore · " : ""}mare ${statoMare(p.onda)}${p.vento.testo ? " · " + p.vento.testo.toLowerCase() : ""}</small></span>
 <span class="onda">${p.onda.toFixed(1)} m</span>
 <span class="acqua">${p.acqua != null ? Math.round(p.acqua) + "°" : ""}</span>
 </button>`).join("");
-    $("antMareMigliore").textContent = `Mare più calmo: ${lista[0].nome} (${lista[0].onda.toFixed(1)} m, ${statoMare(lista[0].onda)})`;
+    const primo = lista[0];
+    $("antMareMigliore").textContent = `Il posto migliore: ${primo.nome} (mare ${statoMare(primo.onda)}`
+      + (primo.vento.tipo === "terra" ? ", vento da terra" : primo.vento.tipo === "calmo" ? ", senza vento" : "") + ")"
+      + (tramonto ? ` · tramonto ${tramonto.slice(11, 16)}` : "");
   }catch(e){
     console.error(e);
     $("mareMigliore").innerHTML = '<p class="suggerimento">Confronto non disponibile in questo momento.</p>';
@@ -2910,6 +3283,431 @@ $("mareMigliore").addEventListener("click", e => {
   scegliComune(Number(b.dataset.i));
   mostraSezione("mare");
   window.scrollTo({ top:0, behavior: MOTO_RIDOTTO ? "auto" : "smooth" });
+});
+
+/* =========================================================
+   ALLERTA UFFICIALE (allerta.json, aggiornato ogni ora da GitHub Actions)
+========================================================= */
+
+const COLORI_ALLERTA = { verde:"#50dc8c", giallo:"#ffd166", arancione:"#ff9a3c", rosso:"#ff5a5a" };
+const ORDINE_ALLERTA = ["verde", "giallo", "arancione", "rosso"];
+const NOMI_ALLERTA = { verde:"Nessuna allerta", giallo:"Allerta gialla", arancione:"Allerta arancione", rosso:"Allerta rossa" };
+let datiAllerta = null;
+let allertaCaricata = false;
+
+async function caricaAllerta(){
+  try{
+    const r = await fetch("allerta.json", { cache:"no-cache" });
+    if(!r.ok) throw new Error("risposta " + r.status);
+    datiAllerta = await r.json();
+  }catch(e){
+    datiAllerta = null;
+  }
+  allertaCaricata = true;
+  mostraAllerta();
+}
+
+function isoLocale(d){
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+}
+
+function mostraAllerta(){
+  if(!allertaCaricata) return;
+  const luogo = comuneCorrente();
+  const zona = luogo.zonaAllerta;
+  const banner = $("bannerAllerta");
+  document.querySelectorAll(".punto-allerta").forEach(x => x.remove());
+
+  if(!datiAllerta || !zona){
+    banner.hidden = true;
+    $("titoloAllerta").textContent = "Livello di allerta";
+    $("allertaGiorni").innerHTML = `<p class="card-testo" style="margin:0">${!zona
+      ? "Il livello di allerta è disponibile per i paesi del Cilento."
+      : "Il bollettino non è ancora disponibile: viene aggiornato automaticamente ogni ora."}</p>`;
+    $("allertaFonte").textContent = "";
+    return;
+  }
+
+  const nomeZona = datiAllerta.zone?.[zona] || ZONE_ALLERTA[zona];
+  $("titoloAllerta").textContent = "Livello di allerta · " + nomeZona;
+  const oggi = new Date(), domani = new Date(Date.now() + 86400000);
+  const giorni = [[isoLocale(oggi), "Oggi"], [isoLocale(domani), "Domani"]]
+    .filter(([d]) => datiAllerta.giorni?.[d]?.[zona])
+    .map(([d, etichetta]) => ({ data:d, etichetta, ...datiAllerta.giorni[d][zona] }));
+
+  if(!giorni.length){
+    $("allertaGiorni").innerHTML = '<p class="card-testo" style="margin:0">In attesa del nuovo bollettino di oggi (di solito esce verso le 16).</p>';
+  }else{
+    const attesaDomani = giorni.length === 1 && giorni[0].etichetta === "Oggi"
+      ? '<div class="allerta-giorno"><div class="allerta-testa"><b>Domani</b><span class="nota" style="margin:0">Il bollettino esce verso le 16</span></div></div>' : "";
+    $("allertaGiorni").innerHTML = giorni.map(g => `<div class="allerta-giorno">
+<div class="allerta-testa"><b>${g.etichetta}</b><span class="pillola-allerta ${g.livello}">${NOMI_ALLERTA[g.livello]}</span></div>
+<div class="rischi">
+  ${[["idrogeologico", "Idrogeologico"], ["idraulico", "Idraulico"], ["temporali", "Temporali"]].map(([k, n]) =>
+    `<div>${n}<b style="--colore:${COLORI_ALLERTA[g[k]]}">${g[k]}</b></div>`).join("")}
+</div>
+</div>`).join("") + attesaDomani;
+  }
+  $("allertaFonte").textContent = `${datiAllerta.bollettino} · ${datiAllerta.fonte}. Per gli avvisi ufficiali fa fede la Protezione Civile della Regione Campania.`;
+
+  // banner e puntino sulla scheda Allerte quando c'è almeno un'allerta gialla
+  const peggiore = giorni.reduce((a, g) => ORDINE_ALLERTA.indexOf(g.livello) > ORDINE_ALLERTA.indexOf(a.livello) ? g : a, { livello:"verde" });
+  if(peggiore.livello !== "verde"){
+    const rischi = ["temporali", "idrogeologico", "idraulico"].filter(k => peggiore[k] !== "verde");
+    banner.className = "card banner-allerta " + peggiore.livello;
+    banner.innerHTML = `${ui("allerta")}<span>${NOMI_ALLERTA[peggiore.livello]} ${peggiore.etichetta.toLowerCase()}<small>Rischio ${rischi.join(", ")} · ${nomeZona}. Tocca per i dettagli e i consigli.</small></span>`;
+    banner.hidden = false;
+    const tab = document.querySelector('.tab[data-sezione="allerte"]');
+    tab.insertAdjacentHTML("beforeend", `<span class="punto-allerta" style="--colore:${COLORI_ALLERTA[peggiore.livello]}"></span>`);
+  }else{
+    banner.hidden = true;
+  }
+}
+
+$("bannerAllerta").addEventListener("click", () => {
+  mostraSezione("allerte");
+  window.scrollTo({ top:0, behavior: MOTO_RIDOTTO ? "auto" : "smooth" });
+});
+
+/* =========================================================
+   NOTIFICHE (server in notifiche/, configurato in notifiche.json)
+========================================================= */
+
+let configNotifiche = null;
+const pushSupportato = "serviceWorker" in navigator && "PushManager" in window && "Notification" in window;
+
+function chiaveInByte(b64){
+  const s = b64.replace(/-/g, "+").replace(/_/g, "/") + "===".slice((b64.length + 3) % 4);
+  return Uint8Array.from(atob(s), c => c.charCodeAt(0));
+}
+
+async function abbonamentoAttuale(){
+  if(!pushSupportato) return null;
+  const reg = await navigator.serviceWorker.getRegistration();
+  return reg ? reg.pushManager.getSubscription() : null;
+}
+
+function datiIscrizione(abbonamento){
+  const luogo = comuneCorrente();
+  return {
+    abbonamento: abbonamento.toJSON(),
+    luogo: { nome: luogo.posizione ? (luogo.vicino || "Cilento") : luogo.nome, lat: luogo.lat, lon: luogo.lon, zona: luogo.zonaAllerta || null },
+    tipi: { allerte: $("notAllerte").checked, pioggia: $("notPioggia").checked },
+    lingua: typeof LINGUA === "string" ? LINGUA : "it"
+  };
+}
+
+async function inviaIscrizione(abbonamento){
+  const r = await fetch(configNotifiche.server.replace(/\/$/, "") + "/iscrivi", {
+    method:"POST", headers:{ "Content-Type":"application/json" }, body: JSON.stringify(datiIscrizione(abbonamento))
+  });
+  if(!r.ok) throw new Error("server " + r.status);
+}
+
+async function aggiornaSchedaNotifiche(){
+  const sub = await abbonamentoAttuale();
+  const pulsante = $("notificheAttiva");
+  pulsante.textContent = sub ? "Disattiva le notifiche" : "Attiva le notifiche";
+  pulsante.classList.toggle("attive", !!sub);
+  if(sub){
+    const luogo = comuneCorrente();
+    $("notificheStato").textContent = `Notifiche attive per ${luogo.posizione ? (luogo.vicino || "la tua posizione") : luogo.nome}. Cambiando paese si aggiornano da sole.`;
+  }else if(Notification.permission === "denied"){
+    $("notificheStato").textContent = "Le notifiche sono bloccate per questo sito: puoi riattivarle nelle impostazioni del browser.";
+  }else{
+    $("notificheStato").textContent = "";
+  }
+}
+
+async function preparaNotifiche(){
+  try{
+    const r = await fetch("notifiche.json", { cache:"no-cache" });
+    configNotifiche = r.ok ? await r.json() : null;
+  }catch(e){ configNotifiche = null; }
+  if(!configNotifiche?.server || !configNotifiche?.chiavePubblica) return;   // server non ancora attivo
+
+  $("schedaNotifiche").hidden = false;
+  if(suIOS && !inModalitaApp){
+    $("notificheTesto").textContent = "Su iPhone le notifiche funzionano con l'app installata: tocca Condividi e «Aggiungi alla schermata Home», poi apri Meteo Cilento dall'icona e attivale da qui.";
+    $("notificheAttiva").hidden = true;
+    return;
+  }
+  if(!pushSupportato){
+    $("notificheTesto").textContent = "Questo browser non supporta le notifiche.";
+    $("notificheAttiva").hidden = true;
+    return;
+  }
+  try{
+    const prefs = JSON.parse(localStorage.getItem("meteoCilento.notifiche") || "{}");
+    if(prefs.allerte === false) $("notAllerte").checked = false;
+    if(prefs.pioggia === false) $("notPioggia").checked = false;
+  }catch(e){}
+  aggiornaSchedaNotifiche();
+}
+
+$("notificheAttiva").addEventListener("click", async () => {
+  const pulsante = $("notificheAttiva");
+  pulsante.disabled = true;
+  try{
+    const esistente = await abbonamentoAttuale();
+    if(esistente){
+      await fetch(configNotifiche.server.replace(/\/$/, "") + "/disiscrivi", {
+        method:"POST", headers:{ "Content-Type":"application/json" }, body: JSON.stringify({ endpoint: esistente.endpoint })
+      }).catch(() => {});
+      await esistente.unsubscribe();
+    }else{
+      const permesso = await Notification.requestPermission();
+      if(permesso !== "granted"){ aggiornaSchedaNotifiche(); return; }
+      const reg = await navigator.serviceWorker.ready;
+      const sub = await reg.pushManager.subscribe({ userVisibleOnly:true, applicationServerKey: chiaveInByte(configNotifiche.chiavePubblica) });
+      await inviaIscrizione(sub);
+      avviso("Notifiche attivate.");
+    }
+  }catch(e){
+    console.error(e);
+    avviso("Non è stato possibile cambiare le notifiche. Riprova tra poco.");
+  }finally{
+    pulsante.disabled = false;
+    aggiornaSchedaNotifiche();
+  }
+});
+
+["notAllerte", "notPioggia"].forEach(id => $(id).addEventListener("change", async () => {
+  try{ localStorage.setItem("meteoCilento.notifiche", JSON.stringify({ allerte: $("notAllerte").checked, pioggia: $("notPioggia").checked })); }catch(e){}
+  const sub = await abbonamentoAttuale();
+  if(sub) inviaIscrizione(sub).catch(e => console.error(e));
+}));
+
+// Quando cambia il paese, il server riceve il nuovo luogo
+let timerIscrizione = null;
+function aggiornaLuogoNotifiche(){
+  if(!configNotifiche?.server) return;
+  clearTimeout(timerIscrizione);
+  timerIscrizione = setTimeout(async () => {
+    const sub = await abbonamentoAttuale().catch(() => null);
+    if(sub) inviaIscrizione(sub).then(aggiornaSchedaNotifiche).catch(e => console.error(e));
+  }, 1500);
+}
+
+/* =========================================================
+   MONTAGNA ED ESCURSIONI
+   Cime da GeoNames; meteo di Open-Meteo calcolato alla quota della vetta.
+========================================================= */
+
+const MONTAGNE = [
+  ["Monte Cervati", 1900, 40.283, 15.490, "La vetta più alta della Campania"],
+  ["Monte Panormo", 1742, 40.5353, 15.3243, "La cima più alta degli Alburni"],
+  ["Sacro Monte Gelbison", 1705, 40.2169, 15.3355, "Santuario di Novi Velia"],
+  ["Monte Motola", 1665, 40.3703, 15.438, "Sopra Piaggine"],
+  ["Monte Centaurino", 1433, 40.214, 15.4708, "Tra Rofrano e San Mauro la Bruca"],
+  ["Monte Bulgheria", 1225, 40.0695, 15.4315, "Vista sul golfo di Policastro"]
+];
+
+function giudizioMontagna(codice, raffiche, prob, tmin){
+  const motivi = [];
+  let livello = 0;
+  const alza = (l, m) => { livello = Math.max(livello, l); motivi.push(m); };
+  if(codice >= 95) alza(2, "temporali");
+  if(raffiche >= 60) alza(2, `raffiche fino a ${Math.round(raffiche)} km/h`);
+  else if(raffiche >= 40) alza(1, `vento forte in vetta (${Math.round(raffiche)} km/h)`);
+  if(prob >= 70) alza(2, "pioggia molto probabile");
+  else if(prob >= 40) alza(1, `possibile pioggia (${prob}%)`);
+  if([71, 73, 75, 77, 85, 86].includes(codice)) alza(1, "neve");
+  if(tmin <= -2) alza(1, `gelo (minima ${Math.round(tmin)}°)`);
+  const nomi = ["buono", "attenzione", "sconsigliato"];
+  const testi = ["Buono per salire", "Con attenzione", "Sconsigliato"];
+  return { classe: nomi[livello], testo: testi[livello], motivi: motivi.join(", ") };
+}
+
+async function caricaMontagne(){
+  const url = `https://api.open-meteo.com/v1/forecast?latitude=${MONTAGNE.map(m => m[2]).join(",")}&longitude=${MONTAGNE.map(m => m[3]).join(",")}`
+    + `&elevation=${MONTAGNE.map(m => m[1]).join(",")}`
+    + `&current=temperature_2m,apparent_temperature,wind_speed_10m,wind_gusts_10m,weather_code`
+    + `&hourly=freezing_level_height&forecast_hours=1`
+    + `&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max,wind_gusts_10m_max`
+    + `&forecast_days=3&timezone=Europe%2FRome`;
+  try{
+    const r = await fetch(url);
+    if(!r.ok) throw new Error("risposta " + r.status);
+    let dati = await r.json();
+    if(!Array.isArray(dati)) dati = [dati];
+
+    $("montagne").innerHTML = MONTAGNE.map(([nome, quota, , , descr], k) => {
+      const d = dati[k], c = d.current, g = d.daily;
+      const zero = d.hourly?.freezing_level_height?.[0];
+      const oggi = giudizioMontagna(g.weather_code[0], g.wind_gusts_10m_max[0], g.precipitation_probability_max[0], g.temperature_2m_min[0]);
+      const id = "monte-" + slug(nome);
+      const giorni = g.time.map((t, i) => {
+        const gi = giudizioMontagna(g.weather_code[i], g.wind_gusts_10m_max[i], g.precipitation_probability_max[i], g.temperature_2m_min[i]);
+        const nomeG = i === 0 ? "Oggi" : i === 1 ? "Domani" : new Date(t + "T12:00:00").toLocaleDateString(LOCALE, { weekday:"long" });
+        return `<div class="monte-giorno">
+<span class="giorno-nome">${nomeG.charAt(0).toUpperCase() + nomeG.slice(1)}<small>${Math.round(g.temperature_2m_min[i])}° / ${Math.round(g.temperature_2m_max[i])}°</small></span>
+<span><span class="giudizio ${gi.classe}">${gi.testo}</span></span>
+<span class="motivi">${gi.motivi ? gi.motivi.charAt(0).toUpperCase() + gi.motivi.slice(1) + "<br>" : ""}Raffiche ${Math.round(g.wind_gusts_10m_max[i])} km/h · pioggia ${g.precipitation_probability_max[i]}%</span>
+</div>`;
+      }).join("");
+      const aperta = statoTendine[id] === true;
+      return `<details class="card tendina" data-tendina="${id}"${aperta ? " open" : ""}>
+<summary class="tendina-testa">
+  <span class="card-titolo">${ui("montagna")}${nome}<span class="monte-quota">${quota} m</span></span>
+  <span class="tendina-chevron">${ui("giu")}</span>
+  <span class="tendina-anteprima">Oggi: ${oggi.testo.toLowerCase()} · ${Math.round(c.temperature_2m)}° in vetta · raffiche ${Math.round(c.wind_gusts_10m)} km/h</span>
+</summary>
+<div class="tendina-corpo">
+  <p class="card-testo" style="margin:0 0 12px">${descr}.</p>
+  <div class="dettagli">
+    ${tile("termometro", "In vetta ora", `${Math.round(c.temperature_2m)}°`, `Percepita ${Math.round(c.apparent_temperature)}°`)}
+    ${tile("vento", "Vento", `${Math.round(c.wind_speed_10m)}<small>km/h</small>`, `Raffiche ${Math.round(c.wind_gusts_10m)} km/h`)}
+    ${tile("pressione", "Zero termico", zero != null ? `${Math.round(zero / 50) * 50}<small>m</small>` : "N/D", zero != null ? (zero < quota ? "Sotto la vetta: gelo in cima" : "Sopra la vetta") : "")}
+    ${tile("uv", "Oggi", `<span class="giudizio ${oggi.classe}" style="font-size:13px">${oggi.testo}</span>`)}
+  </div>
+  ${giorni}
+</div>
+</details>`;
+    }).join("");
+  }catch(e){
+    console.error(e);
+    $("montagne").innerHTML = '<div class="card"><p class="suggerimento">Meteo in montagna non disponibile in questo momento.</p></div>';
+  }
+}
+
+/* =========================================================
+   CONDIVIDI: crea un'immagine del meteo da mandare su WhatsApp e social
+========================================================= */
+
+function caricaImmagineCondivisione(url){
+  return new Promise(ok => {
+    if(!url) return ok(null);
+    const img = new Image();
+    img.crossOrigin = "anonymous";
+    img.onload = () => ok(img);
+    img.onerror = () => ok(null);
+    img.src = url;
+  });
+}
+
+function andaACapo(ctx, testo, larghezza){
+  const parole = testo.split(" "), righe = [];
+  let riga = "";
+  for(const p of parole){
+    const prova = riga ? riga + " " + p : p;
+    if(ctx.measureText(prova).width > larghezza && riga){ righe.push(riga); riga = p; }
+    else riga = prova;
+  }
+  if(riga) righe.push(riga);
+  return righe;
+}
+
+async function creaImmagineMeteo(){
+  const W = 1080, H = 1350;
+  const tela = document.createElement("canvas");
+  tela.width = W; tela.height = H;
+  const ctx = tela.getContext("2d");
+  try{ await Promise.all([document.fonts.load("200 300px Inter"), document.fonts.load("600 40px Inter"), document.fonts.load("600 30px 'Space Grotesk'")]); }catch(e){}
+
+  // sfondo: foto del paese (se il server lo permette) oppure sfumatura
+  ctx.fillStyle = "#02040a";
+  ctx.fillRect(0, 0, W, H);
+  const foto = await caricaImmagineCondivisione(fotoAttuale);
+  let fotoOk = false;
+  if(foto){
+    const sc = Math.max(W / foto.width, H / foto.height);
+    const fw = foto.width * sc, fh = foto.height * sc;
+    ctx.drawImage(foto, (W - fw) / 2, (H - fh) / 2, fw, fh);
+    try{ ctx.getImageData(0, 0, 1, 1); fotoOk = true; }catch(e){ fotoOk = false; }
+    if(!fotoOk){ ctx.fillStyle = "#02040a"; ctx.fillRect(0, 0, W, H); }
+  }
+  if(!fotoOk){
+    const g = ctx.createRadialGradient(W * .7, H * .2, 50, W * .7, H * .2, H);
+    g.addColorStop(0, "#1e5bd8"); g.addColorStop(.6, "#08142c"); g.addColorStop(1, "#02040a");
+    ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+  }
+  const velo = ctx.createLinearGradient(0, 0, 0, H);
+  velo.addColorStop(0, "rgba(2,4,10,.55)"); velo.addColorStop(.3, "rgba(2,4,10,.1)");
+  velo.addColorStop(.55, "rgba(2,4,10,.45)"); velo.addColorStop(1, "rgba(2,4,10,.95)");
+  ctx.fillStyle = velo; ctx.fillRect(0, 0, W, H);
+
+  const luogo = comuneCorrente();
+  const nome = luogo.posizione ? (luogo.vicino ? luogo.vicino : tr("La mia posizione")) : luogo.nome;
+  ctx.fillStyle = "#fff";
+  ctx.textBaseline = "alphabetic";
+
+  // intestazione
+  ctx.font = "600 30px 'Space Grotesk', Inter, sans-serif";
+  ctx.fillStyle = "#8cc4ff";
+  ctx.beginPath(); ctx.arc(84, 104, 9, 0, 6.283); ctx.fill();
+  ctx.fillStyle = "#fff";
+  ctx.fillText("METEO CILENTO", 112, 115);
+  ctx.textAlign = "right";
+  ctx.fillStyle = "rgba(228,238,255,.75)";
+  ctx.fillText(new Date().toLocaleDateString(LOCALE, { weekday:"long", day:"numeric", month:"long" }).toUpperCase(), W - 72, 115);
+  ctx.textAlign = "left";
+
+  // impaginazione dal basso verso l'alto, così il testo non si sovrappone mai
+  const riassunto = $("riassunto").textContent.trim();
+  ctx.font = "400 34px Inter, sans-serif";
+  const righe = riassunto ? andaACapo(ctx, riassunto, W - 144).slice(0, 3) : [];
+  const yRiassunto = H - 140 - (righe.length - 1) * 46;
+  const yMinmax = righe.length ? yRiassunto - 76 : H - 140;
+  const yCondizione = yMinmax - 58;
+  const yTemp = yCondizione - 82;
+  const yNome = yTemp - 268;
+
+  ctx.font = "600 64px Inter, sans-serif";
+  ctx.fillStyle = "#fff";
+  ctx.fillText(nome, 72, yNome);
+
+  ctx.font = "200 300px Inter, sans-serif";
+  const tg = ctx.createLinearGradient(0, yTemp - 230, 0, yTemp);
+  tg.addColorStop(0, "#ffffff"); tg.addColorStop(1, "#b9d6ff");
+  ctx.fillStyle = tg;
+  ctx.shadowColor = "rgba(47,125,255,.5)"; ctx.shadowBlur = 60;
+  ctx.fillText($("temp").textContent, 52, yTemp);
+  ctx.shadowBlur = 0;
+
+  ctx.font = "500 50px Inter, sans-serif";
+  ctx.fillStyle = "#fff";
+  ctx.fillText($("description").textContent, 72, yCondizione);
+  ctx.font = "500 30px 'Space Grotesk', Inter, sans-serif";
+  ctx.fillStyle = "rgba(228,238,255,.75)";
+  ctx.fillText($("minmax").textContent, 72, yMinmax);
+
+  ctx.font = "400 34px Inter, sans-serif";
+  ctx.fillStyle = "rgba(244,248,255,.92)";
+  righe.forEach((r, i) => ctx.fillText(r, 72, yRiassunto + i * 46));
+
+  // piè di pagina
+  ctx.font = "500 26px 'Space Grotesk', Inter, sans-serif";
+  ctx.fillStyle = "rgba(140,196,255,.9)";
+  ctx.fillText((location.host + location.pathname).replace(/index\.html$/, "").replace(/\/$/, ""), 72, H - 60);
+
+  return new Promise(ok => tela.toBlob(ok, "image/jpeg", .9));
+}
+
+$("condividi").addEventListener("click", async () => {
+  const pulsante = $("condividi");
+  pulsante.classList.add("cerca");
+  try{
+    const blob = await creaImmagineMeteo();
+    const luogo = comuneCorrente();
+    const nome = luogo.posizione ? (luogo.vicino || tr("La mia posizione")) : luogo.nome;
+    const testo = `${nome}: ${$("temp").textContent} ${$("description").textContent.toLowerCase()}. ${$("riassunto").textContent.trim()}`;
+    const file = new File([blob], "meteo-cilento.jpg", { type:"image/jpeg" });
+    if(navigator.canShare && navigator.canShare({ files:[file] })){
+      await navigator.share({ files:[file], title:"Meteo Cilento", text: testo + " " + location.href.split("#")[0] });
+    }else{
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = "meteo-cilento.jpg";
+      document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+      avviso("Immagine del meteo salvata: puoi condividerla dalla galleria.");
+    }
+  }catch(e){
+    if(e && e.name !== "AbortError"){ console.error(e); avviso("Non è stato possibile creare l'immagine."); }
+  }finally{
+    pulsante.classList.remove("cerca");
+  }
 });
 
 /* =========================================================
@@ -2993,6 +3791,32 @@ ${sp.immagine ? `<img src="${pulisci(sp.immagine)}" alt="" loading="lazy">` : ""
 }
 
 /* =========================================================
+   LINGUA (dizionario in lingue.js)
+========================================================= */
+
+$("codiceLingua").textContent = LINGUA.toUpperCase();
+$("menuLingua").innerHTML = Object.entries(LINGUE).map(([codice, nome]) =>
+  `<button type="button" role="menuitem" data-lingua="${codice}" class="${codice === LINGUA ? "attiva" : ""}"><span class="nome-paese">${nome}</span><span class="nome-paese">${codice.toUpperCase()}</span></button>`).join("");
+$("sceltaLingua").addEventListener("click", e => {
+  e.stopPropagation();
+  $("menuLingua").hidden = !$("menuLingua").hidden;
+});
+document.addEventListener("click", () => { $("menuLingua").hidden = true; });
+$("menuLingua").addEventListener("click", async e => {
+  const b = e.target.closest("button[data-lingua]");
+  if(!b) return;
+  try{ localStorage.setItem("meteoCilento.lingua", b.dataset.lingua); }catch(err){}
+  // anche le notifiche passano alla nuova lingua
+  const sub = await abbonamentoAttuale().catch(() => null);
+  if(sub && configNotifiche?.server){
+    const dati = datiIscrizione(sub);
+    dati.lingua = b.dataset.lingua;
+    await fetch(configNotifiche.server.replace(/\/$/, "") + "/iscrivi", { method:"POST", headers:{ "Content-Type":"application/json" }, body: JSON.stringify(dati) }).catch(() => {});
+  }
+  location.reload();
+});
+
+/* =========================================================
    AVVIO
 ========================================================= */
 
@@ -3007,8 +3831,12 @@ function mostraNomeLuogo(){
 
 function cambiaComune(){
   mostraNomeLuogo();
+  mostraAllerta();
+  aggiornaLuogoNotifiche();
   loadWeather();
   caricaMare();
+  caricaAria();
+  aggiornaRadarVicino();
   aggiornaMappa();
 }
 
@@ -3016,7 +3844,13 @@ mostraSezione("meteo");
 cambiaComune();
 loadRadar();
 caricaMareMigliore();
+caricaMontagne();
+caricaAllerta();
 caricaSponsor();
+preparaNotifiche();
+
+// Apertura da una notifica di allerta (indirizzo con #allerte)
+if(location.hash === "#allerte") mostraSezione("allerte");
 
 // Se la persona usa la posizione esatta e ha già dato il permesso, la aggiorna subito
 if(posizione) permessoPosizioneConcesso().then(ok => { if(ok) usaPosizioneEsatta(true); });
@@ -3025,7 +3859,10 @@ setInterval(async () => {
   if(posizione && await permessoPosizioneConcesso()) usaPosizioneEsatta(true);
   loadWeather();
   caricaMare();
+  caricaAria();
   caricaMareMigliore();
+  caricaMontagne();
+  caricaAllerta();
 }, AGGIORNAMENTO_MS);
 
 // Il radar si aggiorna ogni 5 minuti, come la rete della Protezione Civile
