@@ -1,0 +1,16 @@
+{
+  "name": "meteo-cilento-notifiche",
+  "private": true,
+  "type": "module",
+  "description": "Server di Meteo Cilento: notifiche e assistente (Cloudflare Worker)",
+  "scripts": {
+    "test": "node test-webpush.mjs && node test-worker.mjs && node test-assistente.mjs",
+    "deploy": "wrangler deploy"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^1.12.0"
+  },
+  "devDependencies": {
+    "wrangler": "^4.0.0"
+  }
+}

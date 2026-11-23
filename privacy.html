@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#02040a">
+<title>Privacy · Meteo Cilento</title>
+<link rel="icon" type="image/png" sizes="32x32" href="icone/favicon-32.png">
+<style>
+:root{--nero:#02040a;--blu:#2f7dff;--blu-chiaro:#8cc4ff;--bianco:#f4f8ff;--testo-2:rgba(228,238,255,.7);--bordo:rgba(255,255,255,.1);}
+*{box-sizing:border-box;}
+body{margin:0;background:radial-gradient(ellipse 90% 50% at 50% 0%,rgba(47,125,255,.25),transparent 70%),var(--nero);color:var(--bianco);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Arial,sans-serif;line-height:1.6;-webkit-font-smoothing:antialiased;}
+main{max-width:720px;margin:0 auto;padding:calc(24px + env(safe-area-inset-top)) 18px 60px;}
+a{color:var(--blu-chiaro);}
+.indietro{display:inline-block;margin-bottom:18px;text-decoration:none;font-weight:600;}
+.lingue{display:flex;gap:8px;margin-bottom:18px;}
+.lingue button{padding:8px 14px;border-radius:999px;border:1px solid var(--bordo);background:rgba(255,255,255,.06);color:var(--bianco);font:inherit;font-size:14px;cursor:pointer;}
+.lingue button.attiva{background:rgba(47,125,255,.3);border-color:rgba(140,196,255,.4);}
+h1{font-size:28px;margin:0 0 6px;}
+h2{font-size:17px;margin:28px 0 8px;color:var(--blu-chiaro);}
+p,li{color:var(--testo-2);font-size:15px;}
+.card{margin-top:16px;padding:16px 18px;border-radius:18px;background:rgba(255,255,255,.05);border:1px solid var(--bordo);}
+.da-completare{color:#ffd166;font-weight:600;}
+[hidden]{display:none !important;}
+</style>
+</head>
+<body>
+<main>
+  <a class="indietro" href="./">← Meteo Cilento</a>
+  <div class="lingue">
+    <button type="button" data-l="it">Italiano</button>
+    <button type="button" data-l="en">English</button>
+    <button type="button" data-l="de">Deutsch</button>
+  </div>
+
+  <article data-lingua="it">
+    <h1>Privacy</h1>
+    <p>Ultimo aggiornamento: 23 novembre 2026</p>
+    <div class="card">
+      <p><b>Gestore dell'app:</b> <span class="da-completare">da indicare (nome e contatto email)</span></p>
+    </div>
+
+    <h2>In breve</h2>
+    <p>Meteo Cilento non ha account, non usa cookie di profilazione e non mostra pubblicità basata sui tuoi dati. Le tue scelte (paese, preferiti, lingua, tendine aperte) restano salvate sul tuo telefono.</p>
+
+    <h2>Posizione</h2>
+    <p>Se tocchi il pulsante della posizione, il telefono ti chiede il permesso. Le coordinate servono a chiedere le previsioni del punto in cui ti trovi ai servizi meteo elencati sotto e restano salvate sul tuo telefono. Puoi tornare a un paese in qualsiasi momento.</p>
+
+    <h2>Notifiche (se le attivi)</h2>
+    <p>Per inviarti gli avvisi, il server dell'app (Cloudflare) conserva l'indirizzo tecnico di notifica fornito dal browser, il paese o le coordinate scelte, la lingua e i tipi di avviso. Disattivando le notifiche questi dati vengono cancellati subito.</p>
+
+    <h2>Assistente (se lo usi)</h2>
+    <p>Quando fai una domanda all'assistente, il testo della domanda e i dati meteo del luogo scelto vengono inviati al server dell'app e ad Anthropic, che fornisce il modello di intelligenza artificiale Claude, solo per generare la risposta. Non inserire dati personali nelle domande. Per limitare le domande giornaliere il server conserva per due giorni un conteggio legato a un'impronta cifrata del tuo indirizzo IP.</p>
+
+    <h2>Servizi esterni</h2>
+    <p>Per mostrarti meteo, mappe e foto, il tuo telefono si collega direttamente a questi servizi, che come ogni sito ricevono il tuo indirizzo IP:</p>
+    <ul>
+      <li>Open-Meteo (previsioni, mare, qualità dell'aria, archivio climatico)</li>
+      <li>Dipartimento della Protezione Civile (radar) e RainViewer (radar di riserva)</li>
+      <li>OpenStreetMap (mappa) e Wikimedia Commons (foto dei paesi)</li>
+      <li>Google Fonts e unpkg (caratteri e librerie della pagina)</li>
+      <li>GitHub Pages (pubblicazione del sito)</li>
+    </ul>
+
+    <h2>I tuoi diritti</h2>
+    <p>Secondo il Regolamento europeo sulla protezione dei dati (GDPR) puoi chiedere di accedere ai tuoi dati, di correggerli o di cancellarli, scrivendo al gestore indicato sopra. Puoi anche presentare reclamo al Garante per la protezione dei dati personali.</p>
+  </article>
+
+  <article data-lingua="en" hidden>
+    <h1>Privacy</h1>
+    <p>Last updated: 23 November 2026</p>
+    <div class="card">
+      <p><b>App operator:</b> <span class="da-completare">to be added (name and contact email)</span></p>
+    </div>
+
+    <h2>In short</h2>
+    <p>Meteo Cilento has no accounts, uses no profiling cookies and shows no advertising based on your data. Your choices (town, favourites, language, open sections) stay saved on your phone.</p>
+
+    <h2>Location</h2>
+    <p>If you tap the location button, your phone asks for permission. The coordinates are used to request the forecast for where you are from the weather services listed below and stay saved on your phone. You can switch back to a town at any time.</p>
+
+    <h2>Notifications (if you turn them on)</h2>
+    <p>To send you alerts, the app's server (Cloudflare) stores the technical notification address provided by your browser, the chosen town or coordinates, your language and the alert types. Turning notifications off deletes this data immediately.</p>
+
+    <h2>Assistant (if you use it)</h2>
+    <p>When you ask the assistant a question, your question and the weather data for the chosen place are sent to the app's server and to Anthropic, which provides the Claude AI model, only to generate the answer. Don't include personal data in your questions. To limit daily questions, the server keeps a count linked to an encrypted fingerprint of your IP address for two days.</p>
+
+    <h2>External services</h2>
+    <p>To show you weather, maps and photos, your phone connects directly to these services, which, like any website, receive your IP address:</p>
+    <ul>
+      <li>Open-Meteo (forecasts, sea, air quality, climate archive)</li>
+      <li>Italian Civil Protection Department (radar) and RainViewer (backup radar)</li>
+      <li>OpenStreetMap (map) and Wikimedia Commons (town photos)</li>
+      <li>Google Fonts and unpkg (page fonts and libraries)</li>
+      <li>GitHub Pages (website hosting)</li>
+    </ul>
+
+    <h2>Your rights</h2>
+    <p>Under the EU General Data Protection Regulation (GDPR) you can ask to access, correct or delete your data by writing to the operator named above. You can also lodge a complaint with the Italian Data Protection Authority (Garante per la protezione dei dati personali).</p>
+  </article>
+
+  <article data-lingua="de" hidden>
+    <h1>Datenschutz</h1>
+    <p>Zuletzt aktualisiert: 23. November 2026</p>
+    <div class="card">
+      <p><b>Betreiber der App:</b> <span class="da-completare">noch anzugeben (Name und E-Mail-Kontakt)</span></p>
+    </div>
+
+    <h2>Kurz gesagt</h2>
+    <p>Meteo Cilento hat keine Konten, verwendet keine Profiling-Cookies und zeigt keine Werbung auf Grundlage deiner Daten. Deine Einstellungen (Ort, Favoriten, Sprache, geöffnete Bereiche) bleiben auf deinem Handy gespeichert.</p>
+
+    <h2>Standort</h2>
+    <p>Wenn du auf die Standort-Taste tippst, fragt dein Handy um Erlaubnis. Die Koordinaten dienen dazu, die Vorhersage für deinen Standort bei den unten genannten Wetterdiensten abzufragen, und bleiben auf deinem Handy gespeichert. Du kannst jederzeit zu einem Ort zurückwechseln.</p>
+
+    <h2>Benachrichtigungen (wenn du sie aktivierst)</h2>
+    <p>Um dir Warnungen zu schicken, speichert der Server der App (Cloudflare) die technische Benachrichtigungsadresse deines Browsers, den gewählten Ort oder die Koordinaten, die Sprache und die Art der Warnungen. Beim Deaktivieren werden diese Daten sofort gelöscht.</p>
+
+    <h2>Assistent (wenn du ihn nutzt)</h2>
+    <p>Wenn du dem Assistenten eine Frage stellst, werden deine Frage und die Wetterdaten des gewählten Ortes an den Server der App und an Anthropic gesendet, das das KI-Modell Claude bereitstellt, nur um die Antwort zu erzeugen. Gib in deinen Fragen keine persönlichen Daten an. Um die täglichen Fragen zu begrenzen, speichert der Server zwei Tage lang einen Zähler, der mit einem verschlüsselten Fingerabdruck deiner IP-Adresse verknüpft ist.</p>
+
+    <h2>Externe Dienste</h2>
+    <p>Um Wetter, Karten und Fotos anzuzeigen, verbindet sich dein Handy direkt mit diesen Diensten, die wie jede Website deine IP-Adresse erhalten:</p>
+    <ul>
+      <li>Open-Meteo (Vorhersagen, Meer, Luftqualität, Klimaarchiv)</li>
+      <li>Italienischer Zivilschutz (Radar) und RainViewer (Ersatzradar)</li>
+      <li>OpenStreetMap (Karte) und Wikimedia Commons (Fotos der Orte)</li>
+      <li>Google Fonts und unpkg (Schriften und Bibliotheken der Seite)</li>
+      <li>GitHub Pages (Veröffentlichung der Website)</li>
+    </ul>
+
+    <h2>Deine Rechte</h2>
+    <p>Nach der Datenschutz-Grundverordnung (DSGVO) kannst du Auskunft, Berichtigung oder Löschung deiner Daten verlangen, indem du dem oben genannten Betreiber schreibst. Du kannst dich auch bei der italienischen Datenschutzbehörde (Garante per la protezione dei dati personali) beschweren.</p>
+  </article>
+</main>
+<script>
+(function(){
+  let l = "it";
+  try{ l = localStorage.getItem("meteoCilento.lingua") || (navigator.language || "it").slice(0, 2); }catch(e){}
+  if(!["it", "en", "de"].includes(l)) l = "it";
+  function mostra(x){
+    document.documentElement.lang = x;
+    document.querySelectorAll("article").forEach(a => a.hidden = a.dataset.lingua !== x);
+    document.querySelectorAll(".lingue button").forEach(b => b.classList.toggle("attiva", b.dataset.l === x));
+  }
+  document.querySelector(".lingue").addEventListener("click", e => { const b = e.target.closest("button"); if(b) mostra(b.dataset.l); });
+  mostra(l);
+})();
+</script>
+</body>
+</html>
