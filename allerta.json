@@ -1,9 +1,9 @@
 {
- "id": "20261122_1447",
- "bollettino": "Bollettino del 22 novembre 2026 ore 14:47",
+ "id": "20261123_1431",
+ "bollettino": "Bollettino del 23 novembre 2026 ore 14:31",
  "fonte": "Dipartimento della Protezione Civile · Bollettino di criticità nazionale (CC BY 4.0)",
  "giorni": {
-  "2026-11-22": {
+  "2026-11-23": {
    "S": {
     "livello": "verde",
     "idrogeologico": "verde",
@@ -23,7 +23,7 @@
     "temporali": "verde"
    }
   },
-  "2026-11-23": {
+  "2026-11-24": {
    "S": {
     "livello": "verde",
     "idrogeologico": "verde",
