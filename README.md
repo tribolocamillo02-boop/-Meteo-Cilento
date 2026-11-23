@@ -6,6 +6,37 @@ Previsioni meteo per tutti i paesi del Cilento (118 tra comuni e località di ma
 Dati: [Open-Meteo](https://open-meteo.com) (meteo e mare), [radar della Protezione Civile](https://radar.protezionecivile.gov.it) (CC BY-SA 4.0, con [RainViewer](https://www.rainviewer.com) di riserva),
 [Wikimedia Commons](https://commons.wikimedia.org) (foto), © OpenStreetMap © CARTO (mappa).
 
+## Installare l'app sul telefono
+
+Meteo Cilento si installa come un'app, senza store:
+
+- **iPhone (Safari):** tocca *Condividi* e poi *Aggiungi alla schermata Home*.
+- **Android (Chrome):** tocca *Installa* nel riquadro che compare in fondo alla pagina Meteo,
+  oppure menu ⋮ → *Installa app*.
+
+Si apre a schermo intero con la sua icona e funziona anche senza connessione,
+mostrando gli ultimi dati scaricati (in alto compare «OFFLINE» con l'ora).
+
+## Sponsor locali
+
+Lo spazio sponsor in fondo alla pagina Meteo resta invisibile finché il file
+`sponsor.json` è vuoto (`[]`). Per aggiungere uno sponsor:
+
+```json
+[
+  {
+    "nome": "Lido Esempio",
+    "descrizione": "Ombrelloni e cucina di mare a Marina di Casal Velino",
+    "link": "https://www.esempio.it",
+    "immagine": "sponsor/lido-esempio.jpg"
+  }
+]
+```
+
+- `nome`, `descrizione` e `link` sono obbligatori; `immagine` è facoltativa
+  (quadrata, circa 200×200 pixel, da mettere nella cartella `sponsor/`).
+- Con più sponsor, vengono mostrati a turno ogni 9 secondi.
+
 ## Le foto dei paesi
 
 In alto il sito mostra una foto del comune scelto e ci disegna sopra il meteo reale
