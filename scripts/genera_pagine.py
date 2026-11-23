@@ -208,7 +208,7 @@ def pagina(p, paesi, mare):
   <ul class="link">{vicini_html}</ul>
 
   <footer>
-    <p><a href="../">Tutti i paesi del Cilento</a> · <a href="../../privacy.html">Privacy</a></p>
+    <p><a href="../">Tutti i paesi del Cilento</a> · <a href="../../privacy.html">Privacy</a> · <a href="../../pubblicita.html">Pubblicità</a></p>
     <p>Dati meteo: Open-Meteo · Radar: Dipartimento della Protezione Civile</p>
   </footer>
 </main>
@@ -251,7 +251,7 @@ def elenco(paesi):
   <h1>Il meteo di tutti i paesi del Cilento</h1>
   <p>{html.escape(descr)} Scegli un paese per le previsioni, oppure <a href="../">apri l'app</a>.</p>
 {gruppi}
-  <footer><p><a href="../">Cilento Meteo</a> · <a href="../privacy.html">Privacy</a></p></footer>
+  <footer><p><a href="../">Cilento Meteo</a> · <a href="../privacy.html">Privacy</a> · <a href="../pubblicita.html">Pubblicità</a></p></footer>
 </main>
 {STATISTICHE}
 </body>
@@ -279,7 +279,7 @@ def main():
         f.write(elenco(paesi))
 
     oggi = date.today().isoformat()
-    url = [SITO, SITO + "paesi/", SITO + "privacy.html"] + [f"{SITO}paesi/{slug(p['nome'])}/" for p in paesi]
+    url = [SITO, SITO + "paesi/", SITO + "privacy.html", SITO + "pubblicita.html"] + [f"{SITO}paesi/{slug(p['nome'])}/" for p in paesi]
     with open(os.path.join(RADICE, "sitemap.xml"), "w", encoding="utf-8") as f:
         f.write('<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n')
         for u in url:

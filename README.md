@@ -82,23 +82,40 @@ mostrando gli ultimi dati scaricati (in alto compare «OFFLINE» con l'ora).
 
 ## Sponsor locali
 
-Lo spazio sponsor in fondo alla pagina Meteo resta invisibile finché il file
-`sponsor.json` è vuoto (`[]`). Per aggiungere uno sponsor:
+Gli sponsor si gestiscono nel file `sponsor.json`. Finché è vuoto (`[]`), nella
+pagina Meteo compare l'invito «Il tuo locale qui», che porta alla pagina
+`pubblicita.html` con i pacchetti e i contatti (da inserire in `CONTATTO`, in
+fondo a quella pagina).
 
 ```json
 [
   {
     "nome": "Lido Esempio",
-    "descrizione": "Ombrelloni e cucina di mare a Marina di Casal Velino",
+    "descrizione": "Ombrelloni e cucina di mare",
     "link": "https://www.esempio.it",
-    "immagine": "sponsor/lido-esempio.jpg"
+    "immagine": "sponsor/lido-esempio.jpg",
+    "telefono": "+39 333 1234567",
+    "paesi": ["Palinuro"],
+    "sezioni": ["mare"],
+    "dal": "2027-06-01",
+    "al": "2027-09-30"
   }
 ]
 ```
 
-- `nome`, `descrizione` e `link` sono obbligatori; `immagine` è facoltativa
-  (quadrata, circa 200×200 pixel, da mettere nella cartella `sponsor/`).
-- Con più sponsor, vengono mostrati a turno ogni 9 secondi.
+- `nome`, `descrizione` e `link` sono obbligatori; tutto il resto è facoltativo.
+- `immagine`: quadrata, circa 200×200 pixel, nella cartella `sponsor/`.
+- `telefono`: aggiunge il pulsante «Chiama».
+- Dove appare: `paesi` (nomi esatti dei paesi), `zone` (es. `"Vallo di Diano"`)
+  oppure `centro` + `km` (es. `"centro": "Palinuro", "km": 20`). Senza nessuno
+  di questi appare in tutto il Cilento. Gli sponsor del paese hanno la
+  precedenza su quelli di zona e di tutto il Cilento.
+- `sezioni`: `["meteo"]`, `["mare"]` o entrambe (predefinito).
+- `dal` / `al`: periodo in cui è visibile (date AAAA-MM-GG).
+- Al link vengono aggiunti `utm_source=cilentometeo`, `utm_medium=app` e
+  `utm_campaign=<paese>`, così lo sponsor vede nelle sue statistiche le visite
+  arrivate dall'app.
+- Con più sponsor nello stesso posto, vengono mostrati a turno ogni 9 secondi.
 
 ## Le foto dei paesi
 

@@ -797,6 +797,13 @@ box-shadow:0 6px 20px rgba(47,125,255,.35);
 .sponsor img{width:64px;height:64px;border-radius:14px;object-fit:cover;flex:none;}
 .sponsor b{display:block;font-size:16px;}
 .sponsor span{font-size:13px;color:var(--testo-2);line-height:1.4;}
+.sponsor .sponsor-chiama{flex:none;margin-left:auto;padding:8px 12px;border-radius:999px;background:rgba(47,125,255,.22);border:1px solid rgba(140,196,255,.35);font:600 13px/1 var(--font-tecnico);color:var(--bianco);}
+.sponsor a.sponsor-tel{display:inline-flex;margin-top:10px;}
+.sponsor-invito{padding:14px 18px;}
+.sponsor-invito a{margin-top:0;}
+.sponsor-invito .sponsor-piu{flex:none;width:44px;height:44px;border-radius:14px;display:grid;place-items:center;background:rgba(47,125,255,.18);border:1px dashed rgba(140,196,255,.45);font-size:22px;color:var(--blu-chiaro);}
+.sponsor-invito b{font-size:14.5px;}
+.sponsor-invito span{font-size:12.5px;}
 
 /* ---------- Pagine a tendina ---------- */
 
@@ -1561,6 +1568,8 @@ html.leggero .temp{filter:none;}
         <div id="mareGiorni"><div class="scheletro" style="height:180px"></div></div>
       </div>
     </details>
+
+    <aside class="card sponsor" id="sponsorMare" hidden></aside>
   </section>
 
   <section id="sezione-montagna">
@@ -1694,7 +1703,7 @@ html.leggero .temp{filter:none;}
     </details>
   </section>
 
-  <footer>Cilento Meteo · Dati Open-Meteo · Radar Protezione Civile · Wikimedia Commons<br><a href="paesi/" class="link-privacy">Tutti i paesi</a> · <a href="privacy.html" class="link-privacy">Privacy</a></footer>
+  <footer>Cilento Meteo · Dati Open-Meteo · Radar Protezione Civile · Wikimedia Commons<br><a href="paesi/" class="link-privacy">Tutti i paesi</a> · <a href="privacy.html" class="link-privacy">Privacy</a> · <a href="pubblicita.html" class="link-privacy">Pubblicità</a></footer>
 </main>
 
 <nav class="tabbar" aria-label="Sezioni">
@@ -4099,30 +4108,109 @@ if("serviceWorker" in navigator && (location.protocol === "https:" || location.h
    SPONSOR LOCALI (file sponsor.json, vedi README)
 ========================================================= */
 
+let elencoSponsor = [];
+let sponsorCaricati = false;
+const timerSponsor = {};
+
 async function caricaSponsor(){
   try{
     const r = await fetch("sponsor.json", { cache:"no-cache" });
-    if(!r.ok) return;
-    const lista = (await r.json()).filter(x => x && x.nome && x.link);
-    if(!lista.length) return;
+    if(r.ok){
+      const dati = await r.json();
+      if(Array.isArray(dati)) elencoSponsor = dati.filter(x => x && x.nome && x.link);
+    }
+  }catch(e){
+    console.log("Sponsor non disponibili:", e);
+  }
+  sponsorCaricati = true;
+  mostraSponsor();
+}
 
-    const box = $("sponsor");
-    const pulisci = t => String(t || "").replace(/[<>&"]/g, ch => ({ "<":"&lt;", ">":"&gt;", "&":"&amp;", '"':"&quot;" }[ch]));
+// Uno sponsor è attivo nel periodo dal/al (date AAAA-MM-GG, facoltative)
+function sponsorAttivo(sp){
+  const oggi = new Date().toISOString().slice(0, 10);
+  if(sp.dal && oggi < sp.dal) return false;
+  if(sp.al && oggi > sp.al) return false;
+  return true;
+}
+
+// 2 = sponsor del paese, 1 = della zona o di tutto il Cilento, 0 = non va mostrato qui
+function sponsorPunteggio(sp, luogo, sezione){
+  if(!sponsorAttivo(sp)) return 0;
+  const sezioni = Array.isArray(sp.sezioni) && sp.sezioni.length ? sp.sezioni : ["meteo", "mare"];
+  if(!sezioni.includes(sezione)) return 0;
+  const paesi = Array.isArray(sp.paesi) ? sp.paesi : [];
+  const zone = Array.isArray(sp.zone) ? sp.zone : [];
+  // "centro" (un paese) + "km": tutti i luoghi entro quella distanza
+  const centro = sp.centro && sp.km ? COMUNI.find(c => c[0] === sp.centro) : null;
+  if(!paesi.length && !zone.length && !centro) return 1;
+  const nome = luogo.posizione ? luogo.vicino : luogo.nome;
+  if(nome && paesi.includes(nome)) return 2;
+  const riga = nome ? COMUNI.find(c => c[0] === nome) : null;
+  if(riga && zone.includes(riga[1])) return 1;
+  if(centro && distanzaKm(luogo.lat, luogo.lon, centro[2], centro[3]) <= Number(sp.km)) return 1;
+  return 0;
+}
+
+function linkSponsor(link, luogo){
+  try{
+    const u = new URL(link, location.href);
+    if(!/^https?:$/.test(u.protocol)) return u.protocol === "tel:" || u.protocol === "mailto:" ? u.href : "#";
+    if(!u.searchParams.has("utm_source")){
+      u.searchParams.set("utm_source", "cilentometeo");
+      u.searchParams.set("utm_medium", "app");
+      u.searchParams.set("utm_campaign", slug((luogo.posizione ? luogo.vicino : luogo.nome) || "cilento"));
+    }
+    return u.href;
+  }catch(e){ return "#"; }
+}
+
+function mostraSponsor(){
+  if(!sponsorCaricati) return;
+  const luogo = comuneCorrente();
+  const pulisci = t => String(t || "").replace(/[<>&"]/g, ch => ({ "<":"&lt;", ">":"&gt;", "&":"&amp;", '"':"&quot;" }[ch]));
+  for(const [id, sezione] of [["sponsor", "meteo"], ["sponsorMare", "mare"]]){
+    const box = $(id);
+    if(!box) continue;
+    clearInterval(timerSponsor[id]);
+    const conPunteggio = elencoSponsor
+      .map(sp => ({ sp, p: sponsorPunteggio(sp, luogo, sezione) }))
+      .filter(x => x.p > 0);
+    // Prima gli sponsor del paese; se non ce ne sono, quelli della zona e di tutto il Cilento
+    const migliori = conPunteggio.some(x => x.p === 2) ? conPunteggio.filter(x => x.p === 2) : conPunteggio;
+    const lista = migliori.map(x => x.sp);
+
+    if(!lista.length){
+      box.classList.remove("sponsor-invito");
+      if(sezione === "meteo"){
+        box.classList.add("sponsor-invito");
+        box.innerHTML = `<a href="pubblicita.html">
+<span class="sponsor-piu">+</span>
+<div><b>Il tuo locale qui</b><span>Pubblicizza la tua attività su Cilento Meteo</span></div>
+</a>`;
+        box.hidden = false;
+      }else{
+        box.hidden = true;
+        box.innerHTML = "";
+      }
+      continue;
+    }
+
+    box.classList.remove("sponsor-invito");
     let k = Math.floor(Math.random() * lista.length);
     const mostra = () => {
       const sp = lista[k % lista.length];
+      const tel = sp.telefono ? String(sp.telefono).replace(/[^\d+]/g, "") : "";
       box.innerHTML = `<div class="sponsor-etichetta">Sponsor · consigliato in Cilento</div>
-<a href="${pulisci(sp.link)}" target="_blank" rel="noopener sponsored">
+<a href="${pulisci(linkSponsor(sp.link, luogo))}" target="_blank" rel="noopener sponsored">
 ${sp.immagine ? `<img src="${pulisci(sp.immagine)}" alt="" loading="lazy">` : ""}
 <div><b>${pulisci(sp.nome)}</b><span>${pulisci(sp.descrizione)}</span></div>
-</a>`;
+</a>${tel ? `<a href="tel:${pulisci(tel)}" class="sponsor-tel"><span class="sponsor-chiama">Chiama</span></a>` : ""}`;
       k++;
     };
     mostra();
     box.hidden = false;
-    if(lista.length > 1) setInterval(mostra, 9000);
-  }catch(e){
-    console.log("Sponsor non disponibili:", e);
+    if(lista.length > 1) timerSponsor[id] = setInterval(mostra, 9000);
   }
 }
 
@@ -4774,6 +4862,7 @@ function cambiaComune(){
   aggiornaMappa();
   mostraBalneazioneQui();
   caricaPreferiti();
+  mostraSponsor();
   storiaChat.length = 0;
 }
 
