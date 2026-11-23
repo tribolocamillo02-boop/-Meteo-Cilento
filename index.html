@@ -5,6 +5,12 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#02040a">
 <meta name="description" content="Meteo, mare e radar per tutti i paesi del Cilento, con la posizione esatta e il radar della Protezione Civile.">
+<link rel="canonical" href="https://tribolocamillo02-boop.github.io/-Meteo-Cilento/">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Meteo Cilento">
+<meta property="og:description" content="Meteo, mare, montagna, radar e allerte per tutti i paesi del Cilento.">
+<meta property="og:image" content="https://tribolocamillo02-boop.github.io/-Meteo-Cilento/icone/icona-512.png">
+<meta property="og:locale" content="it_IT">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" type="image/png" sizes="32x32" href="icone/favicon-32.png">
 <link rel="apple-touch-icon" href="icone/apple-touch-icon.png">
@@ -16,7 +22,6 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500;600;700&family=Space+Grotesk:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 <style>
 /* =========================================================
    METEO CILENTO — interfaccia nero / blu / bianco
@@ -1304,6 +1309,43 @@ font-weight:600;
 .vicino .ico{font-size:17px;}
 .vicino-stato{margin:8px 4px 0;font-size:13px;color:var(--testo-2);}
 
+/* ---------- Modalità leggera (telefoni lenti, risparmio dati, batteria scarica) ---------- */
+
+html.leggero .card,
+html.leggero .tabbar,
+html.leggero .pillola,
+html.leggero .chip-comune,
+html.leggero .chip-gps,
+html.leggero .foglio,
+html.leggero .foglio-pannello,
+html.leggero .menu-lingua,
+html.leggero .fab-ai,
+html.leggero .avviso,
+html.leggero .pref,
+html.leggero section{
+backdrop-filter:none !important;
+-webkit-backdrop-filter:none !important;
+}
+
+html.leggero .card{background:rgba(14,20,34,.94);box-shadow:none;}
+html.leggero .tabbar{background:rgba(8,12,22,.97);}
+html.leggero .foglio{background:rgba(2,4,10,.8);}
+html.leggero .foglio-pannello{background:#0e1424;}
+html.leggero .sfondo-foto{filter:brightness(.3);transform:none;inset:0;}
+html.leggero .hero-foto,
+html.leggero .hero-sole,
+html.leggero .hero-nebbia,
+html.leggero .hero-meteo::after,
+html.leggero .live-punto,
+html.leggero .scheletro{animation:none !important;}
+html.leggero .icona-meteo,
+html.leggero .temp{filter:none;}
+
+.menu-lingua .separatore{height:1px;margin:6px 4px;background:var(--bordo);}
+.menu-lingua .opzione-leggera small{display:block;font-size:11px;color:var(--testo-3);margin-top:2px;}
+.menu-lingua .spunta{width:20px;height:20px;border-radius:6px;border:1px solid var(--bordo);flex:none;display:inline-flex;align-items:center;justify-content:center;font-size:13px;}
+.menu-lingua .attiva .spunta{background:var(--blu);border-color:var(--blu);}
+
 @media(prefers-reduced-motion:reduce){
 *,*::before,*::after{animation:none !important;transition:none !important;}
 }
@@ -1652,7 +1694,7 @@ font-weight:600;
     </details>
   </section>
 
-  <footer>Meteo Cilento · Dati Open-Meteo · Radar Protezione Civile · Wikimedia Commons<br><a href="privacy.html" class="link-privacy">Privacy</a></footer>
+  <footer>Meteo Cilento · Dati Open-Meteo · Radar Protezione Civile · Wikimedia Commons<br><a href="paesi/" class="link-privacy">Tutti i paesi</a> · <a href="privacy.html" class="link-privacy">Privacy</a></footer>
 </main>
 
 <nav class="tabbar" aria-label="Sezioni">
@@ -1700,7 +1742,6 @@ font-weight:600;
 </div>
 
 <script src="lingue.js"></script>
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
 const $ = id => document.getElementById(id);
 const hero = $("hero");
@@ -1883,6 +1924,36 @@ try{
   }
 }catch(e){}
 
+// Link diretto a un paese: ?paese=palinuro apre quel paese (anche dalle pagine dei paesi)
+(function paeseDalLink(){
+  const richiesto = new URLSearchParams(location.search).get("paese");
+  if(!richiesto) return;
+  const i = COMUNI.findIndex(c => slug(c[0]) === slug(richiesto));
+  if(i < 0) return;
+  comuneIndice = i;
+  posizione = null;
+  try{
+    localStorage.setItem("meteoCilento.comuneNome", COMUNI[i][0]);
+    localStorage.setItem("meteoCilento.modo", "comune");
+  }catch(e){}
+})();
+
+// L'indirizzo nella barra segue il paese mostrato, così si può copiare e condividere
+function linkPaese(){
+  const luogo = comuneCorrente();
+  const base = location.origin + location.pathname.replace(/index\.html$/, "");
+  return luogo.posizione ? base : base + "?paese=" + slug(luogo.nome);
+}
+
+function aggiornaIndirizzo(){
+  try{
+    const luogo = comuneCorrente();
+    const url = new URL(location.href);
+    if(luogo.posizione) url.searchParams.delete("paese"); else url.searchParams.set("paese", slug(luogo.nome));
+    history.replaceState(null, "", url.pathname + url.search + url.hash);
+  }catch(e){}
+}
+
 function comuneCorrente(){
   if(posizione){
     const vicino = posizione.distanza <= 60 ? COMUNI[posizione.vicino] : null;
@@ -2032,7 +2103,7 @@ const rnd = (a, b) => a + Math.random() * (b - a);
 
 function fxGenera(){
   const { w, h, atm, tipo, notte } = fx;
-  const scala = Math.max(.6, (w * h) / (420 * 640));
+  const scala = Math.max(.6, (w * h) / (420 * 640)) * (document.documentElement.classList.contains("leggero") ? .4 : 1);
 
   const nGocce = atm === "temporale" ? 220 : atm === "pioggia" ? (tipo === "rovesci" ? 150 : 120) : 0;
   fx.gocce = Array.from({ length: Math.round(nGocce * scala) }, () => ({
@@ -2116,8 +2187,19 @@ function fxDisegna(dt, t){
   }
 }
 
+const misuraFluidita = { tempi: [], fatta: false };
+
 function fxCiclo(t){
   const dt = fx.t0 ? Math.min(.05, (t - fx.t0) / 1000) : 0;
+  if(fx.t0 && !misuraFluidita.fatta && (fx.gocce.length || fx.fiocchi.length || fx.nuvole.length)){
+    misuraFluidita.tempi.push(t - fx.t0);
+    if(misuraFluidita.tempi.length >= 90){
+      misuraFluidita.fatta = true;
+      const ordinati = [...misuraFluidita.tempi].sort((a, b) => a - b);
+      const mediana = ordinati[Math.floor(ordinati.length / 2)];
+      if(mediana > 28) attivaLeggera("auto-lento");      // meno di circa 35 immagini al secondo
+    }
+  }
   fx.t0 = t;
   fxDisegna(dt, t);
   fx.raf = requestAnimationFrame(fxCiclo);
@@ -2440,16 +2522,24 @@ async function pioggiaRadarVicina(tempo, lat, lon){
   return { km: isFinite(minimo) ? minimo * KM_PER_PX_RADAR : null, dbzCentro: alCentro };
 }
 
+let ultimoRadarVicino = { tempo: null, controllato: 0 };
+
 async function aggiornaRadarVicino(){
   const el = $("radarVicino");
-  if(!radar.ultimoDPC){ el.textContent = ""; return; }
+  // l'ultima immagine del radar (cercata al massimo ogni 5 minuti, anche senza aprire la mappa)
+  if(radar.ultimoDPC) ultimoRadarVicino = { tempo: radar.ultimoDPC, controllato: Date.now() };
+  else if(Date.now() - ultimoRadarVicino.controllato > 5 * 60 * 1000){
+    ultimoRadarVicino = { tempo: await ultimoTempoDPC().catch(() => null), controllato: Date.now() };
+  }
+  const tempo = ultimoRadarVicino.tempo;
+  if(!tempo){ el.textContent = ""; return; }
   const luogo = comuneCorrente();
   const chiave = luogo.chiave;
-  const adesso = await pioggiaRadarVicina(radar.ultimoDPC, luogo.lat, luogo.lon);
-  const prima = await pioggiaRadarVicina(radar.ultimoDPC - 30 * 60 * 1000, luogo.lat, luogo.lon);
+  const adesso = await pioggiaRadarVicina(tempo, luogo.lat, luogo.lon);
+  const prima = await pioggiaRadarVicina(tempo - 30 * 60 * 1000, luogo.lat, luogo.lon);
   if(comuneCorrente().chiave !== chiave || !adesso) return;
 
-  const oraRadar = oraLocale(new Date(radar.ultimoDPC));
+  const oraRadar = oraLocale(new Date(tempo));
   let testo;
   if(adesso.km !== null && adesso.km < 1.5){
     const intensita = adesso.dbzCentro >= 40 ? "forte" : adesso.dbzCentro >= 30 ? "moderata" : "debole";
@@ -2923,7 +3013,8 @@ function liberaImmaginiRadar(daTempo){
 }
 
 // Strato Leaflet che scarica le immagini DPC e le colora
-const StratoRadarDPC = window.L ? L.GridLayer.extend({
+let StratoRadarDPC = null;
+function creaStratoRadar(){ StratoRadarDPC = L.GridLayer.extend({
   initialize(tempo, opzioni){
     this.tempo = tempo;
     L.setOptions(this, opzioni);
@@ -2961,7 +3052,7 @@ const StratoRadarDPC = window.L ? L.GridLayer.extend({
     });
     return tela;
   }
-}) : null;
+}); }
 
 async function ultimoTempoDPC(){
   const adesso = Math.floor(Date.now() / DPC.passoMs) * DPC.passoMs;
@@ -2976,7 +3067,36 @@ async function ultimoTempoDPC(){
 let map = null;
 let marker = null;
 
-if(window.L){
+// Leaflet (la libreria della mappa) si scarica solo quando si apre il Radar
+const LEAFLET = { css:"https://unpkg.com/leaflet@1.9.4/dist/leaflet.css", js:"https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" };
+let preparazioneMappa = null;
+
+function caricaLeaflet(){
+  if(window.L) return Promise.resolve();
+  return new Promise((ok, ko) => {
+    const css = document.createElement("link");
+    css.rel = "stylesheet"; css.href = LEAFLET.css;
+    document.head.appendChild(css);
+    const js = document.createElement("script");
+    js.src = LEAFLET.js; js.onload = ok; js.onerror = ko;
+    document.head.appendChild(js);
+  });
+}
+
+function preparaMappa(){
+  if(!preparazioneMappa){
+    preparazioneMappa = caricaLeaflet().then(inizializzaMappa).catch(e => {
+      console.error(e);
+      preparazioneMappa = null;
+      $("radarStatus").textContent = "Mappa non disponibile.";
+    });
+  }
+  return preparazioneMappa;
+}
+
+function inizializzaMappa(){
+  if(map || !window.L) return;
+  creaStratoRadar();
   map = L.map("map", { minZoom:5, maxZoom:12 }).setView([40.191, 15.109], 9);
   // Mappa OpenStreetMap resa scura con un filtro (solo lo sfondo, non il radar)
   L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
@@ -2987,6 +3107,7 @@ if(window.L){
   marker = L.marker([40.191, 15.109], {
     icon: L.divIcon({ className:"", html:'<span class="punto-mappa"></span>', iconSize:[16,16], iconAnchor:[8,8] })
   }).addTo(map).bindPopup("Casal Velino");
+  aggiornaMappa();
 }
 
 let cerchioPrecisione = null;
@@ -3108,6 +3229,7 @@ async function radarRainViewer(){
 }
 
 async function loadRadar(){
+  if(!map) await preparaMappa();
   if(!map){
     $("radarStatus").textContent = "Mappa non disponibile.";
     return;
@@ -3376,14 +3498,34 @@ document.addEventListener("click", e => {
 
 const SEZIONI = ["meteo", "mare", "montagna", "radar", "allerte"];
 
+// Dati di Mare, Montagna e Radar: si scaricano la prima volta che si apre la sezione
+const caricateIl = {};
+const CARICA_SEZIONE = {
+  mare: () => Promise.all([caricaMareMigliore(), caricaBarca()]),
+  montagna: () => caricaMontagne(),
+  radar: () => loadRadar()
+};
+
+function caricaSezione(sezione, forza = false){
+  const carica = CARICA_SEZIONE[sezione];
+  if(!carica) return Promise.resolve();
+  if(!forza && caricateIl[sezione] && Date.now() - caricateIl[sezione] < AGGIORNAMENTO_MS) return Promise.resolve();
+  caricateIl[sezione] = Date.now();
+  return carica().catch(e => { console.error(e); caricateIl[sezione] = 0; });
+}
+
 function mostraSezione(sezione){
   SEZIONI.forEach(s => { $("sezione-" + s).hidden = s !== sezione; });
   document.querySelectorAll(".tab").forEach(t => t.classList.toggle("attiva", t.dataset.sezione === sezione));
   hero.classList.toggle("compatto", sezione !== "meteo");
 
-  if(sezione === "radar" && map){
-    setTimeout(() => map.invalidateSize(), 650);
-    avviaAnimazione();
+  caricaSezione(sezione);
+  if(sezione === "radar"){
+    preparaMappa().then(() => {
+      if(!map || $("sezione-radar").hidden) return;
+      setTimeout(() => map.invalidateSize(), 650);
+      avviaAnimazione();
+    });
   }else{
     fermaAnimazione();
   }
@@ -3873,7 +4015,7 @@ async function creaImmagineMeteo(){
   // piè di pagina
   ctx.font = "500 26px 'Space Grotesk', Inter, sans-serif";
   ctx.fillStyle = "rgba(140,196,255,.9)";
-  ctx.fillText((location.host + location.pathname).replace(/index\.html$/, "").replace(/\/$/, ""), 72, H - 60);
+  ctx.fillText(linkPaese().replace(/^https?:\/\//, ""), 72, H - 60);
 
   return new Promise(ok => tela.toBlob(ok, "image/jpeg", .9));
 }
@@ -3888,7 +4030,7 @@ $("condividi").addEventListener("click", async () => {
     const testo = `${nome}: ${$("temp").textContent} ${$("description").textContent.toLowerCase()}. ${$("riassunto").textContent.trim()}`;
     const file = new File([blob], "meteo-cilento.jpg", { type:"image/jpeg" });
     if(navigator.canShare && navigator.canShare({ files:[file] })){
-      await navigator.share({ files:[file], title:"Meteo Cilento", text: testo + " " + location.href.split("#")[0] });
+      await navigator.share({ files:[file], title:"Meteo Cilento", text: testo + " " + linkPaese() });
     }else{
       const a = document.createElement("a");
       a.href = URL.createObjectURL(blob);
@@ -4478,6 +4620,8 @@ async function chiedi(domanda){
   $("chatInput").value = "";
   $("chatSuggerimenti").hidden = true;
   const attesa = aggiungiMessaggio("Sto guardando i dati…", "ai attesa");
+  // dati di mare e montagna anche se le sezioni non sono mai state aperte (al massimo 6 secondi)
+  await Promise.race([Promise.all([caricaSezione("mare"), caricaSezione("montagna")]), new Promise(ok => setTimeout(ok, 6000))]);
   try{
     const r = await fetch(configNotifiche.server.replace(/\/$/, "") + "/assistente", {
       method:"POST", headers:{ "Content-Type":"application/json" },
@@ -4520,18 +4664,77 @@ function apriDaIndirizzo(){
 window.addEventListener("hashchange", apriDaIndirizzo);
 
 /* =========================================================
+   MODALITÀ LEGGERA
+   Meno effetti (sfocature, animazioni, particelle) per telefoni lenti,
+   risparmio dati o batteria scarica. Automatica, oppure scelta nel menu.
+========================================================= */
+
+function sceltaLeggera(){
+  try{ return localStorage.getItem("meteoCilento.leggera"); }catch(e){ return null; }   // "si", "no" o null (automatica)
+}
+
+function attivaLeggera(motivo){
+  if(sceltaLeggera() === "no" && motivo.startsWith("auto")) return;
+  if(document.documentElement.classList.contains("leggero")) return;
+  document.documentElement.classList.add("leggero");
+  document.documentElement.dataset.leggero = motivo;
+  if(typeof fxGenera === "function" && fx.ctx){ fxGenera(); fxAvvia(); }
+  aggiornaVoceLeggera();
+}
+
+function disattivaLeggera(){
+  document.documentElement.classList.remove("leggero");
+  delete document.documentElement.dataset.leggero;
+  fxGenera(); fxAvvia();
+  aggiornaVoceLeggera();
+}
+
+(function decidiLeggera(){
+  const scelta = sceltaLeggera();
+  if(scelta === "si") return attivaLeggera("scelta");
+  if(scelta === "no") return;
+  const conn = navigator.connection;
+  if(conn && (conn.saveData || /(^|-)2g$/.test(conn.effectiveType || ""))) return attivaLeggera("auto-dati");
+  if((navigator.deviceMemory && navigator.deviceMemory <= 2) || (navigator.hardwareConcurrency && navigator.hardwareConcurrency <= 2)) return attivaLeggera("auto-telefono");
+  if(navigator.getBattery){
+    navigator.getBattery().then(b => {
+      const controlla = () => { if(!b.charging && b.level <= .2) attivaLeggera("auto-batteria"); };
+      controlla();
+      b.addEventListener("levelchange", controlla);
+    }).catch(() => {});
+  }
+})();
+
+function aggiornaVoceLeggera(){
+  const voce = document.querySelector(".opzione-leggera");
+  if(!voce) return;
+  const attiva = document.documentElement.classList.contains("leggero");
+  voce.classList.toggle("attiva", attiva);
+  voce.querySelector(".spunta").textContent = attiva ? "✓" : "";
+}
+
+/* =========================================================
    LINGUA (dizionario in lingue.js)
 ========================================================= */
 
 $("codiceLingua").textContent = LINGUA.toUpperCase();
 $("menuLingua").innerHTML = Object.entries(LINGUE).map(([codice, nome]) =>
-  `<button type="button" role="menuitem" data-lingua="${codice}" class="${codice === LINGUA ? "attiva" : ""}"><span class="nome-paese">${nome}</span><span class="nome-paese">${codice.toUpperCase()}</span></button>`).join("");
+  `<button type="button" role="menuitem" data-lingua="${codice}" class="${codice === LINGUA ? "attiva" : ""}"><span class="nome-paese">${nome}</span><span class="nome-paese">${codice.toUpperCase()}</span></button>`).join("")
+  + `<div class="separatore"></div><button type="button" role="menuitemcheckbox" class="opzione-leggera"><span>Modalità leggera<small>Meno effetti, più veloce</small></span><span class="spunta"></span></button>`;
+aggiornaVoceLeggera();
 $("sceltaLingua").addEventListener("click", e => {
   e.stopPropagation();
   $("menuLingua").hidden = !$("menuLingua").hidden;
 });
 document.addEventListener("click", () => { $("menuLingua").hidden = true; });
 $("menuLingua").addEventListener("click", async e => {
+  if(e.target.closest(".opzione-leggera")){
+    e.stopPropagation();
+    const attiva = document.documentElement.classList.contains("leggero");
+    try{ localStorage.setItem("meteoCilento.leggera", attiva ? "no" : "si"); }catch(err){}
+    attiva ? disattivaLeggera() : attivaLeggera("scelta");
+    return;
+  }
   const b = e.target.closest("button[data-lingua]");
   if(!b) return;
   try{ localStorage.setItem("meteoCilento.lingua", b.dataset.lingua); }catch(err){}
@@ -4560,12 +4763,13 @@ function mostraNomeLuogo(){
 
 function cambiaComune(){
   mostraNomeLuogo();
+  aggiornaIndirizzo();
   mostraAllerta();
   aggiornaLuogoNotifiche();
   loadWeather();
   caricaMare();
   caricaAria();
-  caricaBarca();
+  if(!$("sezione-mare").hidden) caricaBarca(); else caricateIl.mare = 0;
   aggiornaRadarVicino();
   aggiornaMappa();
   mostraBalneazioneQui();
@@ -4575,9 +4779,6 @@ function cambiaComune(){
 
 mostraSezione("meteo");
 cambiaComune();
-loadRadar();
-caricaMareMigliore();
-caricaMontagne();
 caricaAllerta();
 caricaSponsor();
 caricaBalneazione();
@@ -4594,15 +4795,15 @@ setInterval(async () => {
   loadWeather();
   caricaMare();
   caricaAria();
-  caricaBarca();
-  caricaMareMigliore();
-  caricaMontagne();
+  aggiornaRadarVicino();
   caricaAllerta();
   caricaPreferiti();
+  // le sezioni già aperte almeno una volta si aggiornano anche loro
+  for(const s of ["mare", "montagna"]) if(caricateIl[s]) caricaSezione(s, true);
 }, AGGIORNAMENTO_MS);
 
 // Il radar si aggiorna ogni 5 minuti, come la rete della Protezione Civile
-setInterval(loadRadar, 5 * 60 * 1000);
+setInterval(() => { if(map) loadRadar(); }, 5 * 60 * 1000);
 </script>
 </body>
 </html>
