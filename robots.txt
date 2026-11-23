@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://tribolocamillo02-boop.github.io/-Meteo-Cilento/sitemap.xml
+Sitemap: https://cilentometeo.it/sitemap.xml

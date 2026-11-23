@@ -1,4 +1,4 @@
-# Meteo Cilento
+# Cilento Meteo
 
 Previsioni meteo per tutti i paesi del Cilento (118 tra comuni e località di mare, compresi Vallo di Diano, Alburni e Piana del Sele): condizioni attuali, prossime 24 ore,
 7 giorni ora per ora, mare, radar delle precipitazioni e allerte.
@@ -71,7 +71,7 @@ non è fluida) oppure dal menu in alto (pulsante della lingua → *Modalità leg
 
 ## Installare l'app sul telefono
 
-Meteo Cilento si installa come un'app, senza store:
+Cilento Meteo si installa come un'app, senza store:
 
 - **iPhone (Safari):** tocca *Condividi* e poi *Aggiungi alla schermata Home*.
 - **Android (Chrome):** tocca *Installa* nel riquadro che compare in fondo alla pagina Meteo,

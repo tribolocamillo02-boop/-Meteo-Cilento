@@ -1,6 +1,6 @@
 # Configurazione del server delle notifiche su Cloudflare Workers.
 # Istruzioni passo passo in LEGGIMI.md.
-name = "meteo-cilento-notifiche"
+name = "cilento-meteo-notifiche"
 main = "worker.js"
 compatibility_date = "2025-01-01"
 compatibility_flags = ["nodejs_compat"]
@@ -13,9 +13,9 @@ binding = "ISCRITTI"
 id = "INCOLLA_QUI_L_ID_DEL_KV"
 
 [vars]
-SITO = "https://tribolocamillo02-boop.github.io/-Meteo-Cilento/"
+SITO = "https://cilentometeo.it/"
 VAPID_PUBBLICA = "INCOLLA_QUI_LA_CHIAVE_PUBBLICA"
-VAPID_SOGGETTO = "https://tribolocamillo02-boop.github.io/-Meteo-Cilento/"
+VAPID_SOGGETTO = "https://cilentometeo.it/"
 # Assistente: modello di Claude e numero massimo di domande al giorno per telefono
 MODELLO_AI = "claude-opus-5-5"
 LIMITE_AI = "30"

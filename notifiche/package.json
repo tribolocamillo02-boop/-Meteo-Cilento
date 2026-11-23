@@ -1,8 +1,8 @@
 {
-  "name": "meteo-cilento-notifiche",
+  "name": "cilento-meteo-notifiche",
   "private": true,
   "type": "module",
-  "description": "Server di Meteo Cilento: notifiche e assistente (Cloudflare Worker)",
+  "description": "Server di Cilento Meteo: notifiche e assistente (Cloudflare Worker)",
   "scripts": {
     "test": "node test-webpush.mjs && node test-worker.mjs && node test-assistente.mjs",
     "deploy": "wrangler deploy"

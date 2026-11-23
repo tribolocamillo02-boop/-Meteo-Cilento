@@ -6,7 +6,7 @@ const assert = (c, m) => { if(!c){ console.error("FALLITO:", m); process.exit(1)
 const kv = new Map();
 const env = {
   ISCRITTI: { get: async k => kv.get(k) ?? null, put: async (k, v) => { kv.set(k, v); }, delete: async k => { kv.delete(k); } },
-  SITO: "https://esempio.github.io/-Meteo-Cilento/", ANTHROPIC_API_KEY: "sk-ant-prova", LIMITE_AI: "3"
+  SITO: "https://esempio.it/", ANTHROPIC_API_KEY: "sk-ant-prova", LIMITE_AI: "3"
 };
 
 let ultima = null, risposta = null;
@@ -31,7 +31,7 @@ let j = await r.json();
 assert(r.status === 200 && j.risposta.startsWith("Sì: domani"), "risposta del modello restituita (solo il testo, non il ragionamento)");
 const b = ultima.body;
 assert(b.model === "claude-opus-5-5", "modello predefinito claude-opus-5-5");
-assert(b.system[0].cache_control?.type === "ephemeral" && b.system[0].text.includes("Meteo Cilento"), "istruzioni di sistema fisse e messe in cache");
+assert(b.system[0].cache_control?.type === "ephemeral" && b.system[0].text.includes("Cilento Meteo"), "istruzioni di sistema fisse e messe in cache");
 assert(b.output_config?.effort === "low" && b.max_tokens === 4000, "sforzo basso e limite di token");
 assert(b.fallbacks === "default" && (ultima.headers.get("anthropic-beta") || "").includes("server-side-fallback-2026-07-01"), "fallback lato server sui rifiuti attivo");
 assert(ultima.headers.get("x-api-key") === "sk-ant-prova" || ultima.headers.get("authorization") === "Bearer sk-ant-prova", "chiave dell'API inviata dal server");
