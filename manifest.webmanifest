@@ -1,6 +1,6 @@
 {
-  "name": "Meteo Cilento",
-  "short_name": "Meteo Cilento",
+  "name": "Cilento Meteo",
+  "short_name": "Cilento Meteo",
   "description": "Meteo, mare e radar per tutti i paesi del Cilento.",
   "lang": "it",
   "start_url": "./",

@@ -1,4 +1,4 @@
-# Server di Meteo Cilento: notifiche e assistente
+# Server di Cilento Meteo: notifiche e assistente
 
 Il server è un piccolo programma che gira su **Cloudflare Workers** (piano gratuito) e fa due cose:
 
@@ -45,10 +45,10 @@ Apri un terminale nella cartella `notifiche` del repository, poi:
    npx wrangler deploy
    ```
    Alla fine compare l'indirizzo del server, simile a
-   `https://meteo-cilento-notifiche.TUONOME.workers.dev`.
+   `https://cilento-meteo-notifiche.TUONOME.workers.dev`.
 5. **Collega l'app**: nel file `notifiche.json` (nella cartella principale del sito) scrivi
    ```json
-   { "server": "https://meteo-cilento-notifiche.TUONOME.workers.dev", "chiavePubblica": "LA_CHIAVE_PUBBLICA", "assistente": false }
+   { "server": "https://cilento-meteo-notifiche.TUONOME.workers.dev", "chiavePubblica": "LA_CHIAVE_PUBBLICA", "assistente": false }
    ```
    Da quel momento, nella sezione **Allerte** dell'app compare la scheda «Notifiche».
 

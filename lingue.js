@@ -1,4 +1,4 @@
-/* Meteo Cilento — lingue (italiano, English, Deutsch)
+/* Cilento Meteo — lingue (italiano, English, Deutsch)
    L'app è scritta in italiano. In inglese e tedesco ogni testo mostrato passa da
    questo dizionario: prima le frasi fisse, poi le regole per le frasi con numeri,
    orari e nomi. Date e giorni della settimana li traduce il browser (LOCALE). */
@@ -29,7 +29,7 @@ const DIZIONARIO = {
     "Condizioni attuali":"Current conditions", "Prossime 24 ore":"Next 24 hours", "Prossimi 7 giorni":"Next 7 days",
     "Tocca un giorno per vederlo ora per ora.":"Tap a day to see it hour by hour.",
     "Sole e luna":"Sun and moon", "Aria e pollini":"Air and pollen",
-    "Installa Meteo Cilento":"Install Meteo Cilento", "Installa":"Install",
+    "Installa Cilento Meteo":"Install Cilento Meteo", "Installa":"Install",
     "Aprila come un'app, a schermo intero, anche senza connessione.":"Open it like an app, full screen, even offline.",
     "Tocca Condividi ⬆︎ in Safari e poi «Aggiungi alla schermata Home».":"Tap Share ⬆︎ in Safari, then “Add to Home Screen”.",
     "Dove andare al mare oggi":"Where to go to the sea today",
@@ -47,7 +47,7 @@ const DIZIONARIO = {
     "Attiva le notifiche":"Turn on notifications", "Disattiva le notifiche":"Turn off notifications", "Notifiche attivate.":"Notifications turned on.",
     "Non è stato possibile cambiare le notifiche. Riprova tra poco.":"Couldn't change notifications. Please try again shortly.",
     "Le notifiche sono bloccate per questo sito: puoi riattivarle nelle impostazioni del browser.":"Notifications are blocked for this site: you can allow them again in your browser settings.",
-    "Su iPhone le notifiche funzionano con l'app installata: tocca Condividi e «Aggiungi alla schermata Home», poi apri Meteo Cilento dall'icona e attivale da qui.":"On iPhone, notifications work with the installed app: tap Share and “Add to Home Screen”, then open Meteo Cilento from its icon and turn them on here.",
+    "Su iPhone le notifiche funzionano con l'app installata: tocca Condividi e «Aggiungi alla schermata Home», poi apri Cilento Meteo dall'icona e attivale da qui.":"On iPhone, notifications work with the installed app: tap Share and “Add to Home Screen”, then open Cilento Meteo from its icon and turn them on here.",
     "Questo browser non supporta le notifiche.":"This browser does not support notifications.",
     "Cambiando paese si aggiornano da sole.":"They update automatically when you change town.",
     "Allerte meteo":"Weather alerts",
@@ -72,7 +72,7 @@ const DIZIONARIO = {
     "Non fare il bagno e non uscire in barca.":"Don't swim or go out by boat.",
     "Numeri utili":"Useful numbers", "Numero unico di emergenza":"European emergency number", "Vigili del Fuoco":"Fire brigade",
     "Emergenze in mare (Guardia Costiera)":"Emergencies at sea (Coast Guard)",
-    "Meteo Cilento · Dati Open-Meteo · Radar Protezione Civile · Wikimedia Commons":"Meteo Cilento · Data: Open-Meteo · Radar: Italian Civil Protection · Wikimedia Commons",
+    "Cilento Meteo · Dati Open-Meteo · Radar Protezione Civile · Wikimedia Commons":"Cilento Meteo · Data: Open-Meteo · Radar: Italian Civil Protection · Wikimedia Commons",
     "Usa la mia posizione esatta":"Use my exact location", "Caricamento…":"Loading…",
     "Cambia paese":"Change town", "Cerca tra i paesi del Cilento":"Search Cilento towns", "Condividi il meteo":"Share the weather",
     "Momento del radar":"Radar time", "Non ora":"Not now", "Pausa":"Pause", "Riproduci":"Play", "Scegli il comune":"Choose a town",
@@ -145,7 +145,7 @@ const DIZIONARIO = {
     "Chiedi":"Ask",
     "Chiedi all'assistente":"Ask the assistant",
     "Assistente meteo":"Weather assistant",
-    "Assistente Meteo Cilento":"Meteo Cilento assistant",
+    "Assistente Cilento Meteo":"Cilento Meteo assistant",
     "Chiudi":"Close",
     "Ciao! Chiedimi del meteo, del mare, della montagna o delle allerte nel Cilento: rispondo con i dati aggiornati dell'app.":"Hi! Ask me about the weather, the sea, the mountains or alerts in Cilento: I answer with the app's up-to-date data.",
     "Domani posso andare al mare?":"Can I go to the beach tomorrow?",
@@ -216,7 +216,7 @@ const DIZIONARIO = {
     "Condizioni attuali":"Aktuelle Bedingungen", "Prossime 24 ore":"Nächste 24 Stunden", "Prossimi 7 giorni":"Nächste 7 Tage",
     "Tocca un giorno per vederlo ora per ora.":"Tippe auf einen Tag für die stündliche Ansicht.",
     "Sole e luna":"Sonne und Mond", "Aria e pollini":"Luft und Pollen",
-    "Installa Meteo Cilento":"Meteo Cilento installieren", "Installa":"Installieren",
+    "Installa Cilento Meteo":"Cilento Meteo installieren", "Installa":"Installieren",
     "Aprila come un'app, a schermo intero, anche senza connessione.":"Öffne sie wie eine App, im Vollbild, auch offline.",
     "Tocca Condividi ⬆︎ in Safari e poi «Aggiungi alla schermata Home».":"Tippe in Safari auf Teilen ⬆︎ und dann auf „Zum Home-Bildschirm“.",
     "Dove andare al mare oggi":"Wohin heute ans Meer",
@@ -234,7 +234,7 @@ const DIZIONARIO = {
     "Attiva le notifiche":"Benachrichtigungen aktivieren", "Disattiva le notifiche":"Benachrichtigungen deaktivieren", "Notifiche attivate.":"Benachrichtigungen aktiviert.",
     "Non è stato possibile cambiare le notifiche. Riprova tra poco.":"Die Benachrichtigungen konnten nicht geändert werden. Bitte versuche es gleich noch einmal.",
     "Le notifiche sono bloccate per questo sito: puoi riattivarle nelle impostazioni del browser.":"Benachrichtigungen sind für diese Seite blockiert: Du kannst sie in den Browser-Einstellungen wieder erlauben.",
-    "Su iPhone le notifiche funzionano con l'app installata: tocca Condividi e «Aggiungi alla schermata Home», poi apri Meteo Cilento dall'icona e attivale da qui.":"Auf dem iPhone funktionieren Benachrichtigungen mit der installierten App: Tippe auf Teilen und „Zum Home-Bildschirm“, öffne Meteo Cilento über das Symbol und aktiviere sie hier.",
+    "Su iPhone le notifiche funzionano con l'app installata: tocca Condividi e «Aggiungi alla schermata Home», poi apri Cilento Meteo dall'icona e attivale da qui.":"Auf dem iPhone funktionieren Benachrichtigungen mit der installierten App: Tippe auf Teilen und „Zum Home-Bildschirm“, öffne Cilento Meteo über das Symbol und aktiviere sie hier.",
     "Questo browser non supporta le notifiche.":"Dieser Browser unterstützt keine Benachrichtigungen.",
     "Cambiando paese si aggiornano da sole.":"Sie passen sich beim Ortswechsel automatisch an.",
     "Allerte meteo":"Wetterwarnungen",
@@ -259,7 +259,7 @@ const DIZIONARIO = {
     "Non fare il bagno e non uscire in barca.":"Nicht baden und nicht mit dem Boot hinausfahren.",
     "Numeri utili":"Nützliche Nummern", "Numero unico di emergenza":"Europäische Notrufnummer", "Vigili del Fuoco":"Feuerwehr",
     "Emergenze in mare (Guardia Costiera)":"Notfälle auf See (Küstenwache)",
-    "Meteo Cilento · Dati Open-Meteo · Radar Protezione Civile · Wikimedia Commons":"Meteo Cilento · Daten: Open-Meteo · Radar: Italienischer Zivilschutz · Wikimedia Commons",
+    "Cilento Meteo · Dati Open-Meteo · Radar Protezione Civile · Wikimedia Commons":"Cilento Meteo · Daten: Open-Meteo · Radar: Italienischer Zivilschutz · Wikimedia Commons",
     "Usa la mia posizione esatta":"Meinen genauen Standort verwenden", "Caricamento…":"Wird geladen…",
     "Cambia paese":"Ort wechseln", "Cerca tra i paesi del Cilento":"Orte im Cilento suchen", "Condividi il meteo":"Wetter teilen",
     "Momento del radar":"Radarzeitpunkt", "Non ora":"Nicht jetzt", "Pausa":"Pause", "Riproduci":"Abspielen", "Scegli il comune":"Ort wählen",
@@ -324,7 +324,7 @@ const DIZIONARIO = {
     "Chiedi":"Fragen",
     "Chiedi all'assistente":"Den Assistenten fragen",
     "Assistente meteo":"Wetterassistent",
-    "Assistente Meteo Cilento":"Assistent von Meteo Cilento",
+    "Assistente Cilento Meteo":"Assistent von Cilento Meteo",
     "Chiudi":"Schließen",
     "Ciao! Chiedimi del meteo, del mare, della montagna o delle allerte nel Cilento: rispondo con i dati aggiornati dell'app.":"Hallo! Frag mich nach Wetter, Meer, Bergen oder Warnungen im Cilento: Ich antworte mit den aktuellen Daten der App.",
     "Domani posso andare al mare?":"Kann ich morgen ans Meer?",
@@ -638,7 +638,7 @@ function tr(testo){
   }
   const osserva = () => {
     elemento(document.body);
-    document.title = "METEO CILENTO";
+    document.title = "CILENTO METEO";
     new MutationObserver(lista => {
       for(const m of lista){
         if(m.type === "characterData") nodoTesto(m.target);

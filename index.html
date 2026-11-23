@@ -5,11 +5,11 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#02040a">
 <meta name="description" content="Meteo, mare e radar per tutti i paesi del Cilento, con la posizione esatta e il radar della Protezione Civile.">
-<link rel="canonical" href="https://tribolocamillo02-boop.github.io/-Meteo-Cilento/">
+<link rel="canonical" href="https://cilentometeo.it/">
 <meta property="og:type" content="website">
-<meta property="og:title" content="Meteo Cilento">
+<meta property="og:title" content="Cilento Meteo">
 <meta property="og:description" content="Meteo, mare, montagna, radar e allerte per tutti i paesi del Cilento.">
-<meta property="og:image" content="https://tribolocamillo02-boop.github.io/-Meteo-Cilento/icone/icona-512.png">
+<meta property="og:image" content="https://cilentometeo.it/icone/icona-512.png">
 <meta property="og:locale" content="it_IT">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" type="image/png" sizes="32x32" href="icone/favicon-32.png">
@@ -17,14 +17,14 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Meteo Cilento">
-<title>METEO CILENTO</title>
+<meta name="apple-mobile-web-app-title" content="Cilento Meteo">
+<title>CILENTO METEO</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500;600;700&family=Space+Grotesk:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
 /* =========================================================
-   METEO CILENTO — interfaccia nero / blu / bianco
+   CILENTO METEO — interfaccia nero / blu / bianco
 ========================================================= */
 
 :root{
@@ -1365,7 +1365,7 @@ html.leggero .temp{filter:none;}
   <div class="hero-velo"></div>
 
   <div class="topbar">
-    <div class="logo"><span class="logo-punto"></span>METEO CILENTO</div>
+    <div class="logo"><span class="logo-punto"></span>CILENTO METEO</div>
     <div class="topbar-destra">
       <div class="lingua-box">
         <button type="button" class="pillola" id="sceltaLingua" aria-label="Lingua" aria-haspopup="true"><span data-ico="lingua"></span><span id="codiceLingua">IT</span></button>
@@ -1503,7 +1503,7 @@ html.leggero .temp{filter:none;}
     <div class="card installa" id="installa" hidden>
       <img src="icone/icona-192.png" alt="" width="52" height="52">
       <div class="installa-testo">
-        <b>Installa Meteo Cilento</b>
+        <b>Installa Cilento Meteo</b>
         <span id="installaIstruzioni">Aprila come un'app, a schermo intero, anche senza connessione.</span>
       </div>
       <button type="button" class="installa-si" id="installaSi">Installa</button>
@@ -1694,7 +1694,7 @@ html.leggero .temp{filter:none;}
     </details>
   </section>
 
-  <footer>Meteo Cilento · Dati Open-Meteo · Radar Protezione Civile · Wikimedia Commons<br><a href="paesi/" class="link-privacy">Tutti i paesi</a> · <a href="privacy.html" class="link-privacy">Privacy</a></footer>
+  <footer>Cilento Meteo · Dati Open-Meteo · Radar Protezione Civile · Wikimedia Commons<br><a href="paesi/" class="link-privacy">Tutti i paesi</a> · <a href="privacy.html" class="link-privacy">Privacy</a></footer>
 </main>
 
 <nav class="tabbar" aria-label="Sezioni">
@@ -1710,7 +1710,7 @@ html.leggero .temp{filter:none;}
 <div class="foglio" id="foglioAssistente" hidden>
   <div class="foglio-pannello chat" role="dialog" aria-label="Assistente meteo">
     <div class="maniglia"></div>
-    <div class="chat-testa"><span data-ico="scintilla"></span><b>Assistente Meteo Cilento</b><button type="button" class="installa-no" id="chiudiAssistente" aria-label="Chiudi">×</button></div>
+    <div class="chat-testa"><span data-ico="scintilla"></span><b>Assistente Cilento Meteo</b><button type="button" class="installa-no" id="chiudiAssistente" aria-label="Chiudi">×</button></div>
     <div class="chat-messaggi" id="chatMessaggi">
       <div class="msg ai">Ciao! Chiedimi del meteo, del mare, della montagna o delle allerte nel Cilento: rispondo con i dati aggiornati dell'app.</div>
     </div>
@@ -3758,7 +3758,7 @@ async function preparaNotifiche(){
 
   $("schedaNotifiche").hidden = false;
   if(suIOS && !inModalitaApp){
-    $("notificheTesto").textContent = "Su iPhone le notifiche funzionano con l'app installata: tocca Condividi e «Aggiungi alla schermata Home», poi apri Meteo Cilento dall'icona e attivale da qui.";
+    $("notificheTesto").textContent = "Su iPhone le notifiche funzionano con l'app installata: tocca Condividi e «Aggiungi alla schermata Home», poi apri Cilento Meteo dall'icona e attivale da qui.";
     $("notificheAttiva").hidden = true;
     return;
   }
@@ -3973,7 +3973,7 @@ async function creaImmagineMeteo(){
   ctx.fillStyle = "#8cc4ff";
   ctx.beginPath(); ctx.arc(84, 104, 9, 0, 6.283); ctx.fill();
   ctx.fillStyle = "#fff";
-  ctx.fillText("METEO CILENTO", 112, 115);
+  ctx.fillText("CILENTO METEO", 112, 115);
   ctx.textAlign = "right";
   ctx.fillStyle = "rgba(228,238,255,.75)";
   ctx.fillText(new Date().toLocaleDateString(LOCALE, { weekday:"long", day:"numeric", month:"long" }).toUpperCase(), W - 72, 115);
@@ -4028,13 +4028,13 @@ $("condividi").addEventListener("click", async () => {
     const luogo = comuneCorrente();
     const nome = luogo.posizione ? (luogo.vicino || tr("La mia posizione")) : luogo.nome;
     const testo = `${nome}: ${$("temp").textContent} ${$("description").textContent.toLowerCase()}. ${$("riassunto").textContent.trim()}`;
-    const file = new File([blob], "meteo-cilento.jpg", { type:"image/jpeg" });
+    const file = new File([blob], "cilento-meteo.jpg", { type:"image/jpeg" });
     if(navigator.canShare && navigator.canShare({ files:[file] })){
-      await navigator.share({ files:[file], title:"Meteo Cilento", text: testo + " " + linkPaese() });
+      await navigator.share({ files:[file], title:"Cilento Meteo", text: testo + " " + linkPaese() });
     }else{
       const a = document.createElement("a");
       a.href = URL.createObjectURL(blob);
-      a.download = "meteo-cilento.jpg";
+      a.download = "cilento-meteo.jpg";
       document.body.appendChild(a); a.click(); a.remove();
       setTimeout(() => URL.revokeObjectURL(a.href), 4000);
       avviso("Immagine del meteo salvata: puoi condividerla dalla galleria.");

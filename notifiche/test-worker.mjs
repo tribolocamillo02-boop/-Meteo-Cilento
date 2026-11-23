@@ -15,7 +15,7 @@ const KV = {
 };
 const v = await crypto.subtle.generateKey({ name:"ECDSA", namedCurve:"P-256" }, true, ["sign", "verify"]);
 const env = {
-  ISCRITTI: KV, SITO: "https://esempio.github.io/-Meteo-Cilento/",
+  ISCRITTI: KV, SITO: "https://esempio.it/",
   VAPID_PUBBLICA: b64uCodifica(await crypto.subtle.exportKey("raw", v.publicKey)),
   VAPID_PRIVATA: (await crypto.subtle.exportKey("jwk", v.privateKey)).d,
   VAPID_SOGGETTO: "https://esempio.github.io/"

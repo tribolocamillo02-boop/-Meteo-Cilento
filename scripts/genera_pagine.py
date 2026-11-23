@@ -14,7 +14,7 @@ Uso: python3 scripts/genera_pagine.py
 import html, json, math, os, re, sys, unicodedata, urllib.request
 from datetime import date
 
-SITO = "https://tribolocamillo02-boop.github.io/-Meteo-Cilento/"
+SITO = "https://cilentometeo.it/"
 RADICE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 ZONE_ALLERTA = {"S": "Piana Sele e Alto Cilento", "B": "Basso Cilento", "T": "Tanagro"}
 DESCRIZIONE_ZONA = {
@@ -134,7 +134,7 @@ def pagina(p, paesi, mare):
     allerta = ZONE_ALLERTA[p["allerta"]]
     frase_mare = ("sul mare" if sul_mare else
                   f"a circa {round(dist_mare)} km dal mare di {spiaggia['nome']}" if dist_mare < 40 else "nell'entroterra")
-    titolo = f"Meteo {nome}: previsioni, mare e radar | Meteo Cilento"
+    titolo = f"Meteo {nome}: previsioni, mare e radar | Cilento Meteo"
     descr = (f"Meteo {nome} oggi, domani e per 7 giorni: previsioni ora per ora, "
              + ("mare e onde, " if sul_mare or dist_mare < 15 else "")
              + f"radar della Protezione Civile e allerte. {DESCRIZIONE_ZONA[p['zona']][0].upper() + DESCRIZIONE_ZONA[p['zona']][1:]}, {p['quota']} m.")
@@ -152,7 +152,7 @@ def pagina(p, paesi, mare):
             "containedInPlace": {"@type": "AdministrativeArea", "name": "Cilento, provincia di Salerno, Campania"}
         },
         "breadcrumb": {"@type": "BreadcrumbList", "itemListElement": [
-            {"@type": "ListItem", "position": 1, "name": "Meteo Cilento", "item": SITO},
+            {"@type": "ListItem", "position": 1, "name": "Cilento Meteo", "item": SITO},
             {"@type": "ListItem", "position": 2, "name": "Paesi", "item": SITO + "paesi/"},
             {"@type": "ListItem", "position": 3, "name": nome, "item": url}]}
     }
@@ -180,8 +180,8 @@ def pagina(p, paesi, mare):
 </head>
 <body>
 <main>
-  <a class="marchio" href="../../"><img src="../../icone/icona-192.png" alt="">METEO CILENTO</a>
-  <nav class="briciole"><a href="../../">Meteo Cilento</a> › <a href="../">Paesi</a> › {e(nome)}</nav>
+  <a class="marchio" href="../../"><img src="../../icone/icona-192.png" alt="">CILENTO METEO</a>
+  <nav class="briciole"><a href="../../">Cilento Meteo</a> › <a href="../">Paesi</a> › {e(nome)}</nav>
   <h1>Meteo {e(nome)}</h1>
   <p>{e(nome)} è {DESCRIZIONE_ZONA[p['zona']]}, a {p['quota']} metri di altitudine, {e(frase_mare)}. Qui trovi le previsioni del tempo aggiornate: com'è il meteo adesso e per i prossimi 7 giorni. Nell'app ci sono anche le previsioni ora per ora, la pioggia nelle prossime 2 ore, il radar della Protezione Civile e le allerte per la zona.</p>
 
@@ -189,7 +189,7 @@ def pagina(p, paesi, mare):
     <p>Caricamento delle previsioni di {e(nome)}…</p>
     <noscript><p>Per vedere le previsioni attiva JavaScript, oppure apri l'app.</p></noscript>
   </div>
-  <a class="apri" href="{app}">Apri {e(nome)} nell'app Meteo Cilento</a>
+  <a class="apri" href="{app}">Apri {e(nome)} nell'app Cilento Meteo</a>
 
   <h2>{e(nome)} in breve</h2>
   <div class="card">
@@ -224,7 +224,7 @@ def elenco(paesi):
             continue
         voci = "".join(f'<li><a href="{slug(p["nome"])}/">{html.escape(p["nome"])}</a></li>' for p in nomi)
         gruppi += f"<h2>{html.escape(z)} · {len(nomi)}</h2>\n<ul class=\"link\">{voci}</ul>\n"
-    titolo = "Meteo di tutti i paesi del Cilento | Meteo Cilento"
+    titolo = "Meteo di tutti i paesi del Cilento | Cilento Meteo"
     descr = f"Previsioni meteo per {len(paesi)} paesi e località di mare del Cilento, del Vallo di Diano e degli Alburni: mare, radar e allerte."
     return f"""<!DOCTYPE html>
 <html lang="it">
@@ -243,12 +243,12 @@ def elenco(paesi):
 </head>
 <body>
 <main>
-  <a class="marchio" href="../"><img src="../icone/icona-192.png" alt="">METEO CILENTO</a>
-  <nav class="briciole"><a href="../">Meteo Cilento</a> › Paesi</nav>
+  <a class="marchio" href="../"><img src="../icone/icona-192.png" alt="">CILENTO METEO</a>
+  <nav class="briciole"><a href="../">Cilento Meteo</a> › Paesi</nav>
   <h1>Il meteo di tutti i paesi del Cilento</h1>
   <p>{html.escape(descr)} Scegli un paese per le previsioni, oppure <a href="../">apri l'app</a>.</p>
 {gruppi}
-  <footer><p><a href="../">Meteo Cilento</a> · <a href="../privacy.html">Privacy</a></p></footer>
+  <footer><p><a href="../">Cilento Meteo</a> · <a href="../privacy.html">Privacy</a></p></footer>
 </main>
 </body>
 </html>

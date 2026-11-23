@@ -1,10 +1,10 @@
-/* Meteo Cilento — service worker
+/* Cilento Meteo — service worker
    - L'app si apre anche senza connessione (ultima versione salvata).
    - I dati meteo e mare vengono presi dalla rete; senza rete si usano
      gli ultimi scaricati.
    - Librerie, font e icone vengono salvati alla prima visita. */
 
-const VERSIONE = "meteo-cilento-v5";
+const VERSIONE = "cilento-meteo-v6";
 const GUSCIO = ["./", "index.html", "lingue.js", "manifest.webmanifest", "sponsor.json", "notifiche.json", "allerta.json", "balneazione.json", "privacy.html",
   "icone/icona-192.png", "icone/icona-512.png", "icone/apple-touch-icon.png", "icone/favicon-32.png"];
 
@@ -96,7 +96,7 @@ self.addEventListener("fetch", e => {
 self.addEventListener("push", e => {
   let dati = {};
   try{ dati = e.data ? e.data.json() : {}; }catch(err){ dati = { testo: e.data && e.data.text() }; }
-  e.waitUntil(self.registration.showNotification(dati.titolo || "Meteo Cilento", {
+  e.waitUntil(self.registration.showNotification(dati.titolo || "Cilento Meteo", {
     body: dati.testo || "",
     icon: "icone/icona-192.png",
     badge: "icone/favicon-32.png",

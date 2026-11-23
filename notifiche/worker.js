@@ -1,4 +1,4 @@
-// Meteo Cilento — server di notifiche e assistente (Cloudflare Worker, piano gratuito)
+// Cilento Meteo — server di notifiche e assistente (Cloudflare Worker, piano gratuito)
 //
 // - POST /iscrivi     salva l'abbonamento del telefono con il paese e i tipi di avviso
 // - POST /disiscrivi  lo cancella
@@ -92,7 +92,7 @@ export default {
 
     if(req.method === "POST" && url.pathname === "/assistente") return assistente(req, env);
 
-    if(url.pathname === "/") return risposta(env, { servizio:"Meteo Cilento notifiche e assistente", ok:true });
+    if(url.pathname === "/") return risposta(env, { servizio:"Cilento Meteo notifiche e assistente", ok:true });
     return risposta(env, { errore:"non trovato" }, 404);
   },
 
@@ -206,7 +206,7 @@ async function controlla(env){
 // Assistente: risponde con i dati che l'app gli manda (meteo, mare, allerte...)
 // ---------------------------------------------------------------------------
 
-const SISTEMA = `Sei l'assistente di Meteo Cilento, un'app meteo per i paesi del Cilento (provincia di Salerno, Campania).
+const SISTEMA = `Sei l'assistente di Cilento Meteo, un'app meteo per i paesi del Cilento (provincia di Salerno, Campania).
 Rispondi alle domande delle persone su meteo, mare, spiaggia, barca e pesca, montagna ed escursioni, allerte, caldo, incendi, aria e pollini, e su cosa conviene fare o indossare.
 
 Come rispondere:
