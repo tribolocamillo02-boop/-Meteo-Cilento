@@ -47,6 +47,28 @@ risponde alle domande con l'intelligenza artificiale. Serve un piccolo server su
 [`notifiche/LEGGIMI.md`](notifiche/LEGGIMI.md). Finché non è attivo, nell'app la scheda
 «Notifiche» e il pulsante «Chiedi» restano nascosti.
 
+## Pagine dei paesi per Google
+
+Ogni paese ha la sua pagina (`paesi/<nome>/`), con titolo, descrizione, quota, zona,
+paesi vicini e previsioni dal vivo, più l'elenco di tutti i paesi (`paesi/`),
+`sitemap.xml` e `robots.txt`. Servono a farsi trovare cercando «meteo Palinuro» e simili.
+
+- Si generano con `python3 scripts/genera_pagine.py` (da rifare solo se cambia l'elenco
+  dei paesi in `index.html`; le quote sono salvate in `scripts/altitudini.json`).
+- Per farle conoscere subito a Google: [Google Search Console](https://search.google.com/search-console)
+  → aggiungi la proprietà con l'indirizzo del sito → *Sitemap* → invia `sitemap.xml`.
+
+## Link diretti
+
+`…/?paese=palinuro` apre l'app su quel paese (il nome è quello delle cartelle in `paesi/`).
+L'indirizzo nella barra del browser segue il paese mostrato, e il pulsante Condividi usa lo stesso link.
+
+## Modalità leggera
+
+Sui telefoni lenti, con il risparmio dati attivo o la batteria sotto il 20% l'app toglie
+sfocature e animazioni e riduce gli effetti meteo. Si attiva da sola (anche se l'animazione
+non è fluida) oppure dal menu in alto (pulsante della lingua → *Modalità leggera*).
+
 ## Installare l'app sul telefono
 
 Meteo Cilento si installa come un'app, senza store:
