@@ -70,6 +70,8 @@ def altitudini(paesi):
         p["quota"] = cache[p["nome"]]
 
 
+STATISTICHE = """<!-- Cloudflare Web Analytics (senza cookie) --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "d0d3a03991d84db98c3c3fd583322ef9"}'></script>"""
+
 STILE = """
 :root{--nero:#02040a;--blu:#2f7dff;--blu-chiaro:#8cc4ff;--bianco:#f4f8ff;--testo-2:rgba(228,238,255,.7);--testo-3:rgba(228,238,255,.45);--bordo:rgba(255,255,255,.1);}
 *{box-sizing:border-box;}
@@ -211,6 +213,7 @@ def pagina(p, paesi, mare):
   </footer>
 </main>
 {WIDGET}
+{STATISTICHE}
 </body>
 </html>
 """
@@ -250,6 +253,7 @@ def elenco(paesi):
 {gruppi}
   <footer><p><a href="../">Cilento Meteo</a> · <a href="../privacy.html">Privacy</a></p></footer>
 </main>
+{STATISTICHE}
 </body>
 </html>
 """
