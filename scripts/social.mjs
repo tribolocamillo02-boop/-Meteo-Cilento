@@ -21,7 +21,12 @@ const CARTELLA = path.join(RADICE, "social");
 const IMMAGINI = path.join(CARTELLA, "immagini");
 const STATO = path.join(CARTELLA, "stato.json");
 const COMPITI = path.join(CARTELLA, "compiti.json");
-const API = process.env.IG_API || "https://graph.instagram.com/v23.0";
+// Token «Instagram Login» (IGAA…) → graph.instagram.com, con rinnovo ogni 60 giorni.
+// Token «utente di sistema» / accesso unificato (EAA…) → graph.facebook.com, non scade.
+const TOKEN_FACEBOOK = (process.env.IG_TOKEN || "").startsWith("EAA");
+const API = process.env.IG_API || (TOKEN_FACEBOOK ? "https://graph.facebook.com/v23.0" : "https://graph.instagram.com/v23.0");
+// ID dell'account Instagram @cilentometeo (pubblico, si vede nella dashboard di Meta)
+const ID_INSTAGRAM = process.env.IG_UTENTE || "17841456978976858";
 const ORDINE_ALLERTA = ["verde", "gialla", "arancione", "rossa"];
 
 const leggi = (f, base) => { try{ return JSON.parse(fs.readFileSync(f, "utf8")); }catch(e){ return base; } };
@@ -68,7 +73,7 @@ function decidi(){
   if(allerta && (forza.includes("allerta") || (ora >= 7 && ora <= 23 && stato.allerta !== allerta.chiave))) compiti.push("allerta");
 
   // Il token dura 60 giorni: lo rinnoviamo ogni 7
-  let rinnovo = !stato.rinnovo || (Date.now() - Date.parse(stato.rinnovo)) > 7 * 864e5;
+  let rinnovo = !TOKEN_FACEBOOK && (!stato.rinnovo || (Date.now() - Date.parse(stato.rinnovo)) > 7 * 864e5);
 
   // Finché Instagram non è collegato non si fa niente (tranne in prova)
   if(!process.env.IG_TOKEN && process.env.PROVA !== "1"){
@@ -193,9 +198,15 @@ async function pubblica(){
 
   let utente = null;
   if(!prova){
-    const io = await chiamata("GET", "/me", { fields:"user_id,username" });
-    utente = io.user_id || io.id;
-    console.log("Account Instagram:", io.username);
+    if(TOKEN_FACEBOOK){
+      utente = ID_INSTAGRAM;
+      const io = await chiamata("GET", `/${utente}`, { fields:"username" });
+      console.log("Account Instagram:", io.username);
+    }else{
+      const io = await chiamata("GET", "/me", { fields:"user_id,username" });
+      utente = io.user_id || io.id;
+      console.log("Account Instagram:", io.username);
+    }
   }
 
   const errori = [];

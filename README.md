@@ -325,9 +325,13 @@ Segreti del repository (Settings → Secrets and variables → Actions):
 - `IG_TOKEN`: token di Instagram (API con accesso Instagram, permesso
   `instagram_business_content_publish`; l'account deve essere professionale di tipo
   **Azienda** per pubblicare le storie). Senza questo segreto il workflow non fa niente.
-- `GH_PAT`: token GitHub «fine-grained» limitato a questo repository con permesso
-  **Secrets: Read and write**. Serve a rinnovare da solo `IG_TOKEN` ogni settimana
-  (altrimenti scade dopo 60 giorni).
+  Funzionano due tipi di token: quello «utente di sistema» dell'accesso unificato
+  (inizia con `EAA`, usa graph.facebook.com e **non scade**) e quello «Instagram Login»
+  (inizia con `IGAA`, usa graph.instagram.com e scade dopo 60 giorni). L'ID dell'account
+  Instagram si può cambiare con la variabile `IG_UTENTE`.
+- `GH_PAT` (solo per i token `IGAA`): token GitHub «fine-grained» limitato a questo
+  repository con permesso **Secrets: Read and write**. Serve a rinnovare da solo
+  `IG_TOKEN` ogni settimana.
 
 Per una prova: Actions → Instagram → Run workflow, con «Solo prova» o con
 «Pubblica subito» = `storia`.
