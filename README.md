@@ -6,6 +6,33 @@ Previsioni meteo per tutti i paesi del Cilento (118 tra comuni e località di ma
 Dati: [Open-Meteo](https://open-meteo.com) (meteo e mare), [radar della Protezione Civile](https://radar.protezionecivile.gov.it) (CC BY-SA 4.0, con [RainViewer](https://www.rainviewer.com) di riserva),
 [Wikimedia Commons](https://commons.wikimedia.org) (foto), © OpenStreetMap © CARTO (mappa).
 
+## Funzioni
+
+- **Meteo** di 118 paesi o della posizione esatta (GPS), con riassunto della giornata,
+  pioggia nelle prossime 2 ore (ogni 15 minuti) e pioggia vista dal radar intorno a te.
+- **Previsioni** ora per ora per 7 giorni, grafico delle temperature, sole, luna, aria e pollini.
+- **Mare**: dove andare oggi (mare più calmo e vento da terra), stato del mare e 7 giorni.
+- **Montagna**: meteo in vetta su Cervati, Panormo, Gelbison, Motola, Centaurino e Bulgheria,
+  con giudizio per salire.
+- **Radar** della Protezione Civile, animato, aggiornato ogni 5 minuti.
+- **Allerte**: livello ufficiale per la zona del paese, consigli e numeri utili.
+- **Condividi**: crea un'immagine del meteo da mandare su WhatsApp e social.
+- **Lingue**: italiano, inglese e tedesco (scelta in alto, oppure automatica dal telefono).
+
+## Livello di allerta automatico
+
+Il file `allerta.json` viene aggiornato ogni ora da **GitHub Actions**
+(`.github/workflows/allerta.yml`, script `scripts/aggiorna_allerta.py`) leggendo il
+bollettino di criticità nazionale della Protezione Civile (dati aperti CC BY 4.0).
+Crea un commit solo quando esce un bollettino nuovo, di solito una volta al giorno.
+Per avviarlo subito: scheda *Actions* del repository → *Aggiorna allerta* → *Run workflow*.
+
+## Notifiche
+
+Allerte e pioggia in arrivo possono arrivare come notifiche sul telefono. Serve un piccolo
+server gratuito su Cloudflare: istruzioni in [`notifiche/LEGGIMI.md`](notifiche/LEGGIMI.md).
+Finché non è attivo, nell'app la scheda «Notifiche» resta nascosta.
+
 ## Installare l'app sul telefono
 
 Meteo Cilento si installa come un'app, senza store:
