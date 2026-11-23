@@ -3,6 +3,7 @@
 name = "meteo-cilento-notifiche"
 main = "worker.js"
 compatibility_date = "2025-01-01"
+compatibility_flags = ["nodejs_compat"]
 
 [triggers]
 crons = ["*/15 * * * *"]
@@ -15,3 +16,6 @@ id = "INCOLLA_QUI_L_ID_DEL_KV"
 SITO = "https://tribolocamillo02-boop.github.io/-Meteo-Cilento/"
 VAPID_PUBBLICA = "INCOLLA_QUI_LA_CHIAVE_PUBBLICA"
 VAPID_SOGGETTO = "https://tribolocamillo02-boop.github.io/-Meteo-Cilento/"
+# Assistente: modello di Claude e numero massimo di domande al giorno per telefono
+MODELLO_AI = "claude-opus-5-5"
+LIMITE_AI = "30"

@@ -18,6 +18,18 @@ Dati: [Open-Meteo](https://open-meteo.com) (meteo e mare), [radar della Protezio
 - **Allerte**: livello ufficiale per la zona del paese, consigli e numeri utili.
 - **Condividi**: crea un'immagine del meteo da mandare su WhatsApp e social.
 - **Lingue**: italiano, inglese e tedesco (scelta in alto, oppure automatica dal telefono).
+- **Preferiti**: i paesi con la stella compaiono in cima alla lista e in una riga con la temperatura.
+- **Le ore migliori di oggi**: passeggiata, corsa o bici, spiaggia, stendere i panni.
+- **Barca e pesca**: giudizio per uscire in barca ora per ora e condizioni per la pesca.
+- **Rischio incendi** (stima dell'app), **caldo e afa**, **tramonto** bello o no.
+- **Rispetto al solito**: confronto con la media 1991–2020.
+- **Balneabilità**: divieti di balneazione dal Portale Acque del Ministero della Salute
+  (`balneazione.json`, aggiornato ogni 6 ore da `.github/workflows/balneazione.yml`).
+- **Assistente** con intelligenza artificiale (Claude): risponde alle domande usando i dati
+  dell'app. Richiede il server in `notifiche/` (vedi sotto).
+- **Scorciatoie**: tenendo premuta l'icona dell'app installata si aprono Radar, Mare,
+  Montagna e Allerte.
+- **Privacy**: `privacy.html`, in tre lingue.
 
 ## Livello di allerta automatico
 
@@ -27,11 +39,13 @@ bollettino di criticità nazionale della Protezione Civile (dati aperti CC BY 4.
 Crea un commit solo quando esce un bollettino nuovo, di solito una volta al giorno.
 Per avviarlo subito: scheda *Actions* del repository → *Aggiorna allerta* → *Run workflow*.
 
-## Notifiche
+## Notifiche e assistente
 
-Allerte e pioggia in arrivo possono arrivare come notifiche sul telefono. Serve un piccolo
-server gratuito su Cloudflare: istruzioni in [`notifiche/LEGGIMI.md`](notifiche/LEGGIMI.md).
-Finché non è attivo, nell'app la scheda «Notifiche» resta nascosta.
+Allerte e pioggia in arrivo possono arrivare come notifiche sul telefono, e l'assistente
+risponde alle domande con l'intelligenza artificiale. Serve un piccolo server su Cloudflare
+(gratuito; l'assistente usa l'API di Anthropic, a pagamento): istruzioni in
+[`notifiche/LEGGIMI.md`](notifiche/LEGGIMI.md). Finché non è attivo, nell'app la scheda
+«Notifiche» e il pulsante «Chiedi» restano nascosti.
 
 ## Installare l'app sul telefono
 

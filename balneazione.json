@@ -1,0 +1,84 @@
+{
+ "fonte": "Ministero della Salute · Portale Acque (aree di balneazione e divieti)",
+ "localita": {
+  "Marina di Casal Velino": {
+   "stato": "ok",
+   "area": 3313,
+   "distanza_area_km": 0.04,
+   "divieti": []
+  },
+  "Acciaroli": {
+   "stato": "ok",
+   "area": 3369,
+   "distanza_area_km": 0.24,
+   "divieti": []
+  },
+  "Pioppi": {
+   "stato": "ok",
+   "area": 3373,
+   "distanza_area_km": 0.28,
+   "divieti": []
+  },
+  "Palinuro": {
+   "stato": "ok",
+   "area": 3329,
+   "distanza_area_km": 0.28,
+   "divieti": []
+  },
+  "Marina di Camerota": {
+   "stato": "ok",
+   "area": 3295,
+   "distanza_area_km": 0.36,
+   "divieti": []
+  },
+  "Marina di Ascea": {
+   "stato": "ok",
+   "area": 3284,
+   "distanza_area_km": 1.26,
+   "divieti": []
+  },
+  "Marina di Pisciotta": {
+   "stato": "ok",
+   "area": 3366,
+   "distanza_area_km": 0.17,
+   "divieti": []
+  },
+  "Santa Maria di Castellabate": {
+   "stato": "ok",
+   "area": 3318,
+   "distanza_area_km": 0.43,
+   "divieti": []
+  },
+  "San Marco di Castellabate": {
+   "stato": "ok",
+   "area": 3320,
+   "distanza_area_km": 0.25,
+   "divieti": []
+  },
+  "Ogliastro Marina": {
+   "stato": "ok",
+   "area": 3326,
+   "distanza_area_km": 0.13,
+   "divieti": []
+  },
+  "Agnone Cilento": {
+   "stato": "ok",
+   "area": 3361,
+   "distanza_area_km": 0.25,
+   "divieti": []
+  },
+  "Paestum": {
+   "stato": "ok",
+   "area": 3307,
+   "distanza_area_km": 1.75,
+   "divieti": []
+  },
+  "Scario": {
+   "stato": "ok",
+   "area": 3407,
+   "distanza_area_km": 1.82,
+   "divieti": []
+  }
+ },
+ "aggiornato": "2026-11-23T02:50Z"
+}

@@ -9,11 +9,83 @@
   "orientation": "portrait",
   "background_color": "#02040a",
   "theme_color": "#02040a",
-  "categories": ["weather"],
+  "categories": [
+    "weather"
+  ],
   "icons": [
-    { "src": "icone/icona-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
-    { "src": "icone/icona-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
-    { "src": "icone/icona-maskable-192.png", "sizes": "192x192", "type": "image/png", "purpose": "maskable" },
-    { "src": "icone/icona-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+    {
+      "src": "icone/icona-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icone/icona-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icone/icona-maskable-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "icone/icona-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Radar",
+      "short_name": "Radar",
+      "url": "./#radar",
+      "icons": [
+        {
+          "src": "icone/icona-192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "Mare",
+      "short_name": "Mare",
+      "url": "./#mare",
+      "icons": [
+        {
+          "src": "icone/icona-192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "Montagna",
+      "short_name": "Montagna",
+      "url": "./#montagna",
+      "icons": [
+        {
+          "src": "icone/icona-192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "Allerte",
+      "short_name": "Allerte",
+      "url": "./#allerte",
+      "icons": [
+        {
+          "src": "icone/icona-192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
+    }
   ]
 }

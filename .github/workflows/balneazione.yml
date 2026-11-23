@@ -1,0 +1,35 @@
+# Aggiorna balneazione.json con i divieti di balneazione del Portale Acque
+# (Ministero della Salute). Gira ogni 6 ore; crea un commit solo se cambia qualcosa.
+name: Aggiorna balneazione
+
+on:
+  schedule:
+    - cron: "41 */6 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: dati-repository
+  cancel-in-progress: false
+
+jobs:
+  aggiorna:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Scarica aree e divieti e aggiorna balneazione.json
+        run: python3 scripts/aggiorna_balneazione.py balneazione.json
+      - name: Salva se è cambiato
+        run: |
+          if [ -n "$(git status --porcelain balneazione.json)" ]; then
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add balneazione.json
+            git commit -m "Aggiorna balneabilità dal Portale Acque"
+            git pull --rebase
+            git push
+          else
+            echo "Nessun cambiamento"
+          fi

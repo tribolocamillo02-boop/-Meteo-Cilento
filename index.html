@@ -625,6 +625,77 @@ line-height:1.35;
 .interruttore input:focus-visible + span{outline:2px solid var(--blu-chiaro);outline-offset:2px;}
 #notificheAttiva.attive{background:rgba(255,255,255,.08);box-shadow:none;}
 
+/* ---------- Preferiti ---------- */
+
+.preferiti{display:flex;gap:8px;overflow-x:auto;margin:14px 0 0;padding:2px;scrollbar-width:none;}
+.preferiti::-webkit-scrollbar{display:none;}
+.pref{flex:none;display:flex;align-items:center;gap:8px;padding:9px 14px 9px 10px;border-radius:999px;border:1px solid var(--bordo);background:var(--vetro);backdrop-filter:var(--sfocatura);-webkit-backdrop-filter:var(--sfocatura);font-size:14px;font-weight:600;white-space:nowrap;}
+.pref svg.icona-meteo{width:24px;height:24px;}
+.pref b{font-weight:500;color:var(--blu-chiaro);font-variant-numeric:tabular-nums;}
+.pref.attivo{border-color:var(--bordo-blu);background:rgba(47,125,255,.2);}
+.riga-paese{display:flex;align-items:center;gap:4px;}
+.riga-paese > button:first-child{flex:1;}
+#listaComuni .stella-pref{flex:none;width:44px;justify-content:center;padding:12px 0;font-size:19px;color:var(--testo-3);}
+#listaComuni .stella-pref.si{color:#ffd166;}
+#listaComuni .stella-pref.si svg{fill:#ffd166;}
+.suggerimento-pref{margin:8px 12px 0;font-size:12.5px;color:var(--testo-3);}
+
+/* ---------- Ore migliori ---------- */
+
+.ore-migliori{display:grid;gap:10px;}
+.attivita{display:grid;grid-template-columns:36px 1fr;gap:2px 12px;align-items:center;padding:10px 12px;border-radius:16px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06);}
+.attivita .ico{grid-row:span 2;font-size:22px;color:var(--blu-chiaro);justify-self:center;}
+.attivita b{font-size:15px;}
+.attivita span{font-size:13px;color:var(--testo-2);}
+.attivita.no .ico{color:var(--testo-3);}
+.attivita.no b{color:var(--testo-2);font-weight:500;}
+
+/* ---------- Barca e pesca ---------- */
+
+.barra-ore{display:grid;grid-template-columns:repeat(12,1fr);gap:3px;margin:12px 0 6px;}
+.barra-ore i{height:22px;border-radius:5px;}
+.barra-ore i.v0{background:linear-gradient(180deg,#8cc4ff,#2f7dff);}
+.barra-ore i.v1{background:linear-gradient(180deg,#ffe39a,#ffbf3c);}
+.barra-ore i.v2{background:linear-gradient(180deg,#ff9a9a,#ff5a5a);}
+.etichette-ore{display:flex;justify-content:space-between;font:500 10.5px/1 var(--font-tecnico);color:var(--testo-3);}
+.legenda-barca{display:flex;gap:12px;flex-wrap:wrap;margin-top:10px;font-size:12px;color:var(--testo-2);}
+.legenda-barca span::before{content:"";display:inline-block;width:9px;height:9px;border-radius:3px;margin-right:5px;vertical-align:-1px;background:var(--c);}
+.blocco{margin-top:16px;padding-top:14px;border-top:1px solid rgba(255,255,255,.06);}
+.blocco h3{display:flex;align-items:center;gap:8px;margin:0 0 10px;font-size:15px;}
+
+/* ---------- Clima, incendi, assistente ---------- */
+
+.confronto{display:grid;gap:10px;}
+.confronto div{padding:12px 14px;border-radius:16px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06);font-size:14px;line-height:1.45;color:var(--testo-2);}
+.confronto b{display:block;font-size:17px;color:#fff;margin-bottom:2px;}
+.fattori{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin:12px 0;}
+.livello-grande{display:inline-block;padding:7px 14px;border-radius:999px;font-weight:700;font-size:14px;}
+.livello-grande.l0{background:rgba(80,220,140,.14);color:#8ff0b8;}
+.livello-grande.l1{background:rgba(255,209,102,.18);color:#ffd166;}
+.livello-grande.l2{background:rgba(255,150,60,.2);color:#ffa25a;}
+.livello-grande.l3{background:rgba(255,70,70,.22);color:#ff7a7a;}
+.link-privacy{color:var(--blu-chiaro);text-decoration:none;}
+.badge-balneazione{color:#8ff0b8;}
+.badge-balneazione.divieto{color:#ff7a7a;font-weight:600;}
+
+.fab-ai{position:fixed;z-index:1400;right:16px;bottom:calc(98px + env(safe-area-inset-bottom));display:flex;align-items:center;gap:8px;padding:12px 16px;border:1px solid var(--bordo-blu);border-radius:999px;background:linear-gradient(180deg,rgba(61,139,255,.92),rgba(31,95,214,.92));backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);box-shadow:0 12px 34px rgba(47,125,255,.45);font-weight:600;font-size:14px;}
+.fab-ai .ico{font-size:17px;}
+.foglio-pannello.chat{height:min(84vh,720px);}
+.chat-testa{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
+.chat-testa .ico{font-size:18px;color:var(--blu-chiaro);}
+.chat-testa b{flex:1;font-size:16px;}
+.chat-messaggi{flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:10px;padding:4px 2px 10px;}
+.msg{max-width:86%;padding:11px 14px;border-radius:18px;font-size:15px;line-height:1.5;white-space:pre-wrap;}
+.msg.ai{align-self:flex-start;background:rgba(255,255,255,.07);border:1px solid var(--bordo);border-bottom-left-radius:6px;}
+.msg.io{align-self:flex-end;background:linear-gradient(180deg,#3d8bff,#1f5fd6);border-bottom-right-radius:6px;}
+.msg.attesa{color:var(--testo-3);}
+.chat-suggerimenti{display:flex;gap:8px;overflow-x:auto;padding:4px 0 10px;scrollbar-width:none;}
+.chat-suggerimenti::-webkit-scrollbar{display:none;}
+.chat-suggerimenti button{flex:none;padding:9px 13px;border-radius:999px;border:1px solid var(--bordo-blu);background:rgba(47,125,255,.12);color:var(--blu-chiaro);font-size:13px;}
+.chat-invio{display:flex;gap:8px;}
+.chat-invio input{flex:1;min-width:0;padding:14px 16px;border-radius:16px;border:1px solid var(--bordo);background:rgba(255,255,255,.07);color:#fff;font-size:16px;outline:none;}
+.chat-invio button{flex:none;width:50px;border:0;border-radius:16px;background:linear-gradient(180deg,#3d8bff,#1f5fd6);font-size:18px;}
+
 /* ---------- Montagna ---------- */
 
 .giudizio{display:inline-flex;align-items:center;gap:6px;padding:5px 10px;border-radius:999px;font-size:12px;font-weight:600;letter-spacing:.02em;}
@@ -1284,11 +1355,26 @@ font-weight:600;
 
   <section id="sezione-meteo">
     <button type="button" class="card banner-allerta" id="bannerAllerta" hidden></button>
+    <div class="card banner-allerta" id="bannerCaldo" hidden></div>
+    <button type="button" class="card banner-allerta" id="bannerIncendi" hidden></button>
+
+    <div class="preferiti" id="preferiti" hidden></div>
 
     <div class="card riassunto">
       <div class="riassunto-testa"><span data-ico="scintilla"></span>Oggi in breve</div>
       <p id="riassunto"><span class="scheletro riga"></span><span class="scheletro riga corta"></span></p>
     </div>
+
+    <details class="card tendina" data-tendina="ore-migliori" open>
+      <summary class="tendina-testa">
+        <span class="card-titolo"><span data-ico="orologio"></span>Le ore migliori di oggi</span>
+        <span class="tendina-chevron"><span data-ico="giu"></span></span>
+        <span class="tendina-anteprima" id="antOreMigliori"></span>
+      </summary>
+      <div class="tendina-corpo">
+        <div id="oreMigliori" class="ore-migliori"><div class="scheletro" style="height:110px"></div></div>
+      </div>
+    </details>
 
     <details class="card tendina" data-tendina="pioggia2h" open>
       <summary class="tendina-testa">
@@ -1345,6 +1431,7 @@ font-weight:600;
       </summary>
       <div class="tendina-corpo">
         <div id="sole"></div>
+        <p id="tramontoQualita" class="radar-vicino"></p>
         <div id="luna" class="luna"></div>
       </div>
     </details>
@@ -1357,6 +1444,17 @@ font-weight:600;
       </summary>
       <div class="tendina-corpo">
         <div id="aria"><div class="scheletro" style="height:120px"></div></div>
+      </div>
+    </details>
+
+    <details class="card tendina" data-tendina="clima" id="tendinaClima">
+      <summary class="tendina-testa">
+        <span class="card-titolo"><span data-ico="calendario"></span>Rispetto al solito</span>
+        <span class="tendina-chevron"><span data-ico="giu"></span></span>
+        <span class="tendina-anteprima" id="antClima">Confronto con la media degli ultimi 30 anni</span>
+      </summary>
+      <div class="tendina-corpo">
+        <div id="clima"><div class="scheletro" style="height:120px"></div></div>
       </div>
     </details>
 
@@ -1395,7 +1493,19 @@ font-weight:600;
       </summary>
       <div class="tendina-corpo">
         <div class="dettagli" id="mareDettagli"></div>
+        <p id="balneazioneQui" class="radar-vicino"></p>
         <p id="aggiornamento" class="card-testo" style="margin:14px 0 0;font-size:12px">Caricamento dati marini…</p>
+      </div>
+    </details>
+
+    <details class="card tendina" data-tendina="barca">
+      <summary class="tendina-testa">
+        <span class="card-titolo"><span data-ico="barca"></span>Barca e pesca</span>
+        <span class="tendina-chevron"><span data-ico="giu"></span></span>
+        <span class="tendina-anteprima" id="antBarca"></span>
+      </summary>
+      <div class="tendina-corpo">
+        <div id="barca"><div class="scheletro" style="height:160px"></div></div>
       </div>
     </details>
 
@@ -1452,6 +1562,17 @@ font-weight:600;
       <div id="allertaGiorni"><div class="scheletro" style="height:120px"></div></div>
       <p class="nota" id="allertaFonte"></p>
     </div>
+
+    <details class="card tendina" data-tendina="incendi">
+      <summary class="tendina-testa">
+        <span class="card-titolo"><span data-ico="fiamma"></span>Rischio incendi (stima)</span>
+        <span class="tendina-chevron"><span data-ico="giu"></span></span>
+        <span class="tendina-anteprima" id="antIncendi"></span>
+      </summary>
+      <div class="tendina-corpo">
+        <div id="incendi"><div class="scheletro" style="height:120px"></div></div>
+      </div>
+    </details>
 
     <div class="card notifiche" id="schedaNotifiche" hidden>
       <h2 class="card-titolo"><span data-ico="campana"></span>Notifiche</h2>
@@ -1531,7 +1652,7 @@ font-weight:600;
     </details>
   </section>
 
-  <footer>Meteo Cilento · Dati Open-Meteo · Radar Protezione Civile · Wikimedia Commons</footer>
+  <footer>Meteo Cilento · Dati Open-Meteo · Radar Protezione Civile · Wikimedia Commons<br><a href="privacy.html" class="link-privacy">Privacy</a></footer>
 </main>
 
 <nav class="tabbar" aria-label="Sezioni">
@@ -1541,6 +1662,30 @@ font-weight:600;
   <button class="tab" data-sezione="radar" type="button"><span data-ico="radar"></span>Radar</button>
   <button class="tab" data-sezione="allerte" type="button"><span data-ico="allerta"></span>Allerte</button>
 </nav>
+
+<button type="button" class="fab-ai" id="apriAssistente" hidden aria-label="Chiedi all'assistente"><span data-ico="scintilla"></span><span>Chiedi</span></button>
+
+<div class="foglio" id="foglioAssistente" hidden>
+  <div class="foglio-pannello chat" role="dialog" aria-label="Assistente meteo">
+    <div class="maniglia"></div>
+    <div class="chat-testa"><span data-ico="scintilla"></span><b>Assistente Meteo Cilento</b><button type="button" class="installa-no" id="chiudiAssistente" aria-label="Chiudi">×</button></div>
+    <div class="chat-messaggi" id="chatMessaggi">
+      <div class="msg ai">Ciao! Chiedimi del meteo, del mare, della montagna o delle allerte nel Cilento: rispondo con i dati aggiornati dell'app.</div>
+    </div>
+    <div class="chat-suggerimenti" id="chatSuggerimenti">
+      <button type="button">Domani posso andare al mare?</button>
+      <button type="button">Cosa mi metto oggi?</button>
+      <button type="button">Posso uscire in barca oggi?</button>
+      <button type="button">Conviene salire sul Cervati domani?</button>
+      <button type="button">Stendo i panni oggi?</button>
+    </div>
+    <form class="chat-invio" id="chatForm">
+      <input type="text" id="chatInput" maxlength="400" placeholder="Scrivi una domanda…" autocomplete="off">
+      <button type="submit" aria-label="Invia"><span data-ico="invia"></span></button>
+    </form>
+    <p class="nota" style="margin:8px 4px 0;text-align:center">Risponde con i dati dell'app e può sbagliare: per la sicurezza segui sempre gli avvisi ufficiali.</p>
+  </div>
+</div>
 
 <div class="foglio" id="foglioComuni" hidden>
   <div class="foglio-pannello" role="dialog" aria-label="Scegli il comune">
@@ -1794,6 +1939,13 @@ const UI = {
   condividi:'<path d="M12 15V3M7 8l5-5 5 5"/><path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7"/>',
   campana:'<path d="M6 16V11a6 6 0 0 1 12 0v5l2 2H4z"/><path d="M10 21a2 2 0 0 0 4 0"/>',
   lingua:'<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.6 3.8 5.6 3.8 9s-1.3 6.4-3.8 9c-2.5-2.6-3.8-5.6-3.8-9S9.5 5.6 12 3z"/>',
+  barca:'<path d="M3 17l2 3h14l2-3z"/><path d="M12 3v11M12 4l6 9H12"/>',
+  fiamma:'<path d="M12 21c-4 0-6-2.7-6-6 0-3.5 3-5.5 3-9 2 1 3.5 3 4 5 1-1 1.5-2.5 1.5-4 2.5 2 3.5 5 3.5 8 0 3.3-2 6-6 6z"/>',
+  stella:'<path d="M12 3.5l2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 16.9l-5.2 2.7 1-5.8L3.5 9.7l5.9-.9z"/>',
+  invia:'<path d="M4 12l16-8-6 16-2.5-6.5z"/>',
+  panni:'<path d="M3 5h18M7 5v4l-2 9h6l-2-9V5M17 5v4l-2 9h6l-2-9V5"/>',
+  corsa:'<circle cx="14" cy="4.5" r="1.8"/><path d="M8 21l3-6 3 2v4M6 12l3-3 4 1 2 3 3 1"/>',
+  ombrellone:'<path d="M3 11a9 9 0 0 1 18 0z"/><path d="M12 11v10M8 21h8"/>',
   scintilla:'<path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/><path d="M19 15l.7 1.8 1.8.7-1.8.7L19 20l-.7-1.8-1.8-.7 1.8-.7z"/>',
   mirino:'<circle cx="12" cy="12" r="7"/><circle cx="12" cy="12" r="2.5" fill="currentColor"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/>'
 };
@@ -2342,6 +2494,7 @@ async function caricaAria(){
 
     const c = d.current;
     const aqi = Math.round(c.european_aqi);
+    ultimiDati.aria = { indice_europeo: aqi, pm2_5: c.pm2_5, pm10: c.pm10, ozono: c.ozone };
     const etichetta = LIVELLI_AQI.find(([max]) => aqi <= max)[1];
     const posizioneScala = Math.min(100, aqi / 120 * 100);
 
@@ -2471,8 +2624,8 @@ async function loadWeather(){
 
   const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}`
     + `&current=temperature_2m,relative_humidity_2m,apparent_temperature,precipitation,weather_code,wind_speed_10m,wind_direction_10m,wind_gusts_10m,cloud_cover,pressure_msl,is_day`
-    + `&hourly=temperature_2m,precipitation_probability,weather_code,wind_speed_10m,is_day`
-    + `&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max,sunrise,sunset,uv_index_max`
+    + `&hourly=temperature_2m,precipitation_probability,weather_code,wind_speed_10m,is_day,relative_humidity_2m,apparent_temperature,cloud_cover,cloud_cover_low,cloud_cover_mid,cloud_cover_high,precipitation`
+    + `&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max,sunrise,sunset,uv_index_max,apparent_temperature_max,wind_gusts_10m_max,precipitation_sum`
     + `&minutely_15=precipitation,precipitation_probability&forecast_minutely_15=8`
     + `&forecast_days=7&timezone=Europe%2FRome`;
 
@@ -2579,6 +2732,13 @@ ${iconaMeteo(infoMeteo(g.weather_code[i]).tipo)}
 
     disegnaSole(g);
     disegnaRiassunto(c, h, g, start, meteo, notte);
+    ultimiDati.meteo = d;
+    ultimiDati.chiave = chiave;
+    try{ disegnaOreMigliori(d, start); }catch(e){ console.error(e); }
+    try{ disegnaTramonto(d); }catch(e){ console.error(e); }
+    try{ mostraCaldo(d); }catch(e){ console.error(e); }
+    stimaIncendi(d, chiave);
+    if($("tendinaClima").open) caricaClima();
   }catch(e){
     console.error(e);
     $("description").textContent = "Dati non disponibili";
@@ -2620,6 +2780,8 @@ async function caricaMare(){
     if(comuneCorrente().chiave !== chiave) return;
 
     const m = dati.current;
+    ultimiDati.mare = dati;
+    mostraBalneazioneQui();
     $("mareDettagli").innerHTML = [
       tile("onda", "Onde", v(m.wave_height, "m"), m.wave_height != null ? "Mare " + statoMare(m.wave_height) : ""),
       tile("termometro", "Acqua", v(m.sea_surface_temperature, "°C")),
@@ -3002,10 +3164,23 @@ function disegnaListaComuni(){
   $("listaComuni").innerHTML = ZONE.map(zona => {
     const gruppo = voci.filter(v => v.zona === zona).sort((a, b) => a.nome.localeCompare(b.nome, "it"));
     if(!gruppo.length) return "";
-    return `<div class="zona">${zona} · ${gruppo.length}</div>` + gruppo.map(v =>
-      `<button type="button" data-i="${v.i}" class="${!posizione && v.i === comuneIndice ? "corrente" : ""}">${v.nome}${!posizione && v.i === comuneIndice ? ui("pin") : ""}</button>`
-    ).join("");
+    return `<div class="zona">${zona} · ${gruppo.length}</div>` + gruppo.map(rigaPaese).join("");
   }).join("");
+
+  // preferiti in cima (solo senza ricerca)
+  const pref = preferiti.map(n => COMUNI.findIndex(c => c[0] === n)).filter(i => i >= 0);
+  if(!ricerca){
+    $("listaComuni").insertAdjacentHTML("afterbegin", pref.length
+      ? `<div class="zona">Preferiti · ${pref.length}</div>` + pref.map(i => rigaPaese({ nome: COMUNI[i][0], i })).join("")
+      : '<p class="suggerimento-pref">Tocca la stella accanto a un paese per aggiungerlo ai preferiti.</p>');
+  }
+}
+
+function rigaPaese(v){
+  const corrente = !posizione && v.i === comuneIndice;
+  const pref = preferiti.includes(COMUNI[v.i][0]);
+  return `<div class="riga-paese"><button type="button" data-i="${v.i}" class="${corrente ? "corrente" : ""}">${v.nome}${corrente ? ui("pin") : ""}</button>`
+    + `<button type="button" class="stella-pref${pref ? " si" : ""}" data-pref="${v.i}" aria-label="${pref ? "Togli dai preferiti" : "Aggiungi ai preferiti"}">${ui("stella")}</button></div>`;
 }
 
 function scegliComune(i){
@@ -3115,6 +3290,17 @@ foglio.addEventListener("click", e => { if(e.target === foglio) chiudiComuni(); 
 document.addEventListener("keydown", e => { if(e.key === "Escape") chiudiComuni(); });
 
 $("listaComuni").addEventListener("click", e => {
+  const stella = e.target.closest("button[data-pref]");
+  if(stella){
+    const nome = COMUNI[Number(stella.dataset.pref)][0];
+    preferiti = preferiti.includes(nome) ? preferiti.filter(n => n !== nome) : [...preferiti, nome].slice(-12);
+    try{ localStorage.setItem("meteoCilento.preferiti", JSON.stringify(preferiti)); }catch(err){}
+    const scroll = $("listaComuni").scrollTop;
+    disegnaListaComuni();
+    $("listaComuni").scrollTop = scroll;
+    caricaPreferiti();
+    return;
+  }
   const b = e.target.closest("button[data-i]");
   if(b) scegliComune(Number(b.dataset.i));
 });
@@ -3254,16 +3440,17 @@ async function caricaMareMigliore(){
       // punteggio: onde, più una penalità per il vento che soffia dal mare
       const kmh = v?.wind_speed_10m ?? 0;
       const punteggio = onda == null ? Infinity : onda + (vs.tipo === "mare" ? kmh / 25 : vs.tipo === "lato" ? kmh / 60 : 0);
-      return { ...p, onda, acqua: mare[k]?.current?.sea_surface_temperature, vento: vs, punteggio };
+      return { ...p, onda, acqua: mare[k]?.current?.sea_surface_temperature, vento: vs, punteggio, balneazione: datiBalneazione?.localita?.[p.nome]?.stato };
     }).filter(p => p.onda != null).sort((a, b) => a.punteggio - b.punteggio);
     if(!lista.length) throw new Error("nessun dato");
 
     const tramonto = vento[0]?.daily?.sunset?.[0];
+    ultimiDati.mareMigliore = lista.map(p => ({ nome:p.nome, onde_m:p.onda, acqua_c:p.acqua, vento:p.vento.testo, balneazione:p.balneazione }));
     $("mareTramonto").textContent = tramonto ? `Tramonto alle ${tramonto.slice(11, 16)}` : "";
 
     $("mareMigliore").innerHTML = lista.map((p, k) => `<button type="button" class="mare-posto${k === 0 ? " primo" : ""}" data-i="${p.i}">
 <span class="pos">${k + 1}</span>
-<span class="nome">${p.nome}<small>${k === 0 ? "Il posto migliore · " : ""}mare ${statoMare(p.onda)}${p.vento.testo ? " · " + p.vento.testo.toLowerCase() : ""}</small></span>
+<span class="nome">${p.nome}<small>${k === 0 ? "Il posto migliore · " : ""}mare ${statoMare(p.onda)}${p.vento.testo ? " · " + p.vento.testo.toLowerCase() : ""}${p.balneazione === "divieto" ? ' · <span class="badge-balneazione divieto">divieto di balneazione</span>' : ""}</small></span>
 <span class="onda">${p.onda.toFixed(1)} m</span>
 <span class="acqua">${p.acqua != null ? Math.round(p.acqua) + "°" : ""}</span>
 </button>`).join("");
@@ -3424,6 +3611,7 @@ async function preparaNotifiche(){
     const r = await fetch("notifiche.json", { cache:"no-cache" });
     configNotifiche = r.ok ? await r.json() : null;
   }catch(e){ configNotifiche = null; }
+  preparaAssistente();
   if(!configNotifiche?.server || !configNotifiche?.chiavePubblica) return;   // server non ancora attivo
 
   $("schedaNotifiche").hidden = false;
@@ -3532,6 +3720,12 @@ async function caricaMontagne(){
     let dati = await r.json();
     if(!Array.isArray(dati)) dati = [dati];
 
+    ultimiDati.montagne = MONTAGNE.map(([nome, quota], k) => {
+      const g = dati[k].daily;
+      return { nome, quota, in_vetta_ora: dati[k].current.temperature_2m, raffiche_ora: dati[k].current.wind_gusts_10m,
+        giorni: g.time.map((t, i) => ({ data: t, giudizio: giudizioMontagna(g.weather_code[i], g.wind_gusts_10m_max[i], g.precipitation_probability_max[i], g.temperature_2m_min[i]).testo,
+          min: g.temperature_2m_min[i], max: g.temperature_2m_max[i], raffiche: g.wind_gusts_10m_max[i], pioggia: g.precipitation_probability_max[i] })) };
+    });
     $("montagne").innerHTML = MONTAGNE.map(([nome, quota, , , descr], k) => {
       const d = dati[k], c = d.current, g = d.daily;
       const zero = d.hourly?.freezing_level_height?.[0];
@@ -3791,6 +3985,541 @@ ${sp.immagine ? `<img src="${pulisci(sp.immagine)}" alt="" loading="lazy">` : ""
 }
 
 /* =========================================================
+   DATI CONDIVISI (anche per l'assistente)
+========================================================= */
+
+const ultimiDati = { meteo:null, mare:null, aria:null, montagne:null, mareMigliore:null, barca:null, incendi:null, chiave:null };
+let preferiti = [];
+try{ preferiti = JSON.parse(localStorage.getItem("meteoCilento.preferiti") || "[]").filter(n => COMUNI.some(c => c[0] === n)); }catch(e){}
+
+const oraDi = t => t.slice(11, 16);
+
+// Trova le finestre di ore consecutive in cui vale una condizione
+function finestre(ore, ok, minimo = 2){
+  const out = [];
+  let inizio = null;
+  ore.forEach((o, k) => {
+    if(ok(o) && inizio === null) inizio = k;
+    if((!ok(o) || k === ore.length - 1) && inizio !== null){
+      const fine = ok(o) ? k : k - 1;
+      if(fine - inizio + 1 >= minimo) out.push([ore[inizio], ore[fine]]);
+      inizio = null;
+    }
+  });
+  return out.sort((a, b) => (b[1].k - b[0].k) - (a[1].k - a[0].k));
+}
+
+/* =========================================================
+   PAESI PREFERITI
+========================================================= */
+
+async function caricaPreferiti(){
+  const box = $("preferiti");
+  const lista = preferiti.map(n => COMUNI.find(c => c[0] === n)).filter(Boolean);
+  if(!lista.length){ box.hidden = true; return; }
+  try{
+    const url = `https://api.open-meteo.com/v1/forecast?latitude=${lista.map(c => c[2]).join(",")}&longitude=${lista.map(c => c[3]).join(",")}`
+      + `&current=temperature_2m,weather_code,is_day&timezone=Europe%2FRome`;
+    const r = await fetch(url);
+    let dati = await r.json();
+    if(!Array.isArray(dati)) dati = [dati];
+    const attuale = comuneCorrente();
+    box.innerHTML = lista.map((c, k) => {
+      const cur = dati[k]?.current;
+      return `<button type="button" class="pref${!attuale.posizione && attuale.nome === c[0] ? " attivo" : ""}" data-nome="${c[0]}">
+${cur ? iconaMeteo(infoMeteo(cur.weather_code).tipo, cur.is_day === 0) : ""}<span class="nome-paese">${c[0]}</span>${cur ? `<b>${Math.round(cur.temperature_2m)}°</b>` : ""}</button>`;
+    }).join("");
+    box.hidden = false;
+  }catch(e){
+    console.error(e);
+  }
+}
+
+$("preferiti").addEventListener("click", e => {
+  const b = e.target.closest("button[data-nome]");
+  if(!b) return;
+  const i = COMUNI.findIndex(c => c[0] === b.dataset.nome);
+  if(i >= 0){ scegliComune(i); window.scrollTo({ top:0, behavior: MOTO_RIDOTTO ? "auto" : "smooth" }); }
+});
+
+/* =========================================================
+   LE ORE MIGLIORI DI OGGI
+========================================================= */
+
+function disegnaOreMigliori(d, start){
+  const h = d.hourly, g = d.daily;
+  const oggi = g.time[0];
+  const tramontoOggi = g.sunset[0], albaOggi = g.sunrise[0];
+  const ore = [];
+  for(let i = start; i < h.time.length && h.time[i].startsWith(oggi); i++){
+    ore.push({
+      k: i, t: h.time[i], temp: h.temperature_2m[i], perc: h.apparent_temperature[i], p: h.precipitation_probability[i],
+      mm: h.precipitation[i] || 0, codice: h.weather_code[i], vento: h.wind_speed_10m[i], umid: h.relative_humidity_2m[i],
+      nuvole: h.cloud_cover[i], giorno: h.is_day[i] === 1
+    });
+  }
+  const asciutto = o => o.p < 30 && o.mm < 0.1 && o.codice < 51;
+  const fineOra = f => `${String((Number(oraDi(f[1].t).slice(0, 2)) + 1) % 24).padStart(2, "0")}:00`;
+  const testo = f => `${oraDi(f[0].t)}–${fineOra(f)}`;
+  const traLe = f => `${oraDi(f[0].t)} e le ${fineOra(f)}`;
+  const righe = [];
+
+  // Passeggiata e attività all'aperto
+  const passeggio = finestre(ore, o => o.giorno && asciutto(o) && o.vento < 25 && o.perc >= 10 && o.perc <= 29);
+  righe.push(passeggio.length
+    ? { ico:"orologio", t:"Passeggiata e attività all'aperto", d:`Meglio tra le ${traLe(passeggio[0])}`, finestra: testo(passeggio[0]) }
+    : { ico:"orologio", t:"Passeggiata e attività all'aperto", d:"Oggi poche ore adatte: pioggia, vento o temperature scomode", no:true });
+
+  // Corsa o bici: fresco, asciutto, poco vento
+  const corsa = finestre(ore, o => asciutto(o) && o.vento < 20 && o.perc >= 6 && o.perc <= 24 && o.p < 20);
+  if(corsa.length){
+    const presto = [...corsa].sort((a, b) => a[0].k - b[0].k)[0];
+    righe.push({ ico:"corsa", t:"Corsa o bici", d:`Condizioni ideali tra le ${traLe(presto)}`, finestra: testo(presto) });
+  }else{
+    righe.push({ ico:"corsa", t:"Corsa o bici", d:"Oggi condizioni poco adatte", no:true });
+  }
+
+  // Spiaggia: solo se fa abbastanza caldo
+  const maxPerc = g.apparent_temperature_max[0];
+  if(maxPerc >= 22){
+    const mare = finestre(ore, o => o.giorno && asciutto(o) && o.perc >= 22 && o.nuvole < 70 && o.vento < 22 && o.p < 20);
+    righe.push(mare.length
+      ? { ico:"ombrellone", t:"Spiaggia", d:`Le ore migliori: ${testo(mare[0])}${g.uv_index_max[0] >= 6 ? " (crema solare: UV alto)" : ""}`, finestra: testo(mare[0]) }
+      : { ico:"ombrellone", t:"Spiaggia", d:"Oggi poco adatta: nuvole, vento o pioggia", no:true });
+  }
+
+  // Stendere i panni: asciutto per almeno 3 ore, poca umidità, un po' di vento
+  const panni = finestre(ore, (o, k) => o.giorno && asciutto(o) && o.umid < 75 && o.vento >= 3 && o.vento <= 30, 3);
+  righe.push(panni.length
+    ? { ico:"panni", t:"Stendere i panni", d:`Fuori tra le ${traLe(panni[0])}`, finestra: testo(panni[0]) }
+    : { ico:"panni", t:"Stendere i panni", d:"Oggi meglio stendere in casa", no:true });
+
+  if(!ore.length || oraDi(ore[0].t) >= oraDi(tramontoOggi)){
+    $("oreMigliori").innerHTML = `<p class="card-testo" style="margin:0">Per oggi il sole è tramontato: domani dalle ${oraDi(g.sunrise[1] || albaOggi)}.</p>`;
+    $("antOreMigliori").textContent = "Per oggi il sole è tramontato";
+    return;
+  }
+  $("oreMigliori").innerHTML = righe.map(r => `<div class="attivita${r.no ? " no" : ""}">${ui(r.ico)}<b>${r.t}</b><span>${r.d}</span></div>`).join("");
+  const buone = righe.filter(r => !r.no);
+  $("antOreMigliori").textContent = buone.length ? buone.slice(0, 2).map(r => `${r.t}: ${r.finestra}`).join(" · ") : "Giornata poco adatta alle attività all'aperto";
+}
+
+/* =========================================================
+   TRAMONTO: SARÀ BELLO?
+   Nuvole alte e medie non troppo fitte, cielo libero in basso e niente pioggia.
+========================================================= */
+
+function qualitaTramonto(h, iTramonto){
+  if(iTramonto < 0) return null;
+  const alte = (h.cloud_cover_high[iTramonto] || 0) + (h.cloud_cover_mid[iTramonto] || 0) * .7;
+  const basse = h.cloud_cover_low[iTramonto] || 0;
+  const p = h.precipitation_probability[iTramonto] || 0;
+  if(p >= 50 || basse >= 70) return { voto:0, testo:"Tramonto coperto: nuvole basse o pioggia" };
+  if(alte >= 20 && alte <= 90 && basse < 40) return { voto:2, testo:"Tramonto promettente: nuvole alte che si colorano" };
+  if(alte < 10 && basse < 20) return { voto:1, testo:"Tramonto limpido, cielo sereno" };
+  return { voto:1, testo:"Tramonto discreto" };
+}
+
+function disegnaTramonto(d){
+  const h = d.hourly, g = d.daily;
+  const tramonto = g.sunset[0];
+  const ora = tramonto.slice(0, 13) + ":00";
+  const i = h.time.indexOf(ora);
+  const q = qualitaTramonto(h, i);
+  const el = $("tramontoQualita");
+  if(!q || new Date(tramonto) < new Date()){ el.textContent = ""; ultimiDati.tramonto = null; return; }
+  el.innerHTML = ui("uv") + `<span>${q.testo} (${oraDi(tramonto)}).</span>`;
+  ultimiDati.tramonto = q.testo;
+}
+
+/* =========================================================
+   CALDO E AFA
+========================================================= */
+
+function mostraCaldo(d){
+  const g = d.daily;
+  const banner = $("bannerCaldo");
+  const giorni = [0, 1].map(i => ({ i, max: g.apparent_temperature_max[i], nome: i === 0 ? "oggi" : "domani" })).filter(x => x.max != null);
+  const peggiore = giorni.reduce((a, x) => x.max > a.max ? x : a, { max: -99 });
+  if(peggiore.max < 32){ banner.hidden = true; ultimiDati.caldo = null; return; }
+  const livello = peggiore.max >= 38 ? "rosso" : peggiore.max >= 35 ? "arancione" : "giallo";
+  const titolo = { giallo:"Caldo afoso", arancione:"Caldo intenso", rosso:"Caldo estremo" }[livello];
+  banner.className = "card banner-allerta " + livello;
+  banner.innerHTML = `${ui("termometro")}<span>${titolo} ${peggiore.nome}: percepita fino a ${Math.round(peggiore.max)}°<small>Bevi spesso, evita il sole tra le 12 e le 17 e controlla anziani, bambini e animali.</small></span>`;
+  banner.hidden = false;
+  ultimiDati.caldo = `${titolo} ${peggiore.nome}, percepita fino a ${Math.round(peggiore.max)}°`;
+}
+
+/* =========================================================
+   RISCHIO INCENDI (STIMA DELL'APP)
+   La Protezione Civile non pubblica il bollettino incendi come dati aperti:
+   qui si stima il pericolo da temperatura, umidità, vento e giorni senza pioggia.
+========================================================= */
+
+const NOMI_RISCHIO = ["Basso", "Medio", "Alto", "Molto alto"];
+
+async function stimaIncendi(d, chiave){
+  const luogo = comuneCorrente();
+  let giorniSecchi = 0;
+  try{
+    const r = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${luogo.lat}&longitude=${luogo.lon}&daily=precipitation_sum&past_days=14&forecast_days=1&timezone=Europe%2FRome`);
+    const p = await r.json();
+    const piogge = p.daily.precipitation_sum.slice(0, -1).reverse();
+    for(const mm of piogge){ if((mm || 0) >= 1) break; giorniSecchi++; }
+  }catch(e){ giorniSecchi = 0; }
+  if(comuneCorrente().chiave !== chiave) return;
+
+  const h = d.hourly, g = d.daily;
+  const oggi = g.time[0];
+  const idx = h.time.map((t, i) => t.startsWith(oggi) ? i : -1).filter(i => i >= 0);
+  const tmax = g.temperature_2m_max[0];
+  const umidMin = Math.min(...idx.map(i => h.relative_humidity_2m[i]));
+  const ventoMax = Math.max(...idx.map(i => h.wind_speed_10m[i]));
+  const punti = (v, soglie) => soglie.filter(s => v >= s).length;
+  const punteggio = punti(tmax, [25, 30, 35]) + punti(100 - umidMin, [60, 70, 80]) + punti(ventoMax, [15, 25, 40]) + punti(giorniSecchi, [2, 4, 7]);
+  const livello = punteggio >= 10 ? 3 : punteggio >= 7 ? 2 : punteggio >= 5 ? 1 : 0;
+  const mese = new Date().getMonth() + 1;
+  const stagione = mese >= 6 && mese <= 9;
+
+  ultimiDati.incendi = { livello: NOMI_RISCHIO[livello], temperatura_max: tmax, umidita_minima: umidMin, vento_max: ventoMax, giorni_senza_pioggia: giorniSecchi };
+  $("antIncendi").textContent = `${NOMI_RISCHIO[livello]} · ${giorniSecchi} giorni senza pioggia${stagione ? "" : " · fuori stagione"}`;
+  $("incendi").innerHTML = `
+<span class="livello-grande l${livello}">Rischio ${NOMI_RISCHIO[livello].toLowerCase()}</span>
+<div class="fattori">
+  ${tile("termometro", "Massima", `${Math.round(tmax)}°`)}
+  ${tile("goccia", "Umidità minima", `${Math.round(umidMin)}<small>%</small>`)}
+  ${tile("vento", "Vento massimo", `${Math.round(ventoMax)}<small>km/h</small>`)}
+  ${tile("uv", "Senza pioggia", `${giorniSecchi}<small>giorni</small>`)}
+</div>
+<ul class="consigli">
+  <li>Non accendere fuochi e non bruciare sterpaglie: d'estate è vietato.</li>
+  <li>Non gettare mozziconi e non parcheggiare l'auto sull'erba secca.</li>
+  <li>Se vedi fumo o fiamme chiama subito il 115 o il 112.</li>
+</ul>
+<p class="nota">Stima dell'app calcolata da temperatura, umidità, vento e giorni senza pioggia: non è il bollettino ufficiale. In Campania fanno fede gli avvisi della Regione e della Protezione Civile.</p>`;
+
+  const banner = $("bannerIncendi");
+  if(stagione && livello >= 2){
+    banner.className = "card banner-allerta " + (livello === 3 ? "rosso" : "arancione");
+    banner.innerHTML = `${ui("fiamma")}<span>Rischio incendi ${NOMI_RISCHIO[livello].toLowerCase()} oggi<small>Stima dell'app: caldo, aria secca e vento. Niente fuochi all'aperto. Tocca per i consigli.</small></span>`;
+    banner.hidden = false;
+  }else{
+    banner.hidden = true;
+  }
+}
+
+$("bannerIncendi").addEventListener("click", () => {
+  mostraSezione("allerte");
+  const t = document.querySelector('[data-tendina="incendi"]');
+  if(t && !t.open) animaTendina(t, true);
+  setTimeout(() => t && t.scrollIntoView({ behavior: MOTO_RIDOTTO ? "auto" : "smooth", block:"center" }), 300);
+});
+
+/* =========================================================
+   RISPETTO AL SOLITO (media 1991–2020, archivio Open-Meteo)
+========================================================= */
+
+async function normaliClimatici(lat, lon){
+  const chiave = `meteoCilento.clima.${lat.toFixed(1)},${lon.toFixed(1)}`;
+  try{ const c = JSON.parse(localStorage.getItem(chiave)); if(c && c.v === 1) return c; }catch(e){}
+  const r = await fetch(`https://archive-api.open-meteo.com/v1/archive?latitude=${lat.toFixed(2)}&longitude=${lon.toFixed(2)}`
+    + `&start_date=1991-01-01&end_date=2020-12-31&daily=temperature_2m_max,temperature_2m_min,precipitation_sum&timezone=Europe%2FRome`);
+  if(!r.ok) throw new Error("archivio " + r.status);
+  const d = await r.json();
+  // media della massima e della minima per ogni giorno dell'anno (finestra di ±7 giorni) e pioggia media per mese
+  const somme = Array.from({ length: 366 }, () => [0, 0, 0]);
+  const pioggiaMese = Array(12).fill(0);
+  d.daily.time.forEach((t, i) => {
+    const data = new Date(t + "T12:00:00");
+    const doy = Math.floor((data - new Date(data.getFullYear(), 0, 1)) / 86400000);
+    if(d.daily.temperature_2m_max[i] != null){ somme[doy][0] += d.daily.temperature_2m_max[i]; somme[doy][1] += d.daily.temperature_2m_min[i]; somme[doy][2]++; }
+    pioggiaMese[data.getMonth()] += d.daily.precipitation_sum[i] || 0;
+  });
+  const max = [], min = [];
+  for(let g = 0; g < 366; g++){
+    let a = 0, b = 0, n = 0;
+    for(let k = -7; k <= 7; k++){ const s = somme[(g + k + 366) % 366]; a += s[0]; b += s[1]; n += s[2]; }
+    max.push(+(a / n).toFixed(1)); min.push(+(b / n).toFixed(1));
+  }
+  const c = { v:1, max, min, pioggiaMese: pioggiaMese.map(x => Math.round(x / 30)) };
+  try{ localStorage.setItem(chiave, JSON.stringify(c)); }catch(e){}
+  return c;
+}
+
+let climaInCorso = null;
+async function caricaClima(){
+  const luogo = comuneCorrente();
+  const chiave = luogo.chiave;
+  if(climaInCorso === chiave) return;
+  climaInCorso = chiave;
+  try{
+    const oggi = new Date();
+    const giornoMese = oggi.getDate();
+    const [norm, recenti] = await Promise.all([
+      normaliClimatici(luogo.lat, luogo.lon),
+      fetch(`https://api.open-meteo.com/v1/forecast?latitude=${luogo.lat}&longitude=${luogo.lon}&daily=temperature_2m_max,temperature_2m_min,precipitation_sum&past_days=${Math.max(1, giornoMese - 1)}&forecast_days=1&timezone=Europe%2FRome`).then(r => r.json())
+    ]);
+    if(comuneCorrente().chiave !== chiave) return;
+    const doy = Math.floor((new Date(oggi.getFullYear(), oggi.getMonth(), oggi.getDate(), 12) - new Date(oggi.getFullYear(), 0, 1)) / 86400000);
+    const r = recenti.daily;
+    const n = r.time.length;
+    const maxOggi = r.temperature_2m_max[n - 1], normMax = norm.max[doy];
+    const diff = maxOggi - normMax;
+
+    // temperatura media del mese finora rispetto al normale degli stessi giorni
+    let scarto = 0, giorni = 0;
+    r.time.forEach((t, i) => {
+      if(r.temperature_2m_max[i] == null) return;
+      const d0 = new Date(t + "T12:00:00");
+      if(d0.getMonth() !== oggi.getMonth()) return;
+      const g0 = Math.floor((d0 - new Date(d0.getFullYear(), 0, 1)) / 86400000);
+      scarto += (r.temperature_2m_max[i] + r.temperature_2m_min[i]) / 2 - (norm.max[g0] + norm.min[g0]) / 2;
+      giorni++;
+    });
+    const scartoMese = giorni ? scarto / giorni : 0;
+    const pioggiaMese = r.time.reduce((a, t, i) => a + (new Date(t + "T12:00:00").getMonth() === oggi.getMonth() ? (r.precipitation_sum[i] || 0) : 0), 0);
+    const giorniNelMese = new Date(oggi.getFullYear(), oggi.getMonth() + 1, 0).getDate();
+    const normalePioggia = norm.pioggiaMese[oggi.getMonth()] * giornoMese / giorniNelMese;
+    const nomeMese = oggi.toLocaleDateString(LOCALE, { month:"long" });
+    const confrontoT = Math.abs(diff) < 1 ? "nella media del periodo" : `${Math.abs(diff).toFixed(0)}° ${diff > 0 ? "sopra" : "sotto"} la media del periodo`;
+    const rapportoP = normalePioggia > 1 ? pioggiaMese / normalePioggia : null;
+    const confrontoP = rapportoP == null ? "" : rapportoP > 1.3 ? "più del solito" : rapportoP < .7 ? "meno del solito" : "come al solito";
+
+    ultimiDati.clima = { massima_oggi: maxOggi, massima_normale: normMax, scarto_mese_c: +scartoMese.toFixed(1), pioggia_mese_mm: Math.round(pioggiaMese), pioggia_normale_mm: Math.round(normalePioggia) };
+    $("clima").innerHTML = `<div class="confronto">
+<div><b>Oggi ${Math.round(maxOggi)}° di massima</b>${confrontoT} (${Math.round(normMax)}°).</div>
+<div><b>${nomeMese.charAt(0).toUpperCase() + nomeMese.slice(1)} finora: ${scartoMese >= 0 ? "+" : ""}${scartoMese.toFixed(1)}°</b>Temperatura media rispetto al normale degli stessi giorni.</div>
+<div><b>Pioggia del mese: ${Math.round(pioggiaMese)} mm</b>${rapportoP == null ? "Di solito in questi giorni piove pochissimo." : `In media fino a oggi ne cadono ${Math.round(normalePioggia)} mm: ${confrontoP}.`}</div>
+</div>
+<p class="nota">Media 1991–2020 calcolata dall'archivio storico di Open-Meteo (ERA5) per questo luogo.</p>`;
+    $("antClima").textContent = `Oggi ${confrontoT} · ${nomeMese} ${confrontoP || "nella media"} di pioggia`;
+  }catch(e){
+    console.error(e);
+    $("clima").innerHTML = '<p class="suggerimento">Confronto con il clima non disponibile in questo momento.</p>';
+  }finally{
+    climaInCorso = null;
+  }
+}
+
+$("tendinaClima").addEventListener("toggle", () => { if($("tendinaClima").open) caricaClima(); });
+
+/* =========================================================
+   BARCA E PESCA
+   Limiti pensati per barche piccole (gozzi, gommoni, piccoli cabinati).
+========================================================= */
+
+function giudizioBarca(onda, raffica, codice){
+  if(codice >= 95 || raffica >= 35 || onda >= 1.5) return 2;
+  if(raffica >= 25 || onda >= 0.8) return 1;
+  return 0;
+}
+
+async function caricaBarca(){
+  const luogo = comuneCorrente();
+  const chiave = luogo.chiave;
+  const urlMare = `https://marine-api.open-meteo.com/v1/marine?latitude=${luogo.lat}&longitude=${luogo.lon}`
+    + `&hourly=wave_height,swell_wave_height,swell_wave_period&forecast_hours=24&cell_selection=sea&timezone=Europe%2FRome`;
+  const urlAria = `https://api.open-meteo.com/v1/forecast?latitude=${luogo.lat}&longitude=${luogo.lon}`
+    + `&hourly=wind_speed_10m,wind_gusts_10m,wind_direction_10m,pressure_msl,weather_code&past_hours=6&forecast_hours=24`
+    + `&daily=sunrise,sunset&forecast_days=2&timezone=Europe%2FRome`;
+  try{
+    const [m, a] = await Promise.all([fetch(urlMare).then(r => r.json()), fetch(urlAria).then(r => r.json())]);
+    if(comuneCorrente().chiave !== chiave) return;
+    const mh = m.hourly, ah = a.hourly;
+    const ore = mh.time.map((t, k) => {
+      const j = ah.time.indexOf(t);
+      return { t, onda: mh.wave_height[k] ?? 0, lunga: mh.swell_wave_height[k], periodo: mh.swell_wave_period[k],
+        vento: ah.wind_speed_10m[j], raffica: ah.wind_gusts_10m[j], dir: ah.wind_direction_10m[j], codice: ah.weather_code[j] };
+    }).filter(o => o.raffica != null);
+    if(!ore.length) throw new Error("nessun dato");
+
+    const giudizi = ore.map(o => giudizioBarca(o.onda, o.raffica, o.codice));
+    const ora = ore[0], g0 = giudizi[0];
+    const TESTI = ["Uscita tranquilla", "Solo sotto costa, con prudenza", "Resta in porto"];
+    const buone = finestre(ore.slice(0, 14).map((o, k) => ({ ...o, k })), o => giudizi[o.k] === 0, 2);
+    const fine = f => `${String((Number(oraDi(f[1].t).slice(0, 2)) + 1) % 24).padStart(2, "0")}:00`;
+
+    // pesca: pressione, vento, mare, luna e ore di alba e tramonto
+    const pAdesso = ah.pressure_msl[ah.time.indexOf(ora.t)];
+    const pPrima = ah.pressure_msl[Math.max(0, ah.time.indexOf(ora.t) - 3)];
+    const tendenza = pAdesso - pPrima;
+    const f = (((Date.now() - Date.UTC(2000, 0, 6, 18, 14)) / 86400000) % 29.530588853 + 29.530588853) % 29.530588853 / 29.530588853;
+    const lunaForte = f < .1 || f > .9 || Math.abs(f - .5) < .1;
+    let punti = 0;
+    const motivi = [];
+    if(Math.abs(tendenza) <= 1){ punti++; motivi.push("pressione stabile"); }
+    else if(tendenza < -1 && tendenza > -3){ punti++; motivi.push("pressione in lieve calo"); }
+    else { punti--; motivi.push(tendenza > 0 ? "pressione in forte aumento" : "pressione in forte calo"); }
+    if(ora.vento < 15){ punti++; motivi.push("poco vento"); } else if(ora.vento > 25){ punti--; motivi.push("vento forte"); }
+    if(ora.onda >= .3 && ora.onda <= 1){ punti++; motivi.push("mare leggermente mosso"); } else if(ora.onda > 1.5){ punti--; motivi.push("mare troppo agitato"); }
+    if(lunaForte){ punti++; motivi.push(f < .1 || f > .9 ? "luna nuova" : "luna piena"); }
+    const pesca = punti >= 3 ? "Buona" : punti >= 1 ? "Discreta" : "Scarsa";
+    const albaDomani = a.daily.sunrise[1], tramontoOggi = a.daily.sunset[0];
+
+    ultimiDati.barca = { adesso: TESTI[g0], onde_m: ora.onda, raffiche_kmh: ora.raffica, pesca, motivi_pesca: motivi };
+    $("antBarca").textContent = `Barca: ${TESTI[g0].toLowerCase()} · pesca ${pesca.toLowerCase()}`;
+    const etich = [0, 3, 6, 9].map(k => ore[k] ? oraDi(ore[k].t) : "");
+    $("barca").innerHTML = `
+<span class="livello-grande l${g0 === 0 ? 0 : g0 === 1 ? 1 : 3}">${TESTI[g0]}</span>
+<div class="dettagli" style="margin-top:12px">
+  ${tile("onda", "Onde", `${ora.onda.toFixed(1)}<small>m</small>`, ora.lunga != null ? `Onda lunga ${ora.lunga.toFixed(1)} m · ${Math.round(ora.periodo || 0)} s` : "")}
+  ${tile("vento", "Vento", `${Math.round(ora.vento)}<small>km/h</small>`, `${frecciaDirezione(ora.dir)} da ${cardinale(ora.dir)} · raffiche ${Math.round(ora.raffica)}`)}
+</div>
+<div class="barra-ore">${giudizi.slice(0, 12).map(v => `<i class="v${v}"></i>`).join("")}</div>
+<div class="etichette-ore">${etich.map(e => `<span>${e}</span>`).join("")}<span>+12 h</span></div>
+<div class="legenda-barca"><span style="--c:#4d9dff">Tranquilla</span><span style="--c:#ffbf3c">Sotto costa</span><span style="--c:#ff5a5a">In porto</span></div>
+<p class="card-testo" style="margin:12px 0 0">${buone.length ? `Finestra migliore: ${oraDi(buone[0][0].t)}–${fine(buone[0])}.` : "Nelle prossime ore non ci sono finestre tranquille."}</p>
+<div class="blocco">
+  <h3>${ui("barca")} Pesca: ${pesca.toLowerCase()}</h3>
+  <p class="card-testo" style="margin:0">${motivi.join(", ").replace(/^./, c => c.toUpperCase())}. Ore migliori secondo la tradizione: tramonto (${oraDi(tramontoOggi)}) e alba (${oraDi(albaDomani)}).</p>
+</div>
+<p class="nota">Limiti pensati per barche piccole (gozzi, gommoni). Prima di uscire controlla sempre il bollettino del mare e le ordinanze della Capitaneria di porto. In emergenza in mare: 1530.</p>`;
+  }catch(e){
+    console.error(e);
+    $("barca").innerHTML = '<p class="suggerimento">Dati per barca e pesca non disponibili in questo momento.</p>';
+  }
+}
+
+/* =========================================================
+   BALNEABILITÀ (balneazione.json, aggiornato da GitHub Actions)
+========================================================= */
+
+let datiBalneazione = null;
+
+async function caricaBalneazione(){
+  try{
+    const r = await fetch("balneazione.json", { cache:"no-cache" });
+    if(r.ok) datiBalneazione = await r.json();
+  }catch(e){}
+  mostraBalneazioneQui();
+}
+
+function mostraBalneazioneQui(){
+  const el = $("balneazioneQui");
+  if(!datiBalneazione){ el.textContent = ""; return; }
+  const luogo = comuneCorrente();
+  // località di mare più vicina (entro 5 km)
+  let vicina = null, dist = Infinity;
+  COMUNI.forEach(c => {
+    if(c[1] !== "Località di mare") return;
+    const d = distanzaKm(luogo.lat, luogo.lon, c[2], c[3]);
+    if(d < dist){ dist = d; vicina = c[0]; }
+  });
+  const info = vicina && dist <= 5 ? datiBalneazione.localita?.[vicina] : null;
+  if(!info){ el.textContent = ""; return; }
+  ultimiDati.balneazione = { localita: vicina, stato: info.stato };
+  const mese = new Date().getMonth() + 1;
+  const stagione = mese >= 5 && mese <= 9;
+  const testo = info.stato === "divieto"
+    ? `<span class="badge-balneazione divieto">Divieto di balneazione in corso</span> vicino a ${vicina} (Portale Acque, Ministero della Salute).`
+    : info.stato === "ok"
+      ? `<span class="badge-balneazione">Nessun divieto di balneazione</span> a ${vicina}${stagione ? "" : " · stagione balneare chiusa, i controlli riprendono a maggio"} (Portale Acque).`
+      : "";
+  el.innerHTML = testo ? ui("onda") + `<span>${testo}</span>` : "";
+}
+
+/* =========================================================
+   ASSISTENTE (intelligenza artificiale sul server delle notifiche)
+========================================================= */
+
+const storiaChat = [];
+
+function contestoAssistente(){
+  const luogo = comuneCorrente();
+  const d = ultimiDati.meteo;
+  const ctx = {
+    adesso: new Date().toLocaleString("it-IT", { timeZone:"Europe/Rome" }),
+    luogo: luogo.posizione ? { tipo:"posizione esatta", vicino_a: luogo.vicino, lat: +luogo.lat.toFixed(3), lon: +luogo.lon.toFixed(3) } : { tipo:"paese", nome: luogo.nome, zona: luogo.zona }
+  };
+  if(d){
+    const c = d.current, h = d.hourly, g = d.daily;
+    ctx.meteo_attuale = { condizione: infoMeteo(c.weather_code).testo, temperatura: c.temperature_2m, percepita: c.apparent_temperature, umidita: c.relative_humidity_2m,
+      vento_kmh: c.wind_speed_10m, direzione_vento: cardinale(c.wind_direction_10m), raffiche_kmh: c.wind_gusts_10m, nuvole: c.cloud_cover, pioggia_mm: c.precipitation, giorno: c.is_day === 1 };
+    const start = Math.max(0, h.time.findIndex(t => new Date(t) > new Date()) - 1);
+    ctx.prossime_48_ore = [];
+    for(let i = start; i < Math.min(start + 48, h.time.length); i += 2){
+      ctx.prossime_48_ore.push([h.time[i].slice(5, 16), Math.round(h.temperature_2m[i]), infoMeteo(h.weather_code[i]).testo, h.precipitation_probability[i], Math.round(h.wind_speed_10m[i])]);
+    }
+    ctx.prossime_48_ore_legenda = "[data ora, temperatura, condizione, probabilità pioggia %, vento km/h] ogni 2 ore";
+    ctx.prossimi_7_giorni = g.time.map((t, i) => ({ data: t, condizione: infoMeteo(g.weather_code[i]).testo, min: g.temperature_2m_min[i], max: g.temperature_2m_max[i],
+      prob_pioggia: g.precipitation_probability_max[i], pioggia_mm: g.precipitation_sum?.[i], raffiche_max: g.wind_gusts_10m_max?.[i], uv: g.uv_index_max[i], alba: oraDi(g.sunrise[i]), tramonto: oraDi(g.sunset[i]) }));
+  }
+  if(ultimiDati.mare?.current) ctx.mare_qui = { onde_m: ultimiDati.mare.current.wave_height, acqua_c: ultimiDati.mare.current.sea_surface_temperature, direzione_onde: ultimiDati.mare.current.wave_direction };
+  if(ultimiDati.mare?.daily) ctx.mare_7_giorni = ultimiDati.mare.daily.time.map((t, i) => [t, ultimiDati.mare.daily.wave_height_max[i]]);
+  if(ultimiDati.mareMigliore) ctx.localita_di_mare_in_ordine = ultimiDati.mareMigliore;
+  if(ultimiDati.barca) ctx.barca_e_pesca = ultimiDati.barca;
+  if(ultimiDati.aria) ctx.aria = ultimiDati.aria;
+  if(ultimiDati.montagne) ctx.montagne = ultimiDati.montagne;
+  if(ultimiDati.incendi) ctx.rischio_incendi_stimato = ultimiDati.incendi;
+  if(ultimiDati.caldo) ctx.caldo = ultimiDati.caldo;
+  if(ultimiDati.tramonto) ctx.tramonto = ultimiDati.tramonto;
+  if(ultimiDati.balneazione) ctx.balneazione = ultimiDati.balneazione;
+  if(ultimiDati.clima) ctx.rispetto_al_solito = ultimiDati.clima;
+  const zona = luogo.zonaAllerta;
+  if(datiAllerta && zona){
+    ctx.allerta_ufficiale = { zona: datiAllerta.zone?.[zona], bollettino: datiAllerta.bollettino, giorni: Object.fromEntries(Object.entries(datiAllerta.giorni || {}).map(([k, v]) => [k, v[zona]])) };
+  }
+  return ctx;
+}
+
+function aggiungiMessaggio(testo, chi){
+  const el = document.createElement("div");
+  el.className = "msg " + chi;
+  el.textContent = testo;
+  $("chatMessaggi").appendChild(el);
+  $("chatMessaggi").scrollTop = $("chatMessaggi").scrollHeight;
+  return el;
+}
+
+async function chiedi(domanda){
+  domanda = domanda.trim().slice(0, 400);
+  if(!domanda || !configNotifiche?.server) return;
+  aggiungiMessaggio(domanda, "io");
+  $("chatInput").value = "";
+  $("chatSuggerimenti").hidden = true;
+  const attesa = aggiungiMessaggio("Sto guardando i dati…", "ai attesa");
+  try{
+    const r = await fetch(configNotifiche.server.replace(/\/$/, "") + "/assistente", {
+      method:"POST", headers:{ "Content-Type":"application/json" },
+      body: JSON.stringify({ domanda, storia: storiaChat.slice(-6), contesto: contestoAssistente(), lingua: typeof LINGUA === "string" ? LINGUA : "it" })
+    });
+    const dati = await r.json().catch(() => ({}));
+    if(!r.ok) throw new Error(dati.errore || ("server " + r.status));
+    attesa.classList.remove("attesa");
+    attesa.textContent = dati.risposta;
+    storiaChat.push({ ruolo:"utente", testo: domanda }, { ruolo:"assistente", testo: dati.risposta });
+  }catch(e){
+    console.error(e);
+    attesa.classList.remove("attesa");
+    attesa.textContent = /troppe/i.test(e.message) ? "Hai fatto molte domande oggi: riprova domani." : "Non riesco a rispondere in questo momento. Riprova tra poco.";
+  }
+}
+
+function preparaAssistente(){
+  if(!configNotifiche?.server || !configNotifiche?.assistente) return;
+  $("apriAssistente").hidden = false;
+}
+
+$("apriAssistente").addEventListener("click", () => {
+  $("foglioAssistente").hidden = false;
+  setTimeout(() => $("chatInput").focus(), 80);
+});
+$("chiudiAssistente").addEventListener("click", () => { $("foglioAssistente").hidden = true; });
+$("foglioAssistente").addEventListener("click", e => { if(e.target === $("foglioAssistente")) $("foglioAssistente").hidden = true; });
+$("chatForm").addEventListener("submit", e => { e.preventDefault(); chiedi($("chatInput").value); });
+$("chatSuggerimenti").addEventListener("click", e => { const b = e.target.closest("button"); if(b) chiedi(b.textContent); });
+
+/* =========================================================
+   SCORCIATOIE (#mare, #radar, #montagna, #allerte)
+========================================================= */
+
+function apriDaIndirizzo(){
+  const sez = location.hash.slice(1);
+  if(SEZIONI.includes(sez)) mostraSezione(sez);
+}
+window.addEventListener("hashchange", apriDaIndirizzo);
+
+/* =========================================================
    LINGUA (dizionario in lingue.js)
 ========================================================= */
 
@@ -3836,8 +4565,12 @@ function cambiaComune(){
   loadWeather();
   caricaMare();
   caricaAria();
+  caricaBarca();
   aggiornaRadarVicino();
   aggiornaMappa();
+  mostraBalneazioneQui();
+  caricaPreferiti();
+  storiaChat.length = 0;
 }
 
 mostraSezione("meteo");
@@ -3847,10 +4580,11 @@ caricaMareMigliore();
 caricaMontagne();
 caricaAllerta();
 caricaSponsor();
+caricaBalneazione();
 preparaNotifiche();
 
-// Apertura da una notifica di allerta (indirizzo con #allerte)
-if(location.hash === "#allerte") mostraSezione("allerte");
+// Apertura da una notifica o da una scorciatoia dell'icona (#mare, #radar, #montagna, #allerte)
+apriDaIndirizzo();
 
 // Se la persona usa la posizione esatta e ha già dato il permesso, la aggiorna subito
 if(posizione) permessoPosizioneConcesso().then(ok => { if(ok) usaPosizioneEsatta(true); });
@@ -3860,9 +4594,11 @@ setInterval(async () => {
   loadWeather();
   caricaMare();
   caricaAria();
+  caricaBarca();
   caricaMareMigliore();
   caricaMontagne();
   caricaAllerta();
+  caricaPreferiti();
 }, AGGIORNAMENTO_MS);
 
 // Il radar si aggiorna ogni 5 minuti, come la rete della Protezione Civile
