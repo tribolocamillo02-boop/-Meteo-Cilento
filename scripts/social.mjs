@@ -137,6 +137,11 @@ async function decidi(){
   // Martedì e sabato tra le 12 e le 15: un post che mostra l'app
   if(forza.includes("promo") || ((giorno === "Tue" || giorno === "Sat") && ora >= 12 && ora <= 15 && stato.promo !== data)) compiti.push("promo");
 
+  // Kit di benvenuto (una volta sola, da fissare in cima al profilo):
+  // un Reel «Come si usa» e un carosello «Cos'è Cilento Meteo», tra le 9 e le 21
+  if(forza.includes("reel-guida") || (!stato["reel-guida"] && ora >= 9 && ora <= 21)) compiti.push("reel-guida");
+  if(forza.includes("carosello") || (!stato.carosello && ora >= 9 && ora <= 21)) compiti.push("carosello");
+
   // Reel del weekend: il venerdì tra le 12 e le 15
   if(forza.includes("reel-weekend") || (giorno === "Fri" && ora >= 12 && ora <= 15 && stato["reel-weekend"] !== data)) compiti.push("reel-weekend");
 
@@ -240,8 +245,30 @@ async function genera(){
       esito.testi["reel-weekend"] = `☀️ Che tempo farà nel weekend nel Cilento?\n\nDal mare alla montagna: previsioni ora per ora per tutti i 118 paesi, mare, radar e allerte.\n\n📲 Gratis su 👉 cilentometeo.it (link in bio)\n\n#cilento #meteocilento #weekend #cilentocoast #cilentomeraviglie #cilentolovers #cilentogram #palinuro #agropoli #sapri`;
       console.log("Creato", nome);
     }
+    if(compiti.includes("reel-guida")){
+      const nome = `${data}-reel-guida.mp4`;
+      await creaReelGuida(browser, s.address().port, path.join(IMMAGINI, nome));
+      file["reel-guida"] = nome;
+      esito.testi["reel-guida"] = `Come si usa Cilento Meteo in 20 secondi ⏱️\n\n1️⃣ Scegli il tuo paese (o usa la posizione)\n2️⃣ Guarda il meteo ora per ora\n3️⃣ Scopri dove il mare è più calmo\n4️⃣ Segui la pioggia sul radar in diretta\n5️⃣ Controlla le allerte ufficiali\n\n📲 Gratis, senza registrazione: 👉 cilentometeo.it (link in bio)\n\n${HASHTAG_PROMO}`;
+      console.log("Creato", nome);
+    }
+    if(compiti.includes("carosello")){
+      const nomi = [];
+      const copertina = `${data}-carosello-0.jpg`;
+      fs.writeFileSync(path.join(IMMAGINI, copertina), await creaCopertina(browser));
+      nomi.push(copertina);
+      for(const id of ["paesi", "ore", "mare", "radar", "allerte", "montagna", "installa"]){
+        const p = PROMO.find(x => x.id === id);
+        const nome = `${data}-carosello-${nomi.length}.jpg`;
+        fs.writeFileSync(path.join(IMMAGINI, nome), await creaPromo(browser, s.address().port, p));
+        nomi.push(nome);
+      }
+      file.carosello = nomi;
+      esito.testi.carosello = `Benvenuto su Cilento Meteo 👋\n\nIl meteo di tutti i 118 paesi del Cilento, dal mare alla montagna, in un'unica app gratuita. Scorri 👉 per vedere cosa puoi fare:\n\n☀️ Previsioni ora per ora per 7 giorni\n🌊 Il mare più calmo di oggi\n📡 Il radar della Protezione Civile in diretta\n⚠️ Le allerte ufficiali\n⛰️ Il meteo in vetta per le escursioni\n\n📲 Si installa sul telefono come un'app: 👉 cilentometeo.it (link in bio)\n\n${HASHTAG_PROMO}`;
+      console.log("Creato il carosello:", nomi.length, "immagini");
+    }
     for(const tipo of compiti){
-      if(tipo === "promo" || tipo.startsWith("reel-")) continue;
+      if(tipo === "promo" || tipo === "carosello" || tipo.startsWith("reel-")) continue;
       if(!esito[tipo]) throw new Error(`Immagine ${tipo} non disponibile`);
       const nome = `${data}-${tipo}.jpg`;
       fs.writeFileSync(path.join(IMMAGINI, nome), Buffer.from(esito[tipo], "base64"));
@@ -436,6 +463,92 @@ async function creaReelRadar(browser, porta, paese, uscita){
   ft.video(uscita);
 }
 
+async function creaCopertina(browser){
+  const logo = fs.readFileSync(path.join(RADICE, "icone/icona-512.png")).toString("base64");
+  const html = `<!doctype html><html><head><meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;600;800&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0}
+body{width:1080px;height:1350px;overflow:hidden;font-family:Inter,Arial,sans-serif;color:#f4f8ff;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:34px;text-align:center;
+background:radial-gradient(ellipse 80% 50% at 50% 28%,rgba(47,125,255,.6),transparent 70%),radial-gradient(ellipse 60% 40% at 100% 100%,rgba(47,125,255,.22),transparent 70%),linear-gradient(#061433,#030a1c 55%,#02040a)}
+img{width:250px;height:250px;border-radius:62px;box-shadow:0 30px 90px rgba(47,125,255,.55)}
+.m{font:700 34px "Space Grotesk",Inter,sans-serif;letter-spacing:12px;color:#8cc4ff}
+h1{font-weight:800;font-size:84px;line-height:1.05;letter-spacing:-1.5px;max-width:900px}
+.v{display:flex;flex-wrap:wrap;justify-content:center;gap:14px;max-width:900px}
+.v span{padding:14px 26px;border-radius:999px;font-weight:600;font-size:30px;background:rgba(255,255,255,.07);border:2px solid rgba(140,196,255,.3)}
+.s{font-weight:800;font-size:36px;color:#8cc4ff}
+</style></head><body>
+<img src="data:image/png;base64,${logo}">
+<div class="m">CILENTO METEO</div>
+<h1>Il meteo di tutto il Cilento</h1>
+<div class="v"><span>☀️ 118 paesi</span><span>⏱️ Ora per ora</span><span>🌊 Mare</span><span>📡 Radar</span><span>⚠️ Allerte</span><span>⛰️ Montagna</span></div>
+<div class="s">Scorri 👉</div>
+</body></html>`;
+  const pagina = await browser.newPage({ viewport:{ width:1080, height:1350 } });
+  await pagina.setContent(html, { waitUntil:"networkidle" });
+  await pagina.evaluate(() => document.fonts.ready);
+  const jpg = await pagina.screenshot({ type:"jpeg", quality:92 });
+  await pagina.close();
+  return jpg;
+}
+
+// Reel «Come si usa»: un giro dell'app in 5 passi
+async function creaReelGuida(browser, porta, uscita){
+  const ctx = await telefonoReel(browser);
+  const pagina = await ctx.newPage();
+  await pagina.goto(`http://127.0.0.1:${porta}/index.html?paese=palinuro#meteo`, { waitUntil:"load" });
+  await pagina.waitForTimeout(12000);
+  await sovrapponi(pagina, "Come si usa Cilento Meteo", "");
+  const ft = new Fotogrammi(uscita + ".fotogrammi");
+  const titolo = (t, s) => pagina.evaluate(([t, s]) => {
+    document.querySelector("#reelTesta .t").textContent = t;
+    document.querySelector("#reelTesta .s").textContent = s;
+  }, [t, s]);
+  const scorriA = async (sel, durata = 30) => {
+    const da = await pagina.evaluate(() => window.scrollY);
+    const a = await pagina.evaluate(sel => {
+      const el = sel && document.querySelector(sel);
+      return el ? Math.max(0, el.getBoundingClientRect().top + window.scrollY - 110) : 0;
+    }, sel);
+    for(let k = 1; k <= durata; k++){
+      await pagina.evaluate(y => window.scrollTo(0, y), Math.round(da + (a - da) * morbido(k / durata)));
+      await ft.scatta(pagina);
+    }
+  };
+  const sezione = async (nome) => {
+    await pagina.evaluate(n => { location.hash = n; window.scrollTo(0, 0); }, nome);
+    await pagina.waitForTimeout(nome === "radar" ? 9000 : 3500);
+    await pagina.evaluate(n => {
+      const s = document.getElementById("sezione-" + n);
+      if(s) window.scrollTo(0, s.getBoundingClientRect().top + window.scrollY - 110);
+    }, nome);
+    await pagina.waitForTimeout(600);
+  };
+
+  await pagina.evaluate(() => window.scrollTo(0, 0));
+  await titolo("Come si usa Cilento Meteo", "1 · Scegli il tuo paese");
+  for(let k = 0; k < 60; k++) await ft.scatta(pagina);                // 2 s
+  await titolo("Come si usa Cilento Meteo", "2 · Il meteo ora per ora");
+  await scorriA('[data-tendina="ore24"]');
+  await ft.scatta(pagina, 45);
+  await sezione("mare");
+  await titolo("Come si usa Cilento Meteo", "3 · Dove il mare è più calmo");
+  await ft.scatta(pagina, 60);
+  await sezione("radar");
+  await pagina.evaluate(() => {
+    const carta = document.querySelector("#sezione-radar .card");
+    if(carta) window.scrollTo(0, carta.getBoundingClientRect().top + window.scrollY - 100);
+  });
+  await titolo("Come si usa Cilento Meteo", "4 · La pioggia sul radar, in diretta");
+  for(let k = 0; k < 20; k++){ await pagina.waitForTimeout(120); await ft.scatta(pagina, 4); }   // il radar si muove da solo
+  await sezione("allerte");
+  await titolo("Come si usa Cilento Meteo", "5 · Le allerte ufficiali");
+  await ft.scatta(pagina, 60);
+  await finale(pagina, ft);
+  await ctx.close();
+  ft.video(uscita);
+}
+
 async function creaReelWeekend(browser, porta, uscita){
   const ctx = await telefonoReel(browser);
   const ft = new Fotogrammi(uscita + ".fotogrammi");
@@ -500,6 +613,32 @@ async function pubblicaUna(utente, url, { didascalia, storia, reel }){
   return pubblicato.id;
 }
 
+async function pubblicaCarosello(utente, urls, didascalia){
+  const figli = [];
+  for(const u of urls){
+    if(!await urlRaggiungibile(u)) throw new Error("Immagine non raggiungibile: " + u);
+    const { id } = await chiamata("POST", `/${utente}/media`, { image_url:u, is_carousel_item:"true" });
+    figli.push(id);
+  }
+  for(const id of figli){
+    for(let k = 0; k < 30; k++){
+      const { status_code } = await chiamata("GET", `/${id}`, { fields:"status_code" });
+      if(status_code === "FINISHED") break;
+      if(status_code === "ERROR" || status_code === "EXPIRED") throw new Error(`Immagine del carosello ${id}: ${status_code}`);
+      await attendi(3000);
+    }
+  }
+  const { id } = await chiamata("POST", `/${utente}/media`, { media_type:"CAROUSEL", children:figli.join(","), caption:didascalia });
+  for(let k = 0; k < 30; k++){
+    const { status_code } = await chiamata("GET", `/${id}`, { fields:"status_code" });
+    if(status_code === "FINISHED") break;
+    if(status_code === "ERROR" || status_code === "EXPIRED") throw new Error(`Carosello ${id}: ${status_code}`);
+    await attendi(5000);
+  }
+  const pubblicato = await chiamata("POST", `/${utente}/media_publish`, { creation_id:id });
+  return pubblicato.id;
+}
+
 async function urlRaggiungibile(url){
   // Per i video si aspetta che GitHub Pages pubblichi il file (1–3 minuti)
   for(let k = 0; k < 48; k++){
@@ -538,6 +677,13 @@ async function pubblica(){
     const reel = tipo.startsWith("reel-");
     const url = `${(reel ? SITO : base).replace(/\/$/, "")}/social/immagini/${c.file[tipo]}`;
     try{
+      if(tipo === "carosello"){
+        const urls = c.file.carosello.map(n => `${base.replace(/\/$/, "")}/social/immagini/${n}`);
+        if(prova) console.log(`[PROVA] carosello:\n${urls.join("\n")}\n${c.testi.carosello}\n`);
+        else console.log("Carosello pubblicato:", await pubblicaCarosello(utente, urls, c.testi.carosello));
+        stato.carosello = c.data;
+        continue;
+      }
       if(prova){
         console.log(`[PROVA] ${tipo}: ${url}\n${c.testi[tipo] || ""}\n`);
       }else{

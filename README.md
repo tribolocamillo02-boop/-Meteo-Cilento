@@ -318,6 +318,7 @@ Il workflow `.github/workflows/instagram.yml` gira ogni ora e pubblica da solo:
 | martedì e sabato dalle 12 | post + storia che mostra l'app (screenshot veri, 8 temi a rotazione: paesi, radar, mare, ora per ora, allerte, montagna, installazione, ore migliori) |
 | venerdì dalle 12 | Reel «Il weekend nel Cilento» (video dall'app: Palinuro, Agropoli, Sapri) |
 | quando piove (8–20, max uno al giorno) | Reel del radar della Protezione Civile |
+| una volta sola (9–21) | kit di benvenuto da fissare in cima al profilo: Reel «Come si usa» e carosello «Cos'è Cilento Meteo» (8 immagini) |
 
 Le immagini sono quelle di `social.html`, create con Playwright da `scripts/social.mjs`
 e salvate in `social/immagini/` (restano solo gli ultimi 7 giorni). Lo stato delle
@@ -335,6 +336,8 @@ Segreti del repository (Settings → Secrets and variables → Actions):
 - `GH_PAT` (solo per i token `IGAA`): token GitHub «fine-grained» limitato a questo
   repository con permesso **Secrets: Read and write**. Serve a rinnovare da solo
   `IG_TOKEN` ogni settimana.
+
+Se una pubblicazione fallisce non viene segnata in `social/stato.json` e il robot riprova all'ora successiva.
 
 Per una prova: Actions → Instagram → Run workflow, con «Solo prova» o con
 «Pubblica subito» = `storia`.
