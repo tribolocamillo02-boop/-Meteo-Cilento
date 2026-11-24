@@ -319,6 +319,7 @@ Il workflow `.github/workflows/instagram.yml` gira ogni ora e pubblica da solo:
 | venerdì dalle 12 | Reel «Il weekend nel Cilento» (video dall'app: Palinuro, Agropoli, Sapri) |
 | quando piove (8–20, max uno al giorno) | Reel del radar della Protezione Civile |
 | lunedì e mercoledì dalle 13, e ogni giorno se domani c'è un evento importante (temporali, neve, vento, caldo, freddo) | post «notizia» stile telegiornale: mappa del Cilento con pioggia o temperature di domani, titolo grande e didascalia per zone |
+| domenica, e ogni giorno in cui arriva il maltempo (dalle 12) | Reel «la giornata ora per ora»: mappa satellitare del Cilento con nuvole che si muovono, pioggia come un radar, giorno e notte, paesi con icone 3D e temperature, dalle 6 alle 23 della giornata più interessante (16 s, ~28 fotogrammi per ora) |
 | una volta sola (9–21) | kit di benvenuto da fissare in cima al profilo: Reel «Come si usa» e carosello «Cos'è Cilento Meteo» (8 immagini) |
 
 Le immagini sono quelle di `social.html`, create con Playwright da `scripts/social.mjs`
