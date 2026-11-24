@@ -555,6 +555,7 @@ async function creaNotizia(browser, { meteo, scelta }){
   const M = JSON.parse(fs.readFileSync(path.join(CARTELLA, "mappa.json"), "utf8"));
   const b64 = f => fs.readFileSync(path.join(f.startsWith("icone") ? RADICE : CARTELLA, f)).toString("base64");
   const base = b64("mappa-base.png"), terra = b64("mappa-terra.png"), logo = b64("icone/icona-192.png");
+  const codiceIcone = fs.readFileSync(path.join(CARTELLA, "icone-meteo.js"), "utf8");
   const g = scelta.indice;
   const valori = meteo.griglia.map(d => scelta.var === "pioggia" ? d.precipitation_sum[g] : scelta.var === "neve" ? d.snowfall_sum[g]
     : scelta.var === "vento" ? d.wind_gusts_10m_max[g] : scelta.var === "min" ? d.temperature_2m_min[g] : d.temperature_2m_max[g]);
@@ -600,6 +601,7 @@ h1{font:400 84px/1.02 Anton,Impact,sans-serif;text-transform:uppercase;letter-sp
 <div class="sito"><b>Il meteo del tuo paese su cilentometeo.it</b><small>Dati: Open-Meteo<br>Rilievo: Mapzen / AWS Terrain Tiles</small></div>
 <img id="base" src="data:image/png;base64,${base}" hidden>
 <img id="terra" src="data:image/png;base64,${terra}" hidden>
+<script>${codiceIcone}</script>
 <script>
 const D = ${dati}, M = D.M;
 const c = document.getElementById("c"), x = c.getContext("2d");
@@ -638,6 +640,7 @@ function campo(u, v){
   for(let s = 86; s >= 72 && h1.getBoundingClientRect().height > (s + 2) * 1.02 * 2 + 4; s -= 2) h1.style.fontSize = s + "px";
   for(let s = 72; s > 64 && h1.getBoundingClientRect().height > (s + 2) * 1.02 * 3 + 4; s -= 2) h1.style.fontSize = s + "px";
   const base = await carica("base"), terraImg = await carica("terra");
+  const ICONE = await caricaIcone();
   const radar = ["pioggia", "neve", "vento"].includes(D.var);
 
   // 1. Mappa di base (un po' più scura quando c'è il radar, così i colori risaltano)
@@ -701,10 +704,8 @@ function campo(u, v){
     x.lineWidth = 3; x.strokeStyle = "rgba(0,0,0,.45)"; x.stroke();
     const ix = o.p.lato === "sx" ? o.X - o.w / 2 - 40 : o.p.lato === "dx" ? o.X + o.w / 2 + 40 : o.X;
     const iy = o.p.lato ? o.Y + 30 : o.Y - 40;
-    x.save(); x.shadowColor = "rgba(0,0,0,.55)"; x.shadowBlur = 14; x.shadowOffsetY = 5;
-    x.font = '64px "Apple Color Emoji","Noto Color Emoji",sans-serif'; x.textAlign = "center";
-    x.fillText(ICONA(o.p.codice), ix, iy);
-    x.restore();
+    const img = ICONE[tipoIcona(o.p.codice)], dim = 104;
+    if(img) x.drawImage(img, ix - dim / 2, iy - dim / 2 - 4, dim, dim);
   });
   pos.forEach(o => {
     const y = o.Y + 12, h = 42, l = o.X - o.w / 2;
