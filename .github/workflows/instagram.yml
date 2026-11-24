@@ -13,7 +13,7 @@ on:
   workflow_dispatch:
     inputs:
       forza:
-        description: "Pubblica subito (storia, weekend, allerta, promo; separati da virgola)"
+        description: "Pubblica subito (storia, weekend, allerta, promo, reel-weekend, reel-radar; separati da virgola)"
         required: false
         default: ""
       prova:
@@ -53,7 +53,7 @@ jobs:
         if: steps.d.outputs.compiti != ''
         run: |
           sudo apt-get update -qq
-          sudo apt-get install -y -qq fonts-noto-color-emoji
+          sudo apt-get install -y -qq fonts-noto-color-emoji ffmpeg
           npm install --no-save --no-package-lock playwright@1.49.1
           npx playwright install --with-deps chromium
 
