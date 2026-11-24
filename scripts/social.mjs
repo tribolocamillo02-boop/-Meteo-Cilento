@@ -78,7 +78,7 @@ const PAESI_REEL = [
 // I video li scarica Instagram dal sito (GitHub Pages li serve come video/mp4)
 const SITO = process.env.SITO || "https://cilentometeo.it";
 
-const HASHTAG_PROMO = "#cilento #meteocilento #cilentocoast #salerno #campania #parconazionaledelcilento #meteo #app";
+const HASHTAG_PROMO = "#cilento #meteocilento #cilentocoast #cilentomeraviglie #cilentolandia #cilentolovers #cilentogram #cilentoemenevanto #salerno";
 
 const leggi = (f, base) => { try{ return JSON.parse(fs.readFileSync(f, "utf8")); }catch(e){ return base; } };
 const scrivi = (f, v) => { fs.mkdirSync(path.dirname(f), { recursive:true }); fs.writeFileSync(f, JSON.stringify(v, null, 2) + "\n"); };
@@ -228,14 +228,14 @@ async function genera(){
       const nome = `${data}-reel-radar.mp4`;
       await creaReelRadar(browser, s.address().port, cc.reelPaese || "agropoli", path.join(IMMAGINI, nome));
       file["reel-radar"] = nome;
-      esito.testi["reel-radar"] = `🌧️ Piove nel Cilento: ecco il radar della Protezione Civile in diretta.\n\nGuarda dove piove adesso e dove sta andando la pioggia, paese per paese, aggiornato ogni 5 minuti.\n\n📲 Gratis su 👉 cilentometeo.it (link in bio)\n\n#cilento #meteocilento #pioggia #radarmeteo #maltempo #salerno #campania #protezionecivile`;
+      esito.testi["reel-radar"] = `🌧️ Piove nel Cilento: ecco il radar della Protezione Civile in diretta.\n\nGuarda dove piove adesso e dove sta andando la pioggia, paese per paese, aggiornato ogni 5 minuti.\n\n📲 Gratis su 👉 cilentometeo.it (link in bio)\n\n#cilento #meteocilento #cilentonotizie #pioggia #radarmeteo #maltempo #cilentolovers #salerno #protezionecivile`;
       console.log("Creato", nome);
     }
     if(compiti.includes("reel-weekend")){
       const nome = `${data}-reel-weekend.mp4`;
       await creaReelWeekend(browser, s.address().port, path.join(IMMAGINI, nome));
       file["reel-weekend"] = nome;
-      esito.testi["reel-weekend"] = `☀️ Che tempo farà nel weekend nel Cilento?\n\nDal mare alla montagna: previsioni ora per ora per tutti i 118 paesi, mare, radar e allerte.\n\n📲 Gratis su 👉 cilentometeo.it (link in bio)\n\n#cilento #meteocilento #weekend #cilentocoast #palinuro #agropoli #sapri #salerno #campania`;
+      esito.testi["reel-weekend"] = `☀️ Che tempo farà nel weekend nel Cilento?\n\nDal mare alla montagna: previsioni ora per ora per tutti i 118 paesi, mare, radar e allerte.\n\n📲 Gratis su 👉 cilentometeo.it (link in bio)\n\n#cilento #meteocilento #weekend #cilentocoast #cilentomeraviglie #cilentolovers #cilentogram #palinuro #agropoli #sapri`;
       console.log("Creato", nome);
     }
     for(const tipo of compiti){

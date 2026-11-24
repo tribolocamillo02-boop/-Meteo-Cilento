@@ -289,7 +289,7 @@ function disegnaWeekend(){
     const d = dati[k].daily;
     return `${nome}: ${infoMeteo(d.weather_code[a]).e} ${Math.round(d.temperature_2m_max[a])}° · ${infoMeteo(d.weather_code[b]).e} ${Math.round(d.temperature_2m_max[b])}°`;
   });
-  testi.weekend = `Che tempo farà nel weekend nel Cilento? ☀️🌊\n${maiuscola(giornoCorto(t[a]))} e ${giornoCorto(t[b])}\n\n${righe.join("\n")}${ma && mb ? `\n🌊 Mare: sabato ${statoMare(ma.max)}, domenica ${statoMare(mb.max)}` : ""}\n\nTutti i paesi, il mare ora per ora e il radar su 👉 cilentometeo.it (link nella bio)\n\n#cilento #meteocilento #weekend #salerno #campania #palinuro #agropoli #acciaroli #castellabate #sapri #vallodidiano`;
+  testi.weekend = `Che tempo farà nel weekend nel Cilento? ☀️🌊\n${maiuscola(giornoCorto(t[a]))} e ${giornoCorto(t[b])}\n\n${righe.join("\n")}${ma && mb ? `\n🌊 Mare: sabato ${statoMare(ma.max)}, domenica ${statoMare(mb.max)}` : ""}\n\nTutti i paesi, il mare ora per ora e il radar su 👉 cilentometeo.it (link nella bio)\n\n#cilento #meteocilento #weekend #cilentocoast #cilentomeraviglie #cilentolovers #cilentogram #palinuro #agropoli #sapri`;
 }
 
 /* ---------------- Allerta ---------------- */
@@ -350,7 +350,7 @@ function disegnaAllerta(){
   pulsanti.forEach(p => p.disabled = false);
   $("notaAllerta").textContent = "C'è un'allerta: pubblicala nelle storie e nel profilo.";
   const zone = Object.entries(a.zone).filter(([, v]) => v.livello !== "verde").map(([z, v]) => `• ${ZONE_ALLERTA[z] || z}: ${v.livello}`);
-  testi.allerta = `⚠️ ALLERTA ${a.livello.toUpperCase()} · ${quando}\n\n${zone.join("\n")}\n\nFonte: Dipartimento della Protezione Civile. Segui radar e aggiornamenti in tempo reale su 👉 cilentometeo.it\n\n#allertameteo #cilento #meteocilento #protezionecivile #salerno #campania`;
+  testi.allerta = `⚠️ ALLERTA ${a.livello.toUpperCase()} · ${quando}\n\n${zone.join("\n")}\n\nFonte: Dipartimento della Protezione Civile. Segui radar e aggiornamenti in tempo reale su 👉 cilentometeo.it\n\n#allertameteo #cilento #meteocilento #cilentonotizie #protezionecivile #salerno #campania`;
 }
 
 /* ---------------- Dati ---------------- */
