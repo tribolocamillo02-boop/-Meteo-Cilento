@@ -315,6 +315,7 @@ Il workflow `.github/workflows/instagram.yml` gira ogni ora e pubblica da solo:
 | ogni sera dalle 19 | storia «Domani nel Cilento» |
 | il giovedì dalle 17 | post + storia «Il weekend nel Cilento» con didascalia e hashtag |
 | allerta gialla, arancione o rossa | post + storia dell'allerta (una volta per bollettino, tra le 7 e le 23) |
+| martedì e sabato dalle 12 | post + storia che mostra l'app (screenshot veri, 8 temi a rotazione: paesi, radar, mare, ora per ora, allerte, montagna, installazione, ore migliori) |
 
 Le immagini sono quelle di `social.html`, create con Playwright da `scripts/social.mjs`
 e salvate in `social/immagini/` (restano solo gli ultimi 7 giorni). Lo stato delle

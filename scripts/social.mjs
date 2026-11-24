@@ -29,6 +29,43 @@ const API = process.env.IG_API || (TOKEN_FACEBOOK ? "https://graph.facebook.com/
 const ID_INSTAGRAM = process.env.IG_UTENTE || "17841456978976858";
 const ORDINE_ALLERTA = ["verde", "gialla", "arancione", "rossa"];
 
+// Post che mostrano l'app: a rotazione, il martedì e il sabato
+const PROMO = [
+  { id:"paesi", paese:"santa-maria-di-castellabate", sez:"meteo",
+    titolo:"Il meteo di tutti i 118 paesi del Cilento",
+    sotto:"Dal mare alla montagna, con la foto del paese che cambia con il tempo",
+    testo:"Da Agropoli a Sapri, dagli Alburni al Vallo di Diano: su Cilento Meteo trovi le previsioni di ogni paese e località di mare del Cilento, con la foto che cambia insieme al tempo ☀️🌧️❄️" },
+  { id:"radar", paese:"agropoli", sez:"radar", attesa:18000, scorri:"#sezione-radar",
+    titolo:"Il radar della Protezione Civile, in diretta",
+    sotto:"Guarda dove piove adesso, aggiornato ogni 5 minuti",
+    testo:"Sta per piovere? 🌧️ Guardalo sul radar ufficiale della Protezione Civile: vedi dove piove adesso e dove sta andando la pioggia, aggiornato ogni 5 minuti." },
+  { id:"mare", paese:"palinuro", sez:"mare",
+    titolo:"Dove andare al mare oggi?",
+    sotto:"Onde, vento e temperatura dell'acqua di tutte le spiagge",
+    testo:"🌊 Qual è il mare più calmo oggi? Cilento Meteo te lo dice: onde, vento e temperatura dell'acqua di tutte le spiagge del Cilento, e d'estate anche i divieti di balneazione ufficiali." },
+  { id:"ore", paese:"acciaroli", sez:"meteo", scorri:'[data-tendina="ore24"]',
+    titolo:"Il meteo ora per ora",
+    sotto:"Pioggia, vento e temperatura di ogni ora, per 7 giorni",
+    testo:"⏱️ Previsioni ora per ora per i prossimi 7 giorni: temperatura, pioggia e vento di ogni ora, per programmare la giornata senza sorprese." },
+  { id:"allerte", paese:"vallo-della-lucania", sez:"allerte",
+    titolo:"Le allerte ufficiali, subito",
+    sotto:"Il bollettino della Protezione Civile per la tua zona",
+    testo:"⚠️ Allerta gialla, arancione o rossa? Su Cilento Meteo trovi il bollettino ufficiale della Protezione Civile per la tua zona, spiegato in modo semplice, con i numeri utili." },
+  { id:"montagna", paese:"piaggine", sez:"montagna",
+    titolo:"Anche in montagna",
+    sotto:"Meteo in vetta, vento e zero termico per le escursioni",
+    testo:"⛰️ Monte Cervati, Alburni, Gelbison: il meteo calcolato alla quota della vetta, con vento in cima, zero termico e un giudizio per salire oggi e nei prossimi giorni." },
+  { id:"installa", paese:"marina-di-camerota", sez:"meteo",
+    titolo:"Installala gratis sul telefono",
+    sotto:"cilentometeo.it → Condividi → «Aggiungi alla schermata Home»",
+    testo:"📲 Cilento Meteo si installa come un'app, gratis e senza registrazione: apri cilentometeo.it, tocca Condividi e poi «Aggiungi alla schermata Home». Su Android tocca «Installa»." },
+  { id:"ore-migliori", paese:"marina-di-ascea", sez:"meteo", scorri:'[data-tendina="ore-migliori"]',
+    titolo:"Le ore migliori di oggi",
+    sotto:"Per il mare, una passeggiata o un giro in bici",
+    testo:"🕐 Quando conviene uscire oggi? Cilento Meteo ti indica le ore migliori della giornata per il mare, una passeggiata o un giro in bici." }
+];
+const HASHTAG_PROMO = "#cilento #meteocilento #cilentocoast #salerno #campania #parconazionaledelcilento #meteo #app";
+
 const leggi = (f, base) => { try{ return JSON.parse(fs.readFileSync(f, "utf8")); }catch(e){ return base; } };
 const scrivi = (f, v) => { fs.mkdirSync(path.dirname(f), { recursive:true }); fs.writeFileSync(f, JSON.stringify(v, null, 2) + "\n"); };
 const attendi = ms => new Promise(ok => setTimeout(ok, ms));
@@ -67,6 +104,9 @@ function decidi(){
 
   // Il giovedì dalle 17: il post del weekend
   if(forza.includes("weekend") || (giorno === "Thu" && ora >= 17 && ora <= 22 && stato.weekend !== data)) compiti.push("weekend");
+
+  // Martedì e sabato tra le 12 e le 15: un post che mostra l'app
+  if(forza.includes("promo") || ((giorno === "Tue" || giorno === "Sat") && ora >= 12 && ora <= 15 && stato.promo !== data)) compiti.push("promo");
 
   // Allerta gialla, arancione o rossa: una volta per bollettino, tra le 7 e le 23
   const allerta = allertaAttuale(data);
@@ -132,7 +172,18 @@ async function genera(){
     for(const f of fs.readdirSync(IMMAGINI)) if(f.slice(0, 10) < limite) fs.unlinkSync(path.join(IMMAGINI, f));
 
     const file = {};
+    if(compiti.includes("promo")){
+      const stato = leggi(STATO, {});
+      const indice = (stato.promoIndice || 0) % PROMO.length;
+      const p = PROMO[indice];
+      const nome = `${data}-promo-${p.id}.jpg`;
+      fs.writeFileSync(path.join(IMMAGINI, nome), await creaPromo(browser, s.address().port, p));
+      file.promo = nome;
+      esito.testi.promo = `${p.titolo} ✨\n\n${p.testo}\n\n📲 Gratis su 👉 cilentometeo.it (link in bio)\n\n${HASHTAG_PROMO}`;
+      console.log("Creata", nome);
+    }
     for(const tipo of compiti){
+      if(tipo === "promo") continue;
       if(!esito[tipo]) throw new Error(`Immagine ${tipo} non disponibile`);
       const nome = `${data}-${tipo}.jpg`;
       fs.writeFileSync(path.join(IMMAGINI, nome), Buffer.from(esito[tipo], "base64"));
@@ -145,6 +196,69 @@ async function genera(){
     await browser.close();
     s.close();
   }
+}
+
+/* ---------------- Post che mostrano l'app ---------------- */
+
+async function creaPromo(browser, porta, p){
+  // 1. Screenshot vero dell'app, come su un iPhone
+  const telefono = await browser.newContext({
+    viewport:{ width:390, height:844 }, deviceScaleFactor:3, isMobile:true, hasTouch:true,
+    locale:"it-IT", timezoneId:"Europe/Rome", serviceWorkers:"block"
+  });
+  await telefono.addInitScript(() => {
+    try{
+      localStorage.setItem("meteoCilento.leggera", "no");
+      localStorage.setItem("meteoCilento.installaNo", String(Date.now()));
+      localStorage.setItem("meteoCilento.lingua", "it");
+    }catch(e){}
+  });
+  const app = await telefono.newPage();
+  await app.goto(`http://127.0.0.1:${porta}/index.html?paese=${p.paese}#${p.sez}`, { waitUntil:"load" });
+  await app.waitForTimeout(p.attesa || 10000);
+  if(p.scorri){
+    await app.evaluate(sel => {
+      const el = document.querySelector(sel);
+      if(el) window.scrollTo(0, el.getBoundingClientRect().top + window.scrollY - 70);
+    }, p.scorri);
+    await app.waitForTimeout(1500);
+  }else{
+    await app.evaluate(() => window.scrollTo(0, 0));
+  }
+  const schermata = (await app.screenshot({ type:"jpeg", quality:92 })).toString("base64");
+  await telefono.close();
+
+  // 2. Grafica del post (1080×1350)
+  const logo = fs.readFileSync(path.join(RADICE, "icone/icona-192.png")).toString("base64");
+  const esc = t => String(t).replace(/[&<>"]/g, c => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;" }[c]));
+  const html = `<!doctype html><html><head><meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;600;800&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0}
+body{width:1080px;height:1350px;overflow:hidden;font-family:Inter,Arial,sans-serif;color:#f4f8ff;
+background:radial-gradient(ellipse 80% 45% at 50% 0%,rgba(47,125,255,.55),transparent 70%),radial-gradient(ellipse 60% 40% at 100% 100%,rgba(47,125,255,.22),transparent 70%),linear-gradient(#061433,#030a1c 50%,#02040a);}
+.marchio{position:absolute;top:62px;left:0;right:0;display:flex;justify-content:center;align-items:center;gap:20px;font:700 32px "Space Grotesk",Inter,sans-serif;letter-spacing:8px}
+.marchio img{width:60px;height:60px;border-radius:15px}
+.testa{position:absolute;top:150px;left:70px;right:70px;height:300px;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:18px;text-align:center}
+h1{font-weight:800;font-size:66px;line-height:1.08;letter-spacing:-1px}
+p{font-weight:500;font-size:31px;line-height:1.3;color:#8cc4ff;max-width:880px}
+.telefono{position:absolute;top:478px;left:50%;width:600px;height:1300px;margin-left:-300px;border-radius:84px;padding:16px;
+background:linear-gradient(145deg,#2a3552,#0b1222 40%,#1a2540);box-shadow:0 0 0 2px rgba(140,196,255,.35),0 40px 120px rgba(47,125,255,.45)}
+.telefono img{display:block;width:100%;border-radius:68px}
+.sito{position:absolute;right:44px;bottom:44px;padding:14px 30px;border-radius:999px;font-weight:800;font-size:28px;
+background:rgba(5,14,36,.78);border:2px solid rgba(140,196,255,.5);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);box-shadow:0 10px 40px rgba(0,0,0,.5)}
+</style></head><body>
+<div class="marchio"><img src="data:image/png;base64,${logo}">CILENTO METEO</div>
+<div class="testa"><h1>${esc(p.titolo)}</h1><p>${esc(p.sotto)}</p></div>
+<div class="telefono"><img src="data:image/jpeg;base64,${schermata}"></div>
+<div class="sito">cilentometeo.it</div>
+</body></html>`;
+  const grafica = await browser.newPage({ viewport:{ width:1080, height:1350 } });
+  await grafica.setContent(html, { waitUntil:"networkidle" });
+  await grafica.evaluate(() => document.fonts.ready);
+  const jpg = await grafica.screenshot({ type:"jpeg", quality:92 });
+  await grafica.close();
+  return jpg;
 }
 
 /* ---------------- Instagram ---------------- */
@@ -228,6 +342,7 @@ async function pubblica(){
       }
       if(tipo === "allerta") stato.allerta = c.allerta.chiave;
       else stato[tipo] = c.data;
+      if(tipo === "promo") stato.promoIndice = ((stato.promoIndice || 0) + 1) % PROMO.length;
     }catch(e){
       console.error(`Errore con ${tipo}:`, e.message);
       errori.push(tipo);
