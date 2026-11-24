@@ -75,6 +75,8 @@ const PAESI_REEL = [
   ["Vallo della Lucania", "vallo-della-lucania", 40.2279, 15.2663],
   ["Sala Consilina", "sala-consilina", 40.4013, 15.5914]
 ];
+// Luogo dei post: «Cilento Coast» (instagram.com/explore/locations/681518622)
+const LUOGO = process.env.IG_LUOGO || "681518622";
 // I video li scarica Instagram dal sito (GitHub Pages li serve come video/mp4)
 const SITO = process.env.SITO || "https://cilentometeo.it";
 
@@ -481,7 +483,13 @@ async function pubblicaUna(utente, url, { didascalia, storia, reel }){
   const param = reel ? { media_type:"REELS", video_url:url, share_to_feed:"true" } : { image_url:url };
   if(storia) param.media_type = "STORIES";
   if(didascalia && !storia) param.caption = didascalia;
-  const { id } = await chiamata("POST", `/${utente}/media`, param);
+  let id;
+  if(!storia && LUOGO){
+    // Con il luogo; se Instagram non lo accetta, si pubblica senza
+    try{ ({ id } = await chiamata("POST", `/${utente}/media`, { ...param, location_id:LUOGO })); }
+    catch(e){ console.warn("Luogo non accettato, pubblico senza:", e.message); }
+  }
+  if(!id) ({ id } = await chiamata("POST", `/${utente}/media`, param));
   for(let k = 0; k < (reel ? 120 : 30); k++){
     const { status_code } = await chiamata("GET", `/${id}`, { fields:"status_code" });
     if(status_code === "FINISHED") break;
