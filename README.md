@@ -341,6 +341,11 @@ Segreti del repository (Settings → Secrets and variables → Actions):
 
 Accorgimenti per far girare i Reel: grande scritta nei primi 1,2 secondi, nessuna pausa iniziale, durata 12–15 s con finale breve (si riguardano), suono di pioggia o sottofondo morbido, copertina sul momento più interessante, pubblicazione la sera (18–21), didascalie che invitano a commentare e condividere.
 
+Test e pulizia:
+- I Reel escono come **Reel di prova** (Trial Reels, `graduation_strategy: SS_PERFORMANCE`): Instagram li mostra prima a chi non segue l'account e li mette sul profilo solo se vanno bene. Se l'account non può ancora usarli si pubblicano normali. Si disattivano con la variabile `TRIAL_REELS=0`. Il Reel «Come si usa» esce sempre normale.
+- Ogni 6 ore il robot salva le statistiche dei contenuti in `social/statistiche.json` (mi piace e commenti sempre; visualizzazioni, copertura, salvataggi e condivisioni con il permesso `instagram_manage_insights`). Si vedono su `statistiche.html`.
+- Pulizia automatica (solo con la variabile del repository `AUTO_PULIZIA=1`): con almeno 10 Reel misurati, elimina al massimo un Reel al giorno pubblicato da 3–14 giorni con meno di un quarto delle visualizzazioni mediane, e lo fa rifare alla prossima occasione. Serve il permesso di gestione dei contenuti di Instagram.
+
 Se una pubblicazione fallisce non viene segnata in `social/stato.json` e il robot riprova all'ora successiva.
 
 Per una prova: Actions → Instagram → Run workflow, con «Solo prova» o con

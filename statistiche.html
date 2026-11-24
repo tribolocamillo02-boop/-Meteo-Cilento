@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#02040a">
+<meta name="robots" content="noindex">
+<title>Statistiche Instagram · Cilento Meteo</title>
+<link rel="icon" type="image/png" sizes="32x32" href="icone/favicon-32.png">
+<style>
+:root{--blu:#2f7dff;--blu-chiaro:#8cc4ff;--bianco:#f4f8ff;--testo-2:rgba(228,238,255,.72);--testo-3:rgba(228,238,255,.45);--bordo:rgba(255,255,255,.1);}
+*{box-sizing:border-box;}
+body{margin:0;background:radial-gradient(ellipse 90% 50% at 50% 0%,rgba(47,125,255,.25),transparent 70%),#02040a;color:var(--bianco);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Arial,sans-serif;-webkit-font-smoothing:antialiased;}
+main{max-width:760px;margin:0 auto;padding:calc(20px + env(safe-area-inset-top)) 16px 60px;}
+a{color:var(--blu-chiaro);}
+h1{font-size:26px;margin:10px 0 4px;}
+.sotto{color:var(--testo-2);margin:0 0 16px;font-size:14px;}
+.riquadri{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;}
+.card{padding:14px 16px;border-radius:18px;background:rgba(255,255,255,.05);border:1px solid var(--bordo);}
+.card b{display:block;font-size:26px;}
+.card span{font-size:13px;color:var(--testo-2);}
+h2{font-size:17px;margin:26px 0 10px;}
+.tipo{display:flex;align-items:center;gap:10px;margin-bottom:8px;font-size:14px;}
+.tipo .n{width:150px;flex:none;color:var(--testo-2);}
+.tipo .barra{flex:1;height:12px;border-radius:6px;background:rgba(255,255,255,.06);overflow:hidden;}
+.tipo .barra i{display:block;height:100%;border-radius:6px;background:linear-gradient(90deg,#2f7dff,#5fe0ff);}
+.tipo .v{width:70px;text-align:right;font-weight:700;}
+.voce{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:12px 14px;border-radius:14px;background:rgba(255,255,255,.04);border:1px solid var(--bordo);margin-bottom:8px;font-size:14px;}
+.voce .num{display:flex;gap:12px;color:var(--testo-2);flex-wrap:wrap;justify-content:flex-end;}
+.voce .num b{color:var(--bianco);}
+.eliminato{opacity:.5;text-decoration:line-through;}
+.avviso{padding:14px 16px;border-radius:16px;background:rgba(255,209,102,.1);border:1px solid rgba(255,209,102,.35);color:#ffd166;font-size:14px;margin-top:14px;}
+</style>
+</head>
+<body>
+<main>
+  <a href="./" style="text-decoration:none;font-weight:600">← Cilento Meteo</a>
+  <h1>Statistiche di @cilentometeo</h1>
+  <p class="sotto" id="aggiornato">Carico…</p>
+  <div class="riquadri" id="totali"></div>
+  <div id="avvisi"></div>
+  <h2>Cosa funziona meglio (visualizzazioni medie)</h2>
+  <div id="tipi"></div>
+  <h2>Tutti i contenuti</h2>
+  <div id="elenco"></div>
+</main>
+<script>
+const NOMI = { "storia":"Storia di domani", "weekend":"Post del weekend", "allerta":"Allerta", "promo":"Post sull'app", "notizia":"Post notizia",
+  "carosello":"Carosello", "reel-guida":"Reel «Come si usa»", "reel-weekend":"Reel del weekend", "reel-radar":"Reel del radar", "reel-giornata":"Reel della giornata" };
+const num = n => n == null ? "–" : n >= 1000 ? (n / 1000).toFixed(1).replace(".", ",") + "k" : String(n);
+(async () => {
+  let st;
+  try{ st = await (await fetch("social/statistiche.json", { cache:"no-cache" })).json(); }
+  catch(e){ document.getElementById("aggiornato").textContent = "Ancora nessuna statistica: il robot le raccoglie ogni 6 ore."; return; }
+  const voci = Object.entries(st.contenuti || {}).map(([id, c]) => ({ id, ...c })).sort((a, b) => b.data.localeCompare(a.data));
+  document.getElementById("aggiornato").textContent = "Aggiornate il " + new Date(st.aggiornato).toLocaleString("it-IT", { dateStyle:"long", timeStyle:"short" });
+  const somma = k => voci.reduce((s, v) => s + (v[k] || 0), 0);
+  document.getElementById("totali").innerHTML = [
+    ["Visualizzazioni", somma("views")], ["Persone raggiunte", somma("reach")], ["Mi piace", somma("like")],
+    ["Condivisioni", somma("shares")], ["Salvataggi", somma("saved")], ["Commenti", somma("commenti")]
+  ].map(([n, v]) => `<div class="card"><b>${num(v)}</b><span>${n}</span></div>`).join("");
+  const avvisi = [];
+  if(st.permessoStatistiche === false) avvisi.push("Visualizzazioni e persone raggiunte non sono disponibili: al token manca il permesso «instagram_manage_insights». Si vedono solo mi piace e commenti.");
+  const eliminati = voci.filter(v => v.eliminato && v.motivo);
+  if(eliminati.length) avvisi.push(`Il robot ha eliminato ${eliminati.length} Reel che andavano molto peggio degli altri.`);
+  document.getElementById("avvisi").innerHTML = avvisi.map(a => `<div class="avviso">${a}</div>`).join("");
+  const perTipo = {};
+  voci.filter(v => !v.eliminato).forEach(v => { const k = v.tipo; (perTipo[k] = perTipo[k] || []).push(v.views != null ? v.views : (v.like || 0)); });
+  const medie = Object.entries(perTipo).map(([k, a]) => [k, Math.round(a.reduce((s, x) => s + x, 0) / a.length), a.length]).sort((a, b) => b[1] - a[1]);
+  const max = Math.max(1, ...medie.map(m => m[1]));
+  document.getElementById("tipi").innerHTML = medie.map(([k, m, n]) => `<div class="tipo"><span class="n">${NOMI[k] || k} <small>(${n})</small></span><span class="barra"><i style="width:${m / max * 100}%"></i></span><span class="v">${num(m)}</span></div>`).join("") || '<p class="sotto">Ancora nessun dato.</p>';
+  document.getElementById("elenco").innerHTML = voci.map(v => `<div class="voce${v.eliminato ? " eliminato" : ""}">
+    <div><b>${NOMI[v.tipo] || v.tipo}</b><br><span style="color:var(--testo-3)">${new Date(v.data + "T12:00:00").toLocaleDateString("it-IT", { day:"numeric", month:"short" })}${v.link ? ` · <a href="${v.link}" target="_blank" rel="noopener">apri</a>` : ""}${v.motivo ? " · eliminato: " + v.motivo : ""}</span></div>
+    <div class="num"><span>👁 <b>${num(v.views)}</b></span><span>❤️ <b>${num(v.like)}</b></span><span>💬 <b>${num(v.commenti)}</b></span><span>📤 <b>${num(v.shares)}</b></span><span>🔖 <b>${num(v.saved)}</b></span></div>
+  </div>`).join("");
+})();
+</script>
+</body>
+</html>

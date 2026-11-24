@@ -339,10 +339,11 @@ async function decidi(){
     rinnovo = false;
   }
 
+  const contaStatistiche = !!process.env.IG_TOKEN && (!stato.statistiche || Date.now() - Date.parse(stato.statistiche) > 6 * 36e5);
   scrivi(COMPITI, { data, compiti, allerta, rinnovo, reelPaese, notizia, cilento72 });
   console.log(`Italia: ${data} ore ${ora} (${giorno}). Da pubblicare: ${compiti.join(", ") || "niente"}. Rinnovo token: ${rinnovo ? "sì" : "no"}`);
   if(process.env.GITHUB_OUTPUT){
-    fs.appendFileSync(process.env.GITHUB_OUTPUT, `compiti=${compiti.join(",")}\nrinnovo=${rinnovo ? "1" : ""}\n`);
+    fs.appendFileSync(process.env.GITHUB_OUTPUT, `compiti=${compiti.join(",")}\nrinnovo=${rinnovo ? "1" : ""}\nstatistiche=${contaStatistiche ? "1" : ""}\n`);
   }
 }
 
@@ -1198,7 +1199,7 @@ async function chiamata(metodo, percorso, parametri = {}){
   if(!token) throw new Error("Manca il segreto IG_TOKEN");
   const url = new URL(percorso.startsWith("http") ? percorso : API + percorso);
   const opzioni = { method:metodo, headers:{ Authorization:`Bearer ${token}` } };
-  if(metodo === "GET") for(const [k, v] of Object.entries(parametri)) url.searchParams.set(k, v);
+  if(metodo === "GET" || metodo === "DELETE") for(const [k, v] of Object.entries(parametri)) url.searchParams.set(k, v);
   else opzioni.body = new URLSearchParams(parametri);
   const r = await fetch(url, opzioni);
   const j = await r.json().catch(() => ({}));
@@ -1206,9 +1207,20 @@ async function chiamata(metodo, percorso, parametri = {}){
   return j;
 }
 
-async function pubblicaUna(utente, url, { didascalia, storia, reel, copertina }, tentativo = 1){
+function registra(stato, id, tipo, data){
+  stato.pubblicati = (stato.pubblicati || []).concat([{ id, tipo, data }]).slice(-150);
+}
+
+async function pubblicaUna(utente, url, { didascalia, storia, reel, copertina, prova }, tentativo = 1){
   const param = reel ? { media_type:"REELS", video_url:url, share_to_feed:"true" } : { image_url:url };
   if(reel && copertina) param.thumb_offset = String(copertina);
+  if(reel && prova){
+    // Trial Reel con promozione automatica se va bene; se l'account non può ancora usarli, si pubblica normale
+    try{
+      const { id } = await chiamata("POST", `/${utente}/media`, { ...param, caption:didascalia || "", trial_params:JSON.stringify({ graduation_strategy:"SS_PERFORMANCE" }) });
+      return await completa(utente, id, reel, async () => pubblicaUna(utente, url, { didascalia, storia, reel, copertina, prova:false }, tentativo));
+    }catch(e){ console.warn("Reel di prova non disponibile, pubblico normale:", e.message.slice(0, 160)); }
+  }
   if(storia) param.media_type = "STORIES";
   if(didascalia && !storia) param.caption = didascalia;
   let id;
@@ -1227,10 +1239,21 @@ async function pubblicaUna(utente, url, { didascalia, storia, reel, copertina },
       if(tentativo < 2){
         console.warn(motivo, "→ riprovo tra un minuto");
         await attendi(60000);
-        return pubblicaUna(utente, url, { didascalia, storia, reel, copertina }, tentativo + 1);
+        return pubblicaUna(utente, url, { didascalia, storia, reel, copertina, prova }, tentativo + 1);
       }
       throw new Error(motivo);
     }
+    await attendi(5000);
+  }
+  const pubblicato = await chiamata("POST", `/${utente}/media_publish`, { creation_id:id });
+  return pubblicato.id;
+}
+
+async function completa(utente, id, reel, ripiego){
+  for(let k = 0; k < (reel ? 120 : 30); k++){
+    const st = await chiamata("GET", `/${id}`, { fields:"status_code,status" });
+    if(st.status_code === "FINISHED") break;
+    if(st.status_code === "ERROR" || st.status_code === "EXPIRED"){ console.warn(`Contenitore ${id}: ${st.status_code} ${st.status || ""}`); return ripiego(); }
     await attendi(5000);
   }
   const pubblicato = await chiamata("POST", `/${utente}/media_publish`, { creation_id:id });
@@ -1304,7 +1327,7 @@ async function pubblica(){
       if(tipo === "carosello"){
         const urls = c.file.carosello.map(n => `${base.replace(/\/$/, "")}/social/immagini/${n}`);
         if(prova) console.log(`[PROVA] carosello:\n${urls.join("\n")}\n${c.testi.carosello}\n`);
-        else console.log("Carosello pubblicato:", await pubblicaCarosello(utente, urls, c.testi.carosello));
+        else { const id = await pubblicaCarosello(utente, urls, c.testi.carosello); registra(stato, id, "carosello", c.data); console.log("Carosello pubblicato:", id); }
         stato.carosello = c.data;
         continue;
       }
@@ -1313,11 +1336,18 @@ async function pubblica(){
       }else{
         if(!await urlRaggiungibile(url)) throw new Error("Immagine non raggiungibile: " + url);
         if(reel){
-          console.log(`Reel ${tipo} pubblicato:`, await pubblicaUna(utente, url, { didascalia:c.testi[tipo], reel:true, copertina:(c.copertine || {})[tipo] }));
+          // Reel «di prova»: Instagram lo mostra prima a chi non ci segue e lo mette sul profilo solo se va bene
+          // (il Reel «Come si usa» esce invece subito per tutti, perché va fissato sul profilo)
+          const diProva = tipo !== "reel-guida" && process.env.TRIAL_REELS !== "0";
+          const id = await pubblicaUna(utente, url, { didascalia:c.testi[tipo], reel:true, copertina:(c.copertine || {})[tipo], prova:diProva });
+          registra(stato, id, tipo, c.data);
+          console.log(`Reel ${tipo} pubblicato:`, id);
         }else if(tipo === "storia"){
           console.log("Storia pubblicata:", await pubblicaUna(utente, url, { storia:true }));
         }else{
-          console.log(`Post ${tipo} pubblicato:`, await pubblicaUna(utente, url, { didascalia:c.testi[tipo] }));
+          const id = await pubblicaUna(utente, url, { didascalia:c.testi[tipo] });
+          registra(stato, id, tipo, c.data);
+          console.log(`Post ${tipo} pubblicato:`, id);
           // Weekend e allerta vanno anche nelle storie
           await attendi(5000);
           console.log(`Storia ${tipo} pubblicata:`, await pubblicaUna(utente, url, { storia:true }));
@@ -1357,7 +1387,86 @@ function rinnovato(){
   scrivi(STATO, stato);
 }
 
-const comandi = { decidi, genera, pubblica, rinnova, rinnovato };
+/* ---------------- Statistiche, test e pulizia ---------------- */
+
+const STATISTICHE = path.join(CARTELLA, "statistiche.json");
+
+// Scarica le statistiche dei contenuti pubblicati dal robot (servono i permessi «insights»)
+async function statistiche(){
+  if(!process.env.IG_TOKEN){ console.log("Instagram non collegato"); return; }
+  const stato = leggi(STATO, {});
+  const st = leggi(STATISTICHE, { aggiornato:null, contenuti:{} });
+  const elenco = (stato.pubblicati || []).slice(-30);
+  let ok = 0, permesso = true;
+  for(const p of elenco){
+    if(st.contenuti[p.id] && st.contenuti[p.id].eliminato) continue;
+    const dati = { tipo:p.tipo, data:p.data };
+    // dati di base (sempre disponibili): like, commenti, link
+    try{
+      const b = await chiamata("GET", `/${p.id}`, { fields:"like_count,comments_count,permalink,media_product_type" });
+      Object.assign(dati, { like:b.like_count || 0, commenti:b.comments_count || 0, link:b.permalink });
+    }catch(e){
+      if(/does not exist|Unsupported get request|cannot be loaded/i.test(e.message)){ dati.eliminato = true; st.contenuti[p.id] = { ...(st.contenuti[p.id] || {}), ...dati }; continue; }
+    }
+    // statistiche (visualizzazioni, copertura, salvataggi, condivisioni)
+    if(permesso){
+      const leggiMetriche = async metriche => {
+        const r = await chiamata("GET", `/${p.id}/insights`, { metric:metriche.join(",") });
+        for(const m of r.data || []){ const v = m.values && m.values[0]; dati[m.name] = v ? v.value : m.total_value && m.total_value.value; }
+      };
+      try{ await leggiMetriche(["views", "reach", "saved", "shares", "total_interactions"]); }
+      catch(e){
+        if(/metric/i.test(e.message)){
+          // qualche metrica non vale per questo tipo di contenuto: si chiedono quelle di base
+          try{ await leggiMetriche(["reach", "saved"]); }catch(err){}
+        }else{ permesso = false; console.warn("Statistiche non disponibili: manca il permesso «insights» nel token.", e.message.slice(0, 120)); }
+      }
+    }
+    st.contenuti[p.id] = { ...(st.contenuti[p.id] || {}), ...dati };
+    ok++;
+  }
+  st.aggiornato = new Date().toISOString();
+  st.permessoStatistiche = permesso;
+  scrivi(STATISTICHE, st);
+  stato.statistiche = st.aggiornato;
+  scrivi(STATO, stato);
+  console.log(`Statistiche aggiornate per ${ok} contenuti`);
+  await pulizia(st);
+}
+
+// Elimina i Reel che vanno molto peggio degli altri. Regole prudenti:
+// - solo se il proprietario l'ha attivato (variabile AUTO_PULIZIA = 1);
+// - solo con almeno 10 Reel misurati (servono dati per confrontare);
+// - solo Reel pubblicati da almeno 3 giorni e da non più di 14;
+// - solo se le visualizzazioni sono meno di un quarto della mediana;
+// - mai i contenuti del kit di benvenuto, mai più di uno al giorno.
+async function pulizia(st){
+  if(process.env.AUTO_PULIZIA !== "1"){ console.log("Pulizia automatica non attiva"); return; }
+  const reel = Object.entries(st.contenuti).filter(([, c]) => c.tipo.startsWith("reel-") && c.tipo !== "reel-guida" && !c.eliminato && typeof c.views === "number");
+  if(reel.length < 10){ console.log(`Pulizia: servono almeno 10 Reel misurati (ora ${reel.length})`); return; }
+  const oggi = Date.now();
+  const v = reel.map(([, c]) => c.views).sort((a, b) => a - b), mediana = v[Math.floor(v.length / 2)];
+  if(st.ultimaPulizia && oggi - Date.parse(st.ultimaPulizia) < 864e5) return;
+  const candidati = reel.filter(([, c]) => { const eta = (oggi - Date.parse(c.data)) / 864e5; return eta >= 3 && eta <= 14 && c.views < mediana / 4; })
+    .sort((a, b) => a[1].views - b[1].views);
+  if(!candidati.length){ console.log(`Pulizia: nessun Reel sotto soglia (mediana ${mediana} visualizzazioni)`); return; }
+  const [id, c] = candidati[0];
+  try{
+    await chiamata("DELETE", `/${id}`);
+    c.eliminato = true; c.motivo = `${c.views} visualizzazioni contro una mediana di ${mediana}`;
+    st.ultimaPulizia = new Date().toISOString();
+    console.log(`Eliminato il Reel ${c.tipo} del ${c.data}: ${c.motivo}`);
+    // lo stesso tipo di contenuto verrà rifatto alla prossima occasione: si azzera lo stato
+    const stato = leggi(STATO, {});
+    if(stato[c.tipo] === c.data){ delete stato[c.tipo]; scrivi(STATO, stato); }
+  }catch(e){
+    c.eliminazioneFallita = e.message.slice(0, 200);
+    console.warn("Eliminazione non riuscita (serve il permesso di gestione dei contenuti):", e.message.slice(0, 200));
+  }
+  scrivi(STATISTICHE, st);
+}
+
+const comandi = { decidi, genera, pubblica, rinnova, rinnovato, statistiche };
 const cmd = process.argv[2];
 if(!comandi[cmd]){ console.error("Uso: node scripts/social.mjs decidi|genera|pubblica|rinnova|rinnovato"); process.exit(2); }
 await comandi[cmd]();
