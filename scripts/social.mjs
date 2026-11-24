@@ -76,7 +76,7 @@ const PAESI_REEL = [
   ["Sala Consilina", "sala-consilina", 40.4013, 15.5914]
 ];
 // Luogo dei post: «Cilento Coast» (instagram.com/explore/locations/681518622)
-const LUOGO = process.env.IG_LUOGO || "681518622";
+const LUOGO = process.env.IG_LUOGO || "";   // l'ID del luogo Instagram (681518622) non è accettato dalle API: disattivato
 // I video li scarica Instagram dal sito (GitHub Pages li serve come video/mp4)
 const SITO = process.env.SITO || "https://cilentometeo.it";
 
@@ -277,23 +277,36 @@ async function genera(){
   const { chromium } = await import("playwright");
   const s = await servitore();
   const browser = await chromium.launch();
+  // Ogni contenuto è indipendente: se uno non riesce, gli altri escono lo stesso
+  const saltati = [];
+  const salta = (tipo, e) => { console.warn(`Salto ${tipo}:`, e && e.message || e); saltati.push(tipo); };
   try{
-    const pagina = await browser.newPage({ locale:"it-IT", timezoneId:"Europe/Rome" });
-    pagina.on("console", m => console.log("[pagina]", m.text()));
-    await pagina.goto(`http://127.0.0.1:${s.address().port}/social.html`);
-    await pagina.waitForFunction(() => {
-      const t = document.getElementById("stato").textContent;
-      return /aggiornate|Non riesco/.test(t);
-    }, null, { timeout:60000 });
-    const esito = await pagina.evaluate(() => {
-      if(!dati) return null;
-      const jpg = c => c ? c.toDataURL("image/jpeg", .92).split(",")[1] : null;
-      return {
-        storia: jpg(tele.storia), weekend: jpg(tele.weekend), allerta: jpg(tele.allerta),
-        testi: { storia: testi.storia, weekend: testi.weekend, allerta: testi.allerta }
-      };
-    });
-    if(!esito) throw new Error("La pagina non ha caricato le previsioni");
+    let esito = { testi:{} };
+    const DA_PAGINA = ["storia", "weekend", "allerta"];
+    if(compiti.some(c => DA_PAGINA.includes(c))){
+      try{
+        const pagina = await browser.newPage({ locale:"it-IT", timezoneId:"Europe/Rome" });
+        pagina.on("console", m => console.log("[pagina]", m.text()));
+        await pagina.goto(`http://127.0.0.1:${s.address().port}/social.html`);
+        await pagina.waitForFunction(() => {
+          const t = document.getElementById("stato").textContent;
+          return /aggiornate|Non riesco/.test(t);
+        }, null, { timeout:240000 });
+        const e = await pagina.evaluate(() => {
+          if(!dati) return null;
+          const jpg = c => c ? c.toDataURL("image/jpeg", .92).split(",")[1] : null;
+          return {
+            storia: jpg(tele.storia), weekend: jpg(tele.weekend), allerta: jpg(tele.allerta),
+            testi: { storia: testi.storia, weekend: testi.weekend, allerta: testi.allerta }
+          };
+        });
+        if(!e) throw new Error("la pagina non ha caricato le previsioni");
+        esito = e;
+        await pagina.close();
+      }catch(e){
+        compiti.filter(c => DA_PAGINA.includes(c)).forEach(c => salta(c, e));
+      }
+    }
 
     fs.mkdirSync(IMMAGINI, { recursive:true });
     // Tiene solo le immagini degli ultimi 7 giorni
@@ -301,7 +314,7 @@ async function genera(){
     for(const f of fs.readdirSync(IMMAGINI)) if(f.slice(0, 10) < limite) fs.unlinkSync(path.join(IMMAGINI, f));
 
     const file = {};
-    if(compiti.includes("promo")){
+    if(compiti.includes("promo")) try{
       const stato = leggi(STATO, {});
       const indice = (stato.promoIndice || 0) % PROMO.length;
       const p = PROMO[indice];
@@ -310,37 +323,37 @@ async function genera(){
       file.promo = nome;
       esito.testi.promo = `${p.titolo} ✨\n\n${p.testo}\n\n📲 Gratis su 👉 cilentometeo.it (link in bio)\n\n${HASHTAG_PROMO}`;
       console.log("Creata", nome);
-    }
+    }catch(e){ salta("promo", e); }
     const cc = leggi(COMPITI, {});
-    if(compiti.includes("reel-radar")){
+    if(compiti.includes("reel-radar")) try{
       const nome = `${data}-reel-radar.mp4`;
       await creaReelRadar(browser, s.address().port, cc.reelPaese || "agropoli", path.join(IMMAGINI, nome));
       file["reel-radar"] = nome;
       esito.testi["reel-radar"] = `🌧️ Piove nel Cilento: ecco il radar della Protezione Civile in diretta.\n\nGuarda dove piove adesso e dove sta andando la pioggia, paese per paese, aggiornato ogni 5 minuti.\n\n📲 Gratis su 👉 cilentometeo.it (link in bio)\n\n#cilento #meteocilento #cilentonotizie #pioggia #radarmeteo #maltempo #cilentolovers #salerno #protezionecivile`;
       console.log("Creato", nome);
-    }
-    if(compiti.includes("reel-weekend")){
+    }catch(e){ salta("reel-radar", e); }
+    if(compiti.includes("reel-weekend")) try{
       const nome = `${data}-reel-weekend.mp4`;
       await creaReelWeekend(browser, s.address().port, path.join(IMMAGINI, nome));
       file["reel-weekend"] = nome;
       esito.testi["reel-weekend"] = `☀️ Che tempo farà nel weekend nel Cilento?\n\nDal mare alla montagna: previsioni ora per ora per tutti i 118 paesi, mare, radar e allerte.\n\n📲 Gratis su 👉 cilentometeo.it (link in bio)\n\n#cilento #meteocilento #weekend #cilentocoast #cilentomeraviglie #cilentolovers #cilentogram #palinuro #agropoli #sapri`;
       console.log("Creato", nome);
-    }
-    if(compiti.includes("notizia")){
+    }catch(e){ salta("reel-weekend", e); }
+    if(compiti.includes("notizia")) try{
       const nome = `${data}-notizia.jpg`;
       fs.writeFileSync(path.join(IMMAGINI, nome), await creaNotizia(browser, cc.notizia));
       file.notizia = nome;
       esito.testi.notizia = cc.notizia.scelta.didascalia;
       console.log("Creata", nome);
-    }
-    if(compiti.includes("reel-guida")){
+    }catch(e){ salta("notizia", e); }
+    if(compiti.includes("reel-guida")) try{
       const nome = `${data}-reel-guida.mp4`;
       await creaReelGuida(browser, s.address().port, path.join(IMMAGINI, nome));
       file["reel-guida"] = nome;
       esito.testi["reel-guida"] = `Come si usa Cilento Meteo in 20 secondi ⏱️\n\n1️⃣ Scegli il tuo paese (o usa la posizione)\n2️⃣ Guarda il meteo ora per ora\n3️⃣ Scopri dove il mare è più calmo\n4️⃣ Segui la pioggia sul radar in diretta\n5️⃣ Controlla le allerte ufficiali\n\n📲 Gratis, senza registrazione: 👉 cilentometeo.it (link in bio)\n\n${HASHTAG_PROMO}`;
       console.log("Creato", nome);
-    }
-    if(compiti.includes("carosello")){
+    }catch(e){ salta("reel-guida", e); }
+    if(compiti.includes("carosello")) try{
       const nomi = [];
       const copertina = `${data}-carosello-0.jpg`;
       fs.writeFileSync(path.join(IMMAGINI, copertina), await creaCopertina(browser));
@@ -354,17 +367,19 @@ async function genera(){
       file.carosello = nomi;
       esito.testi.carosello = `Benvenuto su Cilento Meteo 👋\n\nIl meteo di tutti i 118 paesi del Cilento, dal mare alla montagna, in un'unica app gratuita. Scorri 👉 per vedere cosa puoi fare:\n\n☀️ Previsioni ora per ora per 7 giorni\n🌊 Il mare più calmo di oggi\n📡 Il radar della Protezione Civile in diretta\n⚠️ Le allerte ufficiali\n⛰️ Il meteo in vetta per le escursioni\n\n📲 Si installa sul telefono come un'app: 👉 cilentometeo.it (link in bio)\n\n${HASHTAG_PROMO}`;
       console.log("Creato il carosello:", nomi.length, "immagini");
-    }
+    }catch(e){ salta("carosello", e); }
     for(const tipo of compiti){
-      if(tipo === "promo" || tipo === "carosello" || tipo === "notizia" || tipo.startsWith("reel-")) continue;
-      if(!esito[tipo]) throw new Error(`Immagine ${tipo} non disponibile`);
+      if(tipo === "promo" || tipo === "carosello" || tipo === "notizia" || tipo.startsWith("reel-") || saltati.includes(tipo)) continue;
+      if(!esito[tipo]){ salta(tipo, "immagine non disponibile"); continue; }
       const nome = `${data}-${tipo}.jpg`;
       fs.writeFileSync(path.join(IMMAGINI, nome), Buffer.from(esito[tipo], "base64"));
       file[tipo] = nome;
       console.log("Creata", nome);
     }
     const c = leggi(COMPITI, {});
-    scrivi(COMPITI, { ...c, file, testi: esito.testi });
+    // I contenuti saltati non si pubblicano: il robot li riprova all'ora successiva
+    scrivi(COMPITI, { ...c, compiti:compiti.filter(x => !saltati.includes(x)), file, testi: esito.testi });
+    if(saltati.length) console.log("Rimandati all'ora successiva:", saltati.join(", "));
   }finally{
     await browser.close();
     s.close();
@@ -500,9 +515,11 @@ class Fotogrammi{
   video(uscita){
     execFileSync("ffmpeg", ["-y", "-loglevel", "error", "-framerate", "30", "-i", path.join(this.cartella, "f%05d.jpg"),
       "-f", "lavfi", "-i", "anullsrc=channel_layout=stereo:sample_rate=44100",
-      "-shortest", "-vf", "scale=1080:1920:flags=lanczos,format=yuv420p",
-      "-c:v", "libx264", "-profile:v", "high", "-preset", "medium", "-crf", "19", "-r", "30",
-      "-c:a", "aac", "-b:a", "128k", "-movflags", "+faststart", uscita]);
+      "-shortest", "-vf", "scale=1080:1920:flags=lanczos:in_range=full:out_range=tv,format=yuv420p",
+      "-c:v", "libx264", "-profile:v", "high", "-level", "4.1", "-preset", "medium", "-crf", "20", "-r", "30",
+      "-g", "30", "-keyint_min", "30", "-sc_threshold", "0", "-maxrate", "8M", "-bufsize", "16M",
+      "-color_range", "tv", "-colorspace", "bt709", "-color_primaries", "bt709", "-color_trc", "bt709",
+      "-c:a", "aac", "-b:a", "128k", "-ar", "48000", "-ac", "2", "-movflags", "+faststart", uscita]);
     fs.rmSync(this.cartella, { recursive:true, force:true });
   }
 }
@@ -859,7 +876,7 @@ async function chiamata(metodo, percorso, parametri = {}){
   return j;
 }
 
-async function pubblicaUna(utente, url, { didascalia, storia, reel }){
+async function pubblicaUna(utente, url, { didascalia, storia, reel }, tentativo = 1){
   const param = reel ? { media_type:"REELS", video_url:url, share_to_feed:"true" } : { image_url:url };
   if(storia) param.media_type = "STORIES";
   if(didascalia && !storia) param.caption = didascalia;
@@ -867,13 +884,22 @@ async function pubblicaUna(utente, url, { didascalia, storia, reel }){
   if(!storia && LUOGO){
     // Con il luogo; se Instagram non lo accetta, si pubblica senza
     try{ ({ id } = await chiamata("POST", `/${utente}/media`, { ...param, location_id:LUOGO })); }
-    catch(e){ console.warn("Luogo non accettato, pubblico senza:", e.message); }
+    catch(e){ console.warn("Luogo non accettato, pubblico senza"); }
   }
   if(!id) ({ id } = await chiamata("POST", `/${utente}/media`, param));
   for(let k = 0; k < (reel ? 120 : 30); k++){
-    const { status_code } = await chiamata("GET", `/${id}`, { fields:"status_code" });
-    if(status_code === "FINISHED") break;
-    if(status_code === "ERROR" || status_code === "EXPIRED") throw new Error(`Contenitore ${id}: ${status_code}`);
+    const st = await chiamata("GET", `/${id}`, { fields:"status_code,status" });
+    if(st.status_code === "FINISHED") break;
+    if(st.status_code === "ERROR" || st.status_code === "EXPIRED"){
+      const motivo = `Contenitore ${id}: ${st.status_code} ${st.status || ""}`;
+      // I video a volte falliscono all'elaborazione: un secondo tentativo dopo un minuto
+      if(tentativo < 2){
+        console.warn(motivo, "→ riprovo tra un minuto");
+        await attendi(60000);
+        return pubblicaUna(utente, url, { didascalia, storia, reel }, tentativo + 1);
+      }
+      throw new Error(motivo);
+    }
     await attendi(5000);
   }
   const pubblicato = await chiamata("POST", `/${utente}/media_publish`, { creation_id:id });
