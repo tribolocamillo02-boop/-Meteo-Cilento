@@ -175,6 +175,80 @@ function scegliNotizia(m, g){
 }
 const comeGiorno = s => new Date(s + "T12:00:00").toLocaleDateString("it-IT", { weekday:"long", day:"numeric" });
 
+/* ---------------- Reel «Il Cilento nelle prossime 72 ore» ---------------- */
+
+async function prendiJSON(url, tentativi = 4){
+  for(let k = 0; k < tentativi; k++){
+    try{
+      const ctl = new AbortController(), timer = setTimeout(() => ctl.abort(), 45000);
+      const r = await fetch(url, { signal:ctl.signal }); clearTimeout(timer);
+      if(r.ok) return await r.json();
+      if(r.status < 500 && r.status !== 429) throw new Error("HTTP " + r.status);
+    }catch(e){ if(k === tentativi - 1) throw e; }
+    await attendi(5000 * (k + 1));
+  }
+  throw new Error("nessuna risposta");
+}
+
+async function meteoCilento72(){
+  const R = JSON.parse(fs.readFileSync(path.join(CARTELLA, "mappa.json"), "utf8"));
+  const G = 12, punti = [];
+  for(let i = 0; i < G; i++) for(let j = 0; j < G; j++)
+    punti.push([R.nord + (R.sud - R.nord) * i / (G - 1), R.ovest + (R.est - R.ovest) * j / (G - 1)]);
+  const q = pts => "latitude=" + pts.map(p => p[0].toFixed(3)).join(",") + "&longitude=" + pts.map(p => p[1].toFixed(3)).join(",");
+  const g = await prendiJSON(`https://api.open-meteo.com/v1/forecast?${q(punti)}&hourly=cloud_cover,precipitation&timezone=Europe%2FRome&forecast_days=4`);
+  const c = await prendiJSON(`https://api.open-meteo.com/v1/forecast?${q(PAESI_MAPPA.map(p => [p[1], p[2]]))}&hourly=temperature_2m,precipitation,weather_code,is_day&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_sum&timezone=Europe%2FRome&forecast_days=4`);
+  const lg = Array.isArray(g) ? g : [g], lc = Array.isArray(c) ? c : [c];
+  const ore = lg[0].hourly.time;
+  const adesso = new Date().toLocaleString("sv-SE", { timeZone:"Europe/Rome" }).slice(0, 13).replace(" ", "T") + ":00";
+  const i0 = Math.max(0, ore.indexOf(adesso)), N = Math.min(72, ore.length - i0);
+  const fetta = a => a.slice(i0, i0 + N);
+  return {
+    G, ore:fetta(ore),
+    nuvole:Array.from({ length:N }, (_, h) => lg.map(x => x.hourly.cloud_cover[i0 + h])),
+    pioggia:Array.from({ length:N }, (_, h) => lg.map(x => x.hourly.precipitation[i0 + h])),
+    giorno:fetta(lc[0].hourly.is_day),
+    paesi:PAESI_MAPPA.map((p, k) => ({ nome:p[0], lat:p[1], lon:p[2], lato:p[3],
+      t:fetta(lc[k].hourly.temperature_2m), codice:fetta(lc[k].hourly.weather_code) })),
+    // riassunto dei prossimi 3 giorni (media dei paesi)
+    giorni:[0, 1, 2].map(d => {
+      const dd = lc.map(x => x.daily);
+      const codici = dd.map(x => x.weather_code[d + (i0 >= 24 ? 1 : 0)]);
+      const peggiore = codici.slice().sort((a, b) => b - a)[Math.floor(codici.length / 3)];
+      return { data:dd[0].time[d + (i0 >= 24 ? 1 : 0)], codice:peggiore,
+        max:Math.round(Math.max(...dd.map(x => x.temperature_2m_max[d + (i0 >= 24 ? 1 : 0)]))),
+        min:Math.round(Math.min(...dd.map(x => x.temperature_2m_min[d + (i0 >= 24 ? 1 : 0)]))),
+        pioggia:Math.max(...dd.map(x => x.precipitation_sum[d + (i0 >= 24 ? 1 : 0)] || 0)) };
+    })
+  };
+}
+
+// Sceglie la giornata da raccontare: quella con più maltempo tra oggi (se è presto), domani e dopodomani
+function scegliCilento72(m){
+  const giorniOre = {};
+  m.ore.forEach((o, i) => { const d = o.slice(0, 10); (giorniOre[d] = giorniOre[d] || []).push(i); });
+  const candidati = Object.entries(giorniOre).map(([d, idx]) => {
+    const fin = idx.filter(i => +m.ore[i].slice(11, 13) >= 6);
+    const mm = fin.reduce((s, i) => s + m.pioggia[i].reduce((a, b) => a + (b || 0), 0) / m.pioggia[i].length, 0);
+    const codice = Math.max(...fin.flatMap(i => m.paesi.map(p => p.codice[i] || 0)));
+    return { d, fin, mm, codice };
+  }).filter(c => c.fin.length >= 12);
+  const domani = candidati.find(c => c.d > m.ore[0].slice(0, 10)) || candidati[0];
+  const peggiore = candidati.slice().sort((a, b) => b.mm - a.mm)[0];
+  const scelto = peggiore && peggiore.mm >= 1.5 ? peggiore : domani;
+  const nomeG = new Date(scelto.d + "T12:00:00").toLocaleDateString("it-IT", { weekday:"long" });
+  const quando = scelto.d === m.ore[0].slice(0, 10) ? "oggi" : scelto === domani ? "domani" : nomeG;
+  const Q = quando.toUpperCase();
+  const da = scelto.fin[0], a = scelto.fin[scelto.fin.length - 1];
+  let titolo, gancio;
+  if(scelto.codice >= 95){ titolo = `TEMPORALI ${Q}`; gancio = `⛈️ Temporali ${quando} nel Cilento: guarda come arrivano e dove colpiscono, ora per ora.`; }
+  else if(scelto.mm >= 1.5){ titolo = `PIOGGIA ${Q}`; gancio = `🌧️ Pioggia ${quando} nel Cilento: ecco come si muove sul territorio, ora per ora.`; }
+  else if(scelto.codice >= 3){ titolo = `NUVOLE ${Q}`; gancio = `☁️ ${quando.charAt(0).toUpperCase() + quando.slice(1)} nuvole sul Cilento ma niente pioggia: ecco come cambia il cielo ora per ora.`; }
+  else { titolo = `SOLE ${Q}`; gancio = `☀️ ${quando.charAt(0).toUpperCase() + quando.slice(1)} bel tempo su tutto il Cilento: ecco la giornata ora per ora.`; }
+  const righe = m.giorni.map(g => { const n = new Date(g.data + "T12:00:00").toLocaleDateString("it-IT", { weekday:"long" }); return `${n.charAt(0).toUpperCase() + n.slice(1)}: ${g.min}°/${g.max}°${g.pioggia >= 1 ? ` · fino a ${Math.round(g.pioggia)} mm` : ""}`; });
+  return { titolo, sotto:"Cosa succede nel Cilento, ora per ora", da, a, giornoScelto:scelto.d, didascalia:`${gancio}\n\n${righe.join("\n")}\n\n` };
+}
+
 // Dove piove adesso? (precipitazione degli ultimi 15 minuti, Open-Meteo)
 async function pioggiaAdesso(){
   try{
@@ -223,6 +297,20 @@ async function decidi(){
     }catch(e){ console.warn("Notizia saltata:", e.message); }
   }
 
+  // Reel «la giornata ora per ora»: la domenica, e ogni giorno in cui arriva il maltempo (tra le 12 e le 15)
+  let cilento72 = null;
+  if(forza.includes("reel-giornata") || (ora >= 12 && ora <= 15 && stato["reel-giornata"] !== data)){
+    try{
+      const m = await meteoCilento72();
+      const s = scegliCilento72(m);
+      if(forza.includes("reel-giornata") || giorno === "Sun" || /TEMPORALI|PIOGGIA/.test(s.titolo)){
+        cilento72 = { meteo:m, scelta:s };
+        compiti.push("reel-giornata");
+        console.log("Reel della giornata:", s.titolo);
+      }
+    }catch(e){ console.warn("Reel della giornata saltato:", e.message); }
+  }
+
   // Reel del weekend: il venerdì tra le 12 e le 15
   if(forza.includes("reel-weekend") || (giorno === "Fri" && ora >= 12 && ora <= 15 && stato["reel-weekend"] !== data)) compiti.push("reel-weekend");
 
@@ -251,7 +339,7 @@ async function decidi(){
     rinnovo = false;
   }
 
-  scrivi(COMPITI, { data, compiti, allerta, rinnovo, reelPaese, notizia });
+  scrivi(COMPITI, { data, compiti, allerta, rinnovo, reelPaese, notizia, cilento72 });
   console.log(`Italia: ${data} ore ${ora} (${giorno}). Da pubblicare: ${compiti.join(", ") || "niente"}. Rinnovo token: ${rinnovo ? "sì" : "no"}`);
   if(process.env.GITHUB_OUTPUT){
     fs.appendFileSync(process.env.GITHUB_OUTPUT, `compiti=${compiti.join(",")}\nrinnovo=${rinnovo ? "1" : ""}\n`);
@@ -346,6 +434,13 @@ async function genera(){
       esito.testi.notizia = cc.notizia.scelta.didascalia;
       console.log("Creata", nome);
     }catch(e){ salta("notizia", e); }
+    if(compiti.includes("reel-giornata")) try{
+      const nome = `${data}-reel-giornata.mp4`;
+      await creaReelCilento72(browser, cc.cilento72, path.join(IMMAGINI, nome));
+      file["reel-giornata"] = nome;
+      esito.testi["reel-giornata"] = cc.cilento72.scelta.didascalia + `📲 Le previsioni ora per ora del tuo paese su 👉 cilentometeo.it (link in bio)\n💾 Salva il video e condividilo con chi ama il Cilento!\n\n#cilento #meteocilento #cilentocoast #cilentomeraviglie #cilentolovers #palinuro #agropoli #sapri #salerno`;
+      console.log("Creato", nome);
+    }catch(e){ salta("reel-giornata", e); }
     if(compiti.includes("reel-guida")) try{
       const nome = `${data}-reel-guida.mp4`;
       await creaReelGuida(browser, s.address().port, path.join(IMMAGINI, nome));
@@ -745,6 +840,204 @@ function campo(u, v){
   const jpg = await pagina.screenshot({ type:"jpeg", quality:93 });
   await pagina.close();
   return jpg;
+}
+
+async function creaReelCilento72(browser, { meteo, scelta }, uscita){
+  const M = JSON.parse(fs.readFileSync(path.join(CARTELLA, "mappa.json"), "utf8"));
+  const b64 = f => fs.readFileSync(path.join(f.startsWith("icone") ? RADICE : CARTELLA, f)).toString("base64");
+  const codiceIcone = fs.readFileSync(path.join(CARTELLA, "icone-meteo.js"), "utf8");
+  const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;" }[c]));
+  const giorniHtml = meteo.giorni.map(g => {
+    const n = new Date(g.data + "T12:00:00").toLocaleDateString("it-IT", { weekday:"short" }).replace(".", "");
+    return `<div class="g${g.data === scelta.giornoScelto ? " sel" : ""}"><div class="n">${esc(n.charAt(0).toUpperCase() + n.slice(1))}</div><div class="i" data-codice="${g.codice}"></div><div class="tt"><b>${g.max}°</b> ${g.min}°</div></div>`;
+  }).join("");
+  const html = `<!doctype html><html><head><meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@600;700;800;900&family=Space+Grotesk:wght@700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0}
+body{width:1080px;height:1920px;overflow:hidden;background:#030712;font-family:Inter,Arial,sans-serif;color:#fff;position:relative}
+canvas{position:absolute;left:0;top:0}
+.testa{position:absolute;left:0;right:0;top:0;padding:120px 40px 80px;background:linear-gradient(#030712 62%,rgba(3,7,18,0))}
+.marchio{display:flex;align-items:center;gap:14px;font:700 25px "Space Grotesk",Inter,sans-serif;letter-spacing:6px;color:#bcd6ff}
+.marchio img{width:52px;height:52px;border-radius:14px}
+h1{margin-top:18px;font:400 92px/1 Anton,Impact,sans-serif;letter-spacing:1px;text-shadow:0 6px 30px rgba(47,125,255,.45)}
+.sotto{margin-top:8px;font-weight:800;font-size:32px;color:#8cc4ff}
+.giorni{display:flex;gap:16px;margin-top:26px}
+.g{flex:1;display:flex;align-items:center;gap:10px;padding:10px 16px;border-radius:22px;background:rgba(255,255,255,.07);border:2px solid rgba(255,255,255,.14)}
+.g .n{font-weight:900;font-size:28px;width:62px}
+.g.sel{background:rgba(47,125,255,.3);border-color:rgba(140,196,255,.7);box-shadow:0 0 30px rgba(47,125,255,.45)}
+.g .i{width:70px;height:70px}
+.g .i svg{width:70px;height:70px}
+.g .tt{font-size:25px;color:#b9c8e6;font-weight:700}.g .tt b{color:#fff;font-size:31px;font-weight:900}
+.ora{position:absolute;left:50%;top:600px;transform:translateX(-50%);display:flex;align-items:center;gap:14px;padding:14px 30px;border-radius:24px;background:rgba(6,12,30,.84);
+border:2px solid rgba(255,255,255,.22);box-shadow:0 12px 36px rgba(0,0,0,.45);font-weight:900;font-size:38px;white-space:nowrap}
+.ora .p{width:16px;height:16px;border-radius:50%;background:#ff4d4d;box-shadow:0 0 14px #ff4d4d}
+.scala{position:absolute;left:40px;right:40px;bottom:250px;padding:14px 20px;border-radius:20px;background:rgba(6,12,30,.8);border:2px solid rgba(255,255,255,.16)}
+.scala .b{height:16px;border-radius:8px}
+.scala .num{display:flex;justify-content:space-between;margin-top:8px;font-weight:800;font-size:21px;color:#dbe6ff}
+.scala .tit{display:flex;justify-content:space-between;font-weight:800;font-size:21px;margin-bottom:10px;color:#fff}
+.fine{position:absolute;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;gap:22px;text-align:center;
+background:radial-gradient(ellipse 90% 50% at 50% 35%,rgba(47,125,255,.55),transparent 70%),linear-gradient(#061433,#02040a)}
+.fine img{width:170px;height:170px;border-radius:42px;box-shadow:0 20px 60px rgba(47,125,255,.5)}
+.fine .t{font-weight:900;font-size:62px;line-height:1.05;padding:0 60px}
+.fine .s{font-size:34px;color:#8cc4ff;font-weight:700}
+.fine .u{margin-top:10px;padding:22px 50px;border-radius:999px;font-weight:900;font-size:46px;background:linear-gradient(135deg,#2f7dff,#5aa2ff);box-shadow:0 14px 40px rgba(47,125,255,.5)}
+</style></head><body>
+<canvas id="c" width="1080" height="1920"></canvas>
+<div class="testa"><div class="marchio"><img src="data:image/png;base64,${b64("icone/icona-192.png")}">CILENTO METEO</div>
+<h1>${esc(scelta.titolo)}</h1><div class="sotto">${esc(scelta.sotto)}</div><div class="giorni">${giorniHtml}</div></div>
+<div class="ora"><span class="p"></span><span id="ora"></span></div>
+<div class="scala"><div class="tit"><span>💧 Pioggia</span><span>☁️ Nuvole</span></div><div class="b" id="barra"></div><div class="num"><span>Debole</span><span>Moderata</span><span>Forte</span><span>Molto forte</span></div></div>
+<div class="fine" id="fine"><img src="data:image/png;base64,${b64("icone/icona-192.png")}"><div class="t">Le previsioni del tuo paese</div><div class="s">118 paesi del Cilento · ora per ora</div><div class="u">cilentometeo.it</div><div class="s">Gratis, senza registrazione</div></div>
+<img id="base" src="data:image/png;base64,${b64("mappa-base.png")}" hidden>
+<img id="terra" src="data:image/png;base64,${b64("mappa-terra.png")}" hidden>
+<script>${codiceIcone}</script>
+<script>
+const D = ${JSON.stringify({ M, m:meteo })}, M = D.M, X = D.m;
+const c = document.getElementById("c"), x = c.getContext("2d");
+// La mappa del Cilento ingrandita a tutta altezza
+const S = 1, MW = M.larghezza * S, MH = M.altezza * S, OX = 0, OY = 520;
+const aPx = (lat, lon) => [OX + (lon - M.ovest) / (M.est - M.ovest) * MW, OY + (lat - M.nord) / (M.sud - M.nord) * MH];
+// Scale di colore
+function tavolozza(stop){
+  const cv = document.createElement("canvas"); cv.width = 256; cv.height = 1;
+  const t = cv.getContext("2d"), g = t.createLinearGradient(0, 0, 256, 0);
+  stop.forEach(([p, col]) => g.addColorStop(p, col)); t.fillStyle = g; t.fillRect(0, 0, 256, 1);
+  return t.getImageData(0, 0, 256, 1).data;
+}
+const ST = [[0,"#5b3cf0"],[.17,"#2f7dff"],[.3,"#14c8ff"],[.42,"#1fe07a"],[.55,"#c8f02a"],[.65,"#ffd21a"],[.77,"#ff9a1a"],[.88,"#ff4f2a"],[1,"#d0103e"]];
+const SP = [[0,"#2f8cff00"],[.04,"#2f8cff00"],[.1,"#2f8cff"],[.3,"#14d1ff"],[.5,"#1fe07a"],[.7,"#f4ee2a"],[.85,"#ff9a1a"],[1,"#ff2b3a"]];
+const PT = tavolozza(ST), PP = tavolozza(SP);
+document.getElementById("barra").style.background = "linear-gradient(90deg," + SP.filter(s => s[0] >= .1).map(s => s[1] + " " + Math.round((s[0] - .1) / .9 * 100) + "%").join(",") + ")";
+// Trama di nuvole (rumore frattale), calcolata una volta e fatta scorrere col tempo
+const RUM = document.createElement("canvas"); RUM.width = 512; RUM.height = 512;
+(() => {
+  const r = RUM.getContext("2d"), im = r.createImageData(512, 512);
+  const n = (s) => { const g = new Float32Array(s * s); for(let i = 0; i < g.length; i++) g[i] = Math.random(); return g; };
+  const ottave = [8, 16, 32, 64].map(s => ({ s, g:n(s) }));
+  const liscio = t => t * t * (3 - 2 * t);
+  for(let j = 0; j < 512; j++) for(let i = 0; i < 512; i++){
+    let v = 0, a = .55, tot = 0;
+    for(const o of ottave){
+      const fx = i / 512 * o.s, fy = j / 512 * o.s, x0 = Math.floor(fx), y0 = Math.floor(fy), tx = liscio(fx - x0), ty = liscio(fy - y0);
+      const G = (xx, yy) => o.g[(yy % o.s) * o.s + (xx % o.s)];
+      v += a * ((G(x0, y0) * (1 - tx) + G(x0 + 1, y0) * tx) * (1 - ty) + (G(x0, y0 + 1) * (1 - tx) + G(x0 + 1, y0 + 1) * tx) * ty);
+      tot += a; a *= .55;
+    }
+    v /= tot; const k = (j * 512 + i) * 4;
+    im.data[k] = im.data[k + 1] = im.data[k + 2] = 255; im.data[k + 3] = Math.max(0, Math.min(255, (v - .32) * 2.4 * 255));
+  }
+  r.putImageData(im, 0, 0);
+})();
+const coloreT = t => { const p = Math.round(Math.max(0, Math.min(1, t / 30)) * 255) * 4; return "rgb(" + PT[p] + "," + PT[p + 1] + "," + PT[p + 2] + ")"; };
+function cub(p0, p1, p2, p3, t){ return p1 + .5 * t * (p2 - p0 + t * (2 * p0 - 5 * p1 + 4 * p2 - p3 + t * (3 * (p1 - p2) + p3 - p0))); }
+function val(arr, u, v){
+  const G = X.G, fx = u * (G - 1), fy = v * (G - 1), ix = Math.floor(fx), iy = Math.floor(fy), tx = fx - ix, ty = fy - iy;
+  const V = (i, j) => arr[Math.min(G - 1, Math.max(0, j)) * G + Math.min(G - 1, Math.max(0, i))] || 0;
+  const r = [-1, 0, 1, 2].map(d => cub(V(ix - 1, iy + d), V(ix, iy + d), V(ix + 1, iy + d), V(ix + 2, iy + d), tx));
+  return cub(r[0], r[1], r[2], r[3], ty);
+}
+const lw = 150, lh = Math.round(150 * M.altezza / M.larghezza);
+const sT = document.createElement("canvas"); sT.width = lw; sT.height = lh; const cT = sT.getContext("2d"), iT = cT.createImageData(lw, lh);
+const sP = document.createElement("canvas"); sP.width = lw; sP.height = lh; const cP = sP.getContext("2d"), iP = cP.createImageData(lw, lh);
+const grande = document.createElement("canvas"); grande.width = MW; grande.height = MH; const gx = grande.getContext("2d");
+let base, terra, ICONE = {};
+window.prepara = async () => {
+  await document.fonts.ready;
+  base = document.getElementById("base"); terra = document.getElementById("terra");
+  await Promise.all([base, terra].map(i => i.complete ? 1 : new Promise(ok => i.onload = ok)));
+  ICONE = await caricaIcone();
+  document.querySelectorAll(".g .i").forEach(el => el.innerHTML = iconaMeteo(Number(el.dataset.codice)));
+};
+// interpolazione morbida nel tempo (Catmull-Rom tra le ore): niente scatti
+const L = X.ore.length - 1, hc = h => Math.max(0, Math.min(L, h));
+function nelTempo(arr, t, i){
+  const h = Math.floor(t), f = t - h;
+  const a = arr[hc(h - 1)][i] || 0, b = arr[hc(h)][i] || 0, cc = arr[hc(h + 1)][i] || 0, d = arr[hc(h + 2)][i] || 0;
+  return cub(a, b, cc, d, f);
+}
+const campoT = (arr, t) => { const out = new Float32Array(X.G * X.G); for(let i = 0; i < out.length; i++) out[i] = nelTempo(arr, t, i); return out; };
+window.disegna = (t) => {
+  const h0 = Math.min(X.ore.length - 1, Math.floor(t)), h1 = Math.min(X.ore.length - 1, h0 + 1), f = t - Math.floor(t);
+  const NV = campoT(X.nuvole, t), PV = campoT(X.pioggia, t);
+  for(let j = 0; j < lh; j++) for(let i = 0; i < lw; i++){
+    const u = i / (lw - 1), v = j / (lh - 1), k = (j * lw + i) * 4;
+    const nv = Math.max(0, Math.min(100, val(NV, u, v)));
+    iT.data[k] = 255; iT.data[k + 1] = 255; iT.data[k + 2] = 255; iT.data[k + 3] = Math.pow(nv / 100, 1.3) * 255;
+    const pv = Math.max(0, val(PV, u, v));
+    const q = Math.round(Math.max(0, Math.min(1, Math.sqrt(pv / 8))) * 255) * 4;
+    iP.data[k] = PP[q]; iP.data[k + 1] = PP[q + 1]; iP.data[k + 2] = PP[q + 2]; iP.data[k + 3] = PP[q + 3] * .85;
+  }
+  cT.putImageData(iT, 0, 0); cP.putImageData(iP, 0, 0);
+  // giorno o notte (sfumato)
+  const notte = 1 - ((X.giorno[h0] || 0) * (1 - f) + (X.giorno[h1] || 0) * f);
+  x.fillStyle = "#030712"; x.fillRect(0, 0, 1080, 1920);
+  x.filter = "brightness(" + (1 - notte * .35) + ") saturate(" + (1 - notte * .25) + ")";
+  x.drawImage(base, OX, OY, MW, MH); x.filter = "none";
+  // pioggia come un radar, con alone
+  x.save(); x.filter = "blur(18px)"; x.globalAlpha = .6; x.drawImage(sP, OX, OY, MW, MH); x.restore();
+  x.save(); x.filter = "blur(6px)"; x.drawImage(sP, OX, OY, MW, MH); x.restore();
+  // nuvole morbide che si muovono (la trama scorre da ovest verso est)
+  gx.clearRect(0, 0, MW, MH); gx.filter = "blur(10px)"; gx.drawImage(sT, 0, 0, MW, MH); gx.filter = "none";
+  gx.globalCompositeOperation = "destination-in";
+  const motivo = gx.createPattern(RUM, "repeat");
+  motivo.setTransform(new DOMMatrix().translate(t * 12, -t * 3).scale(1.5));
+  gx.fillStyle = motivo; gx.fillRect(0, 0, MW, MH);
+  gx.globalCompositeOperation = "source-over";
+  x.save(); x.shadowColor = "rgba(0,0,0,.35)"; x.shadowBlur = 24; x.shadowOffsetY = 14;
+  x.globalAlpha = .92 - notte * .25; x.drawImage(grande, OX, OY); x.restore();
+  // notte: velo blu
+  if(notte > 0){ x.fillStyle = "rgba(8,16,48," + (notte * .3) + ")"; x.fillRect(0, OY, 1080, MH); }
+  // paesi
+  x.textBaseline = "middle";
+  X.paesi.forEach(p => {
+    let [px, py] = aPx(p.lat, p.lon);
+    if(px < 60 || px > 1020 || py > OY + MH - 120) return;
+    const tt = Math.round(cub(p.t[hc(h0 - 1)] || 0, p.t[h0] || 0, p.t[h1] || 0, p.t[hc(h1 + 1)] || 0, f));
+    const img = ICONE[tipoIcona(p.codice[f < .5 ? h0 : h1])];
+    x.font = "800 27px Inter, Arial, sans-serif";
+    const w = x.measureText(p.nome).width + 30 + 72;
+    const ix = p.lato === "sx" ? px - w / 2 - 44 : p.lato === "dx" ? px + w / 2 + 44 : px, iy = p.lato ? py + 32 : py - 42;
+    x.beginPath(); x.arc(px, py, 7, 0, 7); x.fillStyle = "#fff"; x.fill(); x.lineWidth = 3; x.strokeStyle = "rgba(0,0,0,.45)"; x.stroke();
+    if(img) x.drawImage(img, ix - 56, iy - 60, 112, 112);
+    const l = px - w / 2, y = py + 12, h = 44;
+    x.save(); x.shadowColor = "rgba(0,0,0,.5)"; x.shadowBlur = 16; x.shadowOffsetY = 6;
+    x.fillStyle = "rgba(6,14,34,.86)"; x.beginPath(); x.roundRect(l, y, w, h, 22); x.fill(); x.restore();
+    x.strokeStyle = "rgba(255,255,255,.28)"; x.lineWidth = 1.5; x.beginPath(); x.roundRect(l, y, w, h, 22); x.stroke();
+    x.textAlign = "left"; x.fillStyle = "#fff"; x.fillText(p.nome, l + 16, y + h / 2 + 1);
+    const bx = l + w - 72; x.fillStyle = coloreT(tt); x.beginPath(); x.roundRect(bx, y + 4, 66, h - 8, 18); x.fill();
+    x.font = "900 25px Inter, Arial, sans-serif"; x.textAlign = "center"; x.fillStyle = tt >= 9 && tt < 22 ? "#0a1a10" : "#fff";
+    x.fillText(tt + "°", bx + 33, y + h / 2 + 1);
+  });
+  // la mappa sfuma in alto e in basso
+  let sf = x.createLinearGradient(0, OY, 0, OY + 160); sf.addColorStop(0, "#030712"); sf.addColorStop(1, "rgba(3,7,18,0)");
+  x.fillStyle = sf; x.fillRect(0, OY - 2, 1080, 162);
+  sf = x.createLinearGradient(0, OY + MH - 200, 0, OY + MH); sf.addColorStop(0, "rgba(3,7,18,0)"); sf.addColorStop(1, "#030712");
+  x.fillStyle = sf; x.fillRect(0, OY + MH - 200, 1080, 1920);
+  const d = new Date(X.ore[h0] + ":00");
+  const g = d.toLocaleDateString("it-IT", { weekday:"long", day:"numeric" });
+  const min = Math.floor(f * 60 / 10) * 10;
+  document.getElementById("ora").textContent = g.charAt(0).toUpperCase() + g.slice(1) + " · ore " + String(d.getHours()).padStart(2, "0") + ":" + String(min).padStart(2, "0");
+};
+window.finale = () => { document.getElementById("fine").style.display = "flex"; };
+</script></body></html>`;
+  const pagina = await browser.newPage({ viewport:{ width:1080, height:1920 } });
+  await pagina.setContent(html, { waitUntil:"networkidle" });
+  await pagina.evaluate(() => window.prepara());
+  const ft = new Fotogrammi(uscita + ".fotogrammi");
+  const da = scelta.da, a = scelta.a;
+  await pagina.evaluate(t => window.disegna(t), da);
+  await ft.scatta(pagina, 30);
+  const N = 480;                                                  // 16 s per la giornata: circa 28 fotogrammi per ogni ora
+  for(let k = 1; k <= N; k++){
+    await pagina.evaluate(t => window.disegna(t), da + (a - da) * k / N);
+    await ft.scatta(pagina);
+  }
+  await ft.scatta(pagina, 24);
+  await pagina.evaluate(() => window.finale());
+  await ft.scatta(pagina, 66);
+  await pagina.close();
+  ft.video(uscita);
 }
 
 async function creaCopertina(browser){
