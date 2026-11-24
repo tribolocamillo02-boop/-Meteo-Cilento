@@ -332,6 +332,12 @@ async function decidi(){
   // Il token dura 60 giorni: lo rinnoviamo ogni 7
   let rinnovo = !TOKEN_FACEBOOK && (!stato.rinnovo || (Date.now() - Date.parse(stato.rinnovo)) > 7 * 864e5);
 
+  // Se Instagram ha bloccato l'accesso, il robot si ferma per 6 ore invece di riprovare ogni ora
+  if(stato.bloccatoFino && Date.now() < Date.parse(stato.bloccatoFino) && !forza.length){
+    console.log("Instagram ha bloccato l'accesso alle API: pausa fino a", stato.bloccatoFino);
+    compiti.length = 0;
+  }
+
   // Finché Instagram non è collegato non si fa niente (tranne in prova)
   if(!process.env.IG_TOKEN && process.env.PROVA !== "1"){
     console.log("Instagram non è ancora collegato (manca il segreto IG_TOKEN)");
@@ -1307,7 +1313,7 @@ async function pubblica(){
   if(!base) throw new Error("Manca URL_BASE");
 
   let utente = null;
-  if(!prova){
+  if(!prova) try{
     if(TOKEN_FACEBOOK){
       utente = ID_INSTAGRAM;
       const io = await chiamata("GET", `/${utente}`, { fields:"username" });
@@ -1317,6 +1323,14 @@ async function pubblica(){
       utente = io.user_id || io.id;
       console.log("Account Instagram:", io.username);
     }
+    delete stato.bloccatoFino;
+  }catch(e){
+    if(/API access blocked|5258005|"code":200|"code":190|checkpoint|restricted/i.test(e.message)){
+      stato.bloccatoFino = new Date(Date.now() + 6 * 36e5).toISOString();
+      scrivi(STATO, stato);
+      console.error("ACCESSO BLOCCATO DA INSTAGRAM/META. Controlla le notifiche di Meta for Developers, Facebook e Instagram. Il robot riprova tra 6 ore.", e.message);
+    }
+    throw e;
   }
 
   const errori = [];
