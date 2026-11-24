@@ -339,6 +339,8 @@ Segreti del repository (Settings → Secrets and variables → Actions):
   repository con permesso **Secrets: Read and write**. Serve a rinnovare da solo
   `IG_TOKEN` ogni settimana.
 
+Accorgimenti per far girare i Reel: grande scritta nei primi 1,2 secondi, nessuna pausa iniziale, durata 12–15 s con finale breve (si riguardano), suono di pioggia o sottofondo morbido, copertina sul momento più interessante, pubblicazione la sera (18–21), didascalie che invitano a commentare e condividere.
+
 Se una pubblicazione fallisce non viene segnata in `social/stato.json` e il robot riprova all'ora successiva.
 
 Per una prova: Actions → Instagram → Run workflow, con «Solo prova» o con

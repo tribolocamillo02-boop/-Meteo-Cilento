@@ -299,7 +299,7 @@ async function decidi(){
 
   // Reel «la giornata ora per ora»: la domenica, e ogni giorno in cui arriva il maltempo (tra le 12 e le 15)
   let cilento72 = null;
-  if(forza.includes("reel-giornata") || (ora >= 12 && ora <= 15 && stato["reel-giornata"] !== data)){
+  if(forza.includes("reel-giornata") || (ora >= 18 && ora <= 21 && stato["reel-giornata"] !== data)){
     try{
       const m = await meteoCilento72();
       const s = scegliCilento72(m);
@@ -312,7 +312,7 @@ async function decidi(){
   }
 
   // Reel del weekend: il venerdì tra le 12 e le 15
-  if(forza.includes("reel-weekend") || (giorno === "Fri" && ora >= 12 && ora <= 15 && stato["reel-weekend"] !== data)) compiti.push("reel-weekend");
+  if(forza.includes("reel-weekend") || (giorno === "Fri" && ora >= 18 && ora <= 21 && stato["reel-weekend"] !== data)) compiti.push("reel-weekend");
 
   // Reel del radar: quando piove nel Cilento, al massimo uno al giorno, tra le 8 e le 20
   let reelPaese = null;
@@ -401,7 +401,7 @@ async function genera(){
     const limite = new Date(Date.now() - 7 * 864e5).toISOString().slice(0, 10);
     for(const f of fs.readdirSync(IMMAGINI)) if(f.slice(0, 10) < limite) fs.unlinkSync(path.join(IMMAGINI, f));
 
-    const file = {};
+    const file = {}, copertine = {};
     if(compiti.includes("promo")) try{
       const stato = leggi(STATO, {});
       const indice = (stato.promoIndice || 0) % PROMO.length;
@@ -417,14 +417,14 @@ async function genera(){
       const nome = `${data}-reel-radar.mp4`;
       await creaReelRadar(browser, s.address().port, cc.reelPaese || "agropoli", path.join(IMMAGINI, nome));
       file["reel-radar"] = nome;
-      esito.testi["reel-radar"] = `🌧️ Piove nel Cilento: ecco il radar della Protezione Civile in diretta.\n\nGuarda dove piove adesso e dove sta andando la pioggia, paese per paese, aggiornato ogni 5 minuti.\n\n📲 Gratis su 👉 cilentometeo.it (link in bio)\n\n#cilento #meteocilento #cilentonotizie #pioggia #radarmeteo #maltempo #cilentolovers #salerno #protezionecivile`;
+      esito.testi["reel-radar"] = `🌧️ Piove nel Cilento: ecco il radar della Protezione Civile in diretta.\n\nGuarda dove piove adesso e dove sta andando la pioggia, paese per paese, aggiornato ogni 5 minuti.\n\n💬 Da te com'è il cielo? Scrivilo nei commenti 👇\n📤 Mandalo a chi deve venire nel Cilento!\n\n📲 Gratis su 👉 cilentometeo.it (link in bio)\n\n#cilento #meteocilento #cilentonotizie #pioggia #radarmeteo #maltempo #cilentolovers #salerno #protezionecivile`;
       console.log("Creato", nome);
     }catch(e){ salta("reel-radar", e); }
     if(compiti.includes("reel-weekend")) try{
       const nome = `${data}-reel-weekend.mp4`;
       await creaReelWeekend(browser, s.address().port, path.join(IMMAGINI, nome));
       file["reel-weekend"] = nome;
-      esito.testi["reel-weekend"] = `☀️ Che tempo farà nel weekend nel Cilento?\n\nDal mare alla montagna: previsioni ora per ora per tutti i 118 paesi, mare, radar e allerte.\n\n📲 Gratis su 👉 cilentometeo.it (link in bio)\n\n#cilento #meteocilento #weekend #cilentocoast #cilentomeraviglie #cilentolovers #cilentogram #palinuro #agropoli #sapri`;
+      esito.testi["reel-weekend"] = `☀️ Che tempo farà nel weekend nel Cilento?\n\nDal mare alla montagna: previsioni ora per ora per tutti i 118 paesi, mare, radar e allerte.\n\n💬 Da te com'è il cielo? Scrivilo nei commenti 👇\n📤 Mandalo a chi deve venire nel Cilento!\n\n📲 Gratis su 👉 cilentometeo.it (link in bio)\n\n#cilento #meteocilento #weekend #cilentocoast #cilentomeraviglie #cilentolovers #cilentogram #palinuro #agropoli #sapri`;
       console.log("Creato", nome);
     }catch(e){ salta("reel-weekend", e); }
     if(compiti.includes("notizia")) try{
@@ -438,7 +438,10 @@ async function genera(){
       const nome = `${data}-reel-giornata.mp4`;
       await creaReelCilento72(browser, cc.cilento72, path.join(IMMAGINI, nome));
       file["reel-giornata"] = nome;
-      esito.testi["reel-giornata"] = cc.cilento72.scelta.didascalia + `📲 Le previsioni ora per ora del tuo paese su 👉 cilentometeo.it (link in bio)\n💾 Salva il video e condividilo con chi ama il Cilento!\n\n#cilento #meteocilento #cilentocoast #cilentomeraviglie #cilentolovers #palinuro #agropoli #sapri #salerno`;
+      { const s = cc.cilento72.scelta, m = cc.cilento72.meteo; let hm = s.da, mx = -1;
+        for(let h = s.da; h <= s.a; h++){ const v = m.pioggia[h].reduce((x, y) => x + (y || 0), 0); if(v > mx){ mx = v; hm = h; } }
+        copertine["reel-giornata"] = Math.round(Math.max(2, (hm - s.da) / (s.a - s.da) * 13) * 1000); }
+      esito.testi["reel-giornata"] = cc.cilento72.scelta.didascalia + `💬 Nel tuo paese com'è il cielo? Scrivilo nei commenti 👇\n📤 Mandalo a chi deve uscire o viaggiare quel giorno!\n\n📲 Le previsioni ora per ora del tuo paese su 👉 cilentometeo.it (link in bio)\n💾 Salva il video e condividilo con chi ama il Cilento!\n\n#cilento #meteocilento #cilentocoast #cilentomeraviglie #cilentolovers #palinuro #agropoli #sapri #salerno`;
       console.log("Creato", nome);
     }catch(e){ salta("reel-giornata", e); }
     if(compiti.includes("reel-guida")) try{
@@ -473,7 +476,7 @@ async function genera(){
     }
     const c = leggi(COMPITI, {});
     // I contenuti saltati non si pubblicano: il robot li riprova all'ora successiva
-    scrivi(COMPITI, { ...c, compiti:compiti.filter(x => !saltati.includes(x)), file, testi: esito.testi });
+    scrivi(COMPITI, { ...c, compiti:compiti.filter(x => !saltati.includes(x)), file, copertine, testi: esito.testi });
     if(saltati.length) console.log("Rimandati all'ora successiva:", saltati.join(", "));
   }finally{
     await browser.close();
@@ -607,9 +610,16 @@ class Fotogrammi{
     await pagina.screenshot({ path:f, type:"jpeg", quality:90 });
     for(let k = 1; k < ripeti; k++) fs.copyFileSync(f, this.nome(this.n++));
   }
-  video(uscita){
+  // suono: "pioggia" (fruscio di pioggia), "calmo" (accordo morbido) oppure "muto"
+  video(uscita, suono = "calmo"){
+    const dur = (this.n / 30).toFixed(2), fine = Math.max(0, this.n / 30 - 1.2).toFixed(2);
+    const audio = suono === "pioggia"
+      ? `anoisesrc=color=brown:amplitude=0.9:sample_rate=48000:duration=${dur},highpass=f=180,lowpass=f=3500,volume=0.55,afade=t=in:d=0.6,afade=t=out:st=${fine}:d=1.2`
+      : suono === "calmo"
+      ? `aevalsrc='0.10*(sin(2*PI*110*t)+0.7*sin(2*PI*164.81*t)+0.55*sin(2*PI*220*t)+0.45*sin(2*PI*277.18*t)+0.3*sin(2*PI*329.63*t))*(0.65+0.35*sin(2*PI*0.2*t))':s=48000:d=${dur},lowpass=f=1600,aecho=0.8:0.7:120|240:0.35|0.2,afade=t=in:d=0.8,afade=t=out:st=${fine}:d=1.2`
+      : `anullsrc=channel_layout=stereo:sample_rate=48000`;
     execFileSync("ffmpeg", ["-y", "-loglevel", "error", "-framerate", "30", "-i", path.join(this.cartella, "f%05d.jpg"),
-      "-f", "lavfi", "-i", "anullsrc=channel_layout=stereo:sample_rate=44100",
+      "-f", "lavfi", "-i", audio,
       "-shortest", "-vf", "scale=1080:1920:flags=lanczos:in_range=full:out_range=tv,format=yuv420p",
       "-c:v", "libx264", "-profile:v", "high", "-level", "4.1", "-preset", "medium", "-crf", "20", "-r", "30",
       "-g", "30", "-keyint_min", "30", "-sc_threshold", "0", "-maxrate", "8M", "-bufsize", "16M",
@@ -618,6 +628,26 @@ class Fotogrammi{
     fs.rmSync(this.cartella, { recursive:true, force:true });
   }
 }
+
+// Grande scritta al centro nei primi secondi: ferma chi scorre
+async function gancio(pagina, emoji, testo, colore = "#ffd400"){
+  await pagina.evaluate(([emoji, testo, colore]) => {
+    let g = document.getElementById("gancioReel");
+    if(!g){
+      const st = document.createElement("style");
+      st.textContent = `#gancioReel{position:fixed;z-index:200000;left:6%;right:6%;top:50%;transform:translateY(-50%);text-align:center;pointer-events:none;transition:none}
+#gancioReel .e{font-size:120px;line-height:1;filter:drop-shadow(0 10px 30px rgba(0,0,0,.5))}
+#gancioReel .t{display:inline-block;margin-top:18px;padding:16px 28px 10px;background:var(--c);color:#111;font:400 92px/1.02 Anton,Impact,sans-serif;text-transform:uppercase;letter-spacing:1px;box-shadow:0 18px 50px rgba(0,0,0,.55);transform:rotate(-2deg)}`;
+      document.head.appendChild(st);
+      g = document.createElement("div"); g.id = "gancioReel"; document.body.appendChild(g);
+    }
+    g.style.setProperty("--c", colore);
+    g.innerHTML = `<div class="t"></div>`;
+    g.querySelector(".t").textContent = testo;
+    g.style.opacity = 1; g.style.display = "block";
+  }, [emoji, testo, colore]);
+}
+const gancioOpacita = (pagina, o) => pagina.evaluate(o => { const g = document.getElementById("gancioReel"); if(g){ g.style.opacity = o; g.style.display = o > 0 ? "block" : "none"; } }, o);
 
 const morbido = x => x < .5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2;
 
@@ -648,6 +678,7 @@ async function creaReelRadar(browser, porta, paese, uscita){
   const ft = new Fotogrammi(uscita + ".fotogrammi");
   const max = await pagina.evaluate(() => Number(document.getElementById("radarCursore").max) || 0);
   const inizio = Math.max(0, max - 17);     // circa l'ultima ora e mezza
+  await gancio(pagina, "🌧️", "PIOVE ADESSO NEL CILENTO", "#5ab4ff");
   for(let giro = 0; giro < 2; giro++){
     for(let i = inizio; i <= max; i++){
       await pagina.evaluate(v => {
@@ -655,12 +686,13 @@ async function creaReelRadar(browser, porta, paese, uscita){
         c.value = v; c.dispatchEvent(new Event("input", { bubbles:true })); c.dispatchEvent(new Event("change", { bubbles:true }));
       }, i);
       await pagina.waitForTimeout(giro === 0 ? 900 : 250);
+      if(ft.n >= 36) await gancioOpacita(pagina, 0);
       await ft.scatta(pagina, i === max ? 24 : 9);
     }
   }
   await finale(pagina, ft);
   await ctx.close();
-  ft.video(uscita);
+  ft.video(uscita, "pioggia");
 }
 
 async function creaNotizia(browser, { meteo, scelta }){
@@ -1026,18 +1058,19 @@ window.finale = () => { document.getElementById("fine").style.display = "flex"; 
   await pagina.evaluate(() => window.prepara());
   const ft = new Fotogrammi(uscita + ".fotogrammi");
   const da = scelta.da, a = scelta.a;
-  await pagina.evaluate(t => window.disegna(t), da);
-  await ft.scatta(pagina, 30);
-  const N = 480;                                                  // 16 s per la giornata: circa 28 fotogrammi per ogni ora
-  for(let k = 1; k <= N; k++){
+  const [em, col] = /TEMPORALI/.test(scelta.titolo) ? ["⛈️", "#ff4d4d"] : /PIOGGIA/.test(scelta.titolo) ? ["🌧️", "#5ab4ff"] : /NUVOLE/.test(scelta.titolo) ? ["☁️", "#dfe8f5"] : ["☀️", "#ffd400"];
+  await gancio(pagina, em, scelta.titolo + " NEL CILENTO", col);
+  const N = 390;                                                  // 13 s per la giornata, ~23 fotogrammi per ogni ora, nessuna pausa iniziale
+  for(let k = 0; k <= N; k++){
+    if(k <= 50) await gancioOpacita(pagina, k < 36 ? 1 : 1 - (k - 36) / 14);   // il titolo grande resta 1,2 s e poi sfuma
     await pagina.evaluate(t => window.disegna(t), da + (a - da) * k / N);
     await ft.scatta(pagina);
   }
-  await ft.scatta(pagina, 24);
+  await ft.scatta(pagina, 12);
   await pagina.evaluate(() => window.finale());
-  await ft.scatta(pagina, 66);
+  await ft.scatta(pagina, 45);                                    // cartello finale breve: il video si riguarda volentieri
   await pagina.close();
-  ft.video(uscita);
+  ft.video(uscita, /TEMPORALI|PIOGGIA/.test(scelta.titolo) ? "pioggia" : "calmo");
 }
 
 async function creaCopertina(browser){
@@ -1136,7 +1169,11 @@ async function creaReelWeekend(browser, porta, uscita){
     await sovrapponi(pagina, "Il weekend nel Cilento", nome);
     await pagina.evaluate(() => window.scrollTo(0, 0));
     await pagina.waitForTimeout(800);
-    for(let k = 0; k < 36; k++) await ft.scatta(pagina);          // 1,2 s con la pioggia o il sole animati
+    if(slug === "palinuro") await gancio(pagina, "🏖️", "IL METEO DEL WEEKEND NEL CILENTO", "#ffd400");
+    for(let k = 0; k < 36; k++){                                     // 1,2 s con la pioggia o il sole animati
+      if(slug === "palinuro" && k === 30) await gancioOpacita(pagina, 0);
+      await ft.scatta(pagina);
+    }
     const meta = await pagina.evaluate(() => {
       const el = document.querySelector('[data-tendina="settimana"]');
       return el ? el.getBoundingClientRect().top + window.scrollY - 80 : 600;
@@ -1151,7 +1188,7 @@ async function creaReelWeekend(browser, porta, uscita){
     await pagina.close();
   }
   await ctx.close();
-  ft.video(uscita);
+  ft.video(uscita, "calmo");
 }
 
 /* ---------------- Instagram ---------------- */
@@ -1169,8 +1206,9 @@ async function chiamata(metodo, percorso, parametri = {}){
   return j;
 }
 
-async function pubblicaUna(utente, url, { didascalia, storia, reel }, tentativo = 1){
+async function pubblicaUna(utente, url, { didascalia, storia, reel, copertina }, tentativo = 1){
   const param = reel ? { media_type:"REELS", video_url:url, share_to_feed:"true" } : { image_url:url };
+  if(reel && copertina) param.thumb_offset = String(copertina);
   if(storia) param.media_type = "STORIES";
   if(didascalia && !storia) param.caption = didascalia;
   let id;
@@ -1189,7 +1227,7 @@ async function pubblicaUna(utente, url, { didascalia, storia, reel }, tentativo 
       if(tentativo < 2){
         console.warn(motivo, "→ riprovo tra un minuto");
         await attendi(60000);
-        return pubblicaUna(utente, url, { didascalia, storia, reel }, tentativo + 1);
+        return pubblicaUna(utente, url, { didascalia, storia, reel, copertina }, tentativo + 1);
       }
       throw new Error(motivo);
     }
@@ -1275,7 +1313,7 @@ async function pubblica(){
       }else{
         if(!await urlRaggiungibile(url)) throw new Error("Immagine non raggiungibile: " + url);
         if(reel){
-          console.log(`Reel ${tipo} pubblicato:`, await pubblicaUna(utente, url, { didascalia:c.testi[tipo], reel:true }));
+          console.log(`Reel ${tipo} pubblicato:`, await pubblicaUna(utente, url, { didascalia:c.testi[tipo], reel:true, copertina:(c.copertine || {})[tipo] }));
         }else if(tipo === "storia"){
           console.log("Storia pubblicata:", await pubblicaUna(utente, url, { storia:true }));
         }else{
