@@ -109,6 +109,72 @@ function allertaAttuale(oggi){
 
 /* ---------------- decidi ---------------- */
 
+/* ---------------- Post «notizia» con la mappa ---------------- */
+
+// Paesi scritti sulla mappa
+const PAESI_MAPPA = [
+  ["Agropoli", 40.3492, 14.9907], ["Acciaroli", 40.181, 15.0272],
+  ["Ascea", 40.1426, 15.1837, "dx"], ["Palinuro", 40.0368, 15.2881], ["Sapri", 40.0746, 15.6321],
+  ["Vallo della Lucania", 40.2279, 15.2663], ["Sala Consilina", 40.4013, 15.5914],
+  ["Roccadaspide", 40.4255, 15.1918], ["Piaggine", 40.345, 15.3778]
+];
+const ZONE_NOTIZIA = {
+  "Costa nord": ["Agropoli", "Acciaroli"],
+  "Costa sud": ["Ascea", "Palinuro", "Sapri"],
+  "Entroterra": ["Vallo della Lucania", "Piaggine", "Roccadaspide"],
+  "Vallo di Diano": ["Sala Consilina"]
+};
+
+async function meteoGriglia(){
+  const R = JSON.parse(fs.readFileSync(path.join(CARTELLA, "mappa.json"), "utf8"));
+  const G = 10, punti = [];
+  for(let i = 0; i < G; i++) for(let j = 0; j < G; j++)
+    punti.push([R.nord + (R.sud - R.nord) * i / (G - 1), R.ovest + (R.est - R.ovest) * j / (G - 1)]);
+  const tutti = punti.concat(PAESI_MAPPA.map(p => [p[1], p[2]]));
+  const url = "https://api.open-meteo.com/v1/forecast?latitude=" + tutti.map(p => p[0].toFixed(3)).join(",")
+    + "&longitude=" + tutti.map(p => p[1].toFixed(3)).join(",")
+    + "&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_sum,snowfall_sum,wind_gusts_10m_max&timezone=Europe%2FRome&forecast_days=3";
+  const r = await fetch(url);
+  if(!r.ok) throw new Error("Open-Meteo " + r.status);
+  const j = await r.json();
+  const lista = Array.isArray(j) ? j : [j];
+  return { G, griglia:lista.slice(0, G * G).map(x => x.daily), paesi:lista.slice(G * G).map((x, k) => ({ nome:PAESI_MAPPA[k][0], lat:PAESI_MAPPA[k][1], lon:PAESI_MAPPA[k][2], lato:PAESI_MAPPA[k][3], d:x.daily })) };
+}
+
+// Sceglie il titolo più importante per il giorno indicato (1 = domani). Solo fatti veri, presi dai dati.
+function scegliNotizia(m, g){
+  const P = m.paesi.map(p => ({ nome:p.nome, codice:p.d.weather_code[g], max:p.d.temperature_2m_max[g], min:p.d.temperature_2m_min[g],
+    pioggia:p.d.precipitation_sum[g] || 0, neve:p.d.snowfall_sum[g] || 0, raffica:p.d.wind_gusts_10m_max[g] || 0 }));
+  const top = (k, dir = 1) => P.slice().sort((a, b) => dir * (b[k] - a[k]))[0];
+  const giorno = g === 0 ? "OGGI" : g === 1 ? "DOMANI" : comeGiorno(m.paesi[0].d.time[g]).toUpperCase();
+  const gm = g === 0 ? "oggi" : g === 1 ? "domani" : comeGiorno(m.paesi[0].d.time[g]);
+  const piove = top("pioggia"), caldo = top("max"), freddo = top("min", -1), vento = top("raffica"), neve = top("neve");
+  const temporali = P.filter(p => p.codice >= 95).map(p => p.nome);
+  let n;
+  if(neve.neve >= 0.5) n = { tipo:"neve", var:"neve", titolo:`NEVE ${giorno} SUI MONTI DEL CILENTO: FINO A ${Math.round(neve.neve)} CM`, gancio:`❄️ ${gm.charAt(0).toUpperCase() + gm.slice(1)} arriva la neve sulle montagne del Cilento. Ecco dove.` };
+  else if(temporali.length >= 2 || (temporali.length && piove.pioggia >= 15)) n = { tipo:"temporali", var:"pioggia", titolo:`TEMPORALI ${giorno} NEL CILENTO: ECCO LE ZONE PIÙ COLPITE`, gancio:`⛈️ ${gm.charAt(0).toUpperCase() + gm.slice(1)} temporali sul Cilento: fino a ${Math.round(piove.pioggia)} mm di pioggia a ${piove.nome}. Ecco dove e quanto pioverà.` };
+  else if(piove.pioggia >= 15) n = { tipo:"pioggia", var:"pioggia", titolo:`PIOGGIA FORTE ${giorno}: FINO A ${Math.round(piove.pioggia)} MM A ${piove.nome.toUpperCase()}`, gancio:`🌧️ ${gm.charAt(0).toUpperCase() + gm.slice(1)} giornata di pioggia intensa nel Cilento. Ecco le zone più colpite.` };
+  else if(vento.raffica >= 55) n = { tipo:"vento", var:"vento", titolo:`VENTO FORTE ${giorno} NEL CILENTO: RAFFICHE FINO A ${Math.round(vento.raffica)} KM/H`, gancio:`💨 ${gm.charAt(0).toUpperCase() + gm.slice(1)} vento forte sul Cilento, attenzione in mare e in montagna.` };
+  else if(caldo.max >= 32) n = { tipo:"caldo", var:"max", titolo:`CALDO ${giorno} NEL CILENTO: FINO A ${Math.round(caldo.max)}° A ${caldo.nome.toUpperCase()}`, gancio:`🔥 ${gm.charAt(0).toUpperCase() + gm.slice(1)} picco di caldo nel Cilento. Ecco dove farà più caldo.` };
+  else if(freddo.min <= 1) n = { tipo:"freddo", var:"min", titolo:`FREDDO ${giorno} NEL CILENTO: MINIME FINO A ${Math.round(freddo.min)}° A ${freddo.nome.toUpperCase()}`, gancio:`🥶 ${gm.charAt(0).toUpperCase() + gm.slice(1)} mattina gelida nel Cilento. Ecco dove farà più freddo.` };
+  else if(piove.pioggia >= 2) n = { tipo:"pioggia", var:"pioggia", titolo:`PIOGGIA ${giorno} NEL CILENTO: ECCO DOVE E QUANTO`, gancio:`🌦️ ${gm.charAt(0).toUpperCase() + gm.slice(1)} torna la pioggia nel Cilento. Ecco le zone interessate.` };
+  else n = { tipo:"sole", var:"max", titolo:`SOLE ${giorno} SU TUTTO IL CILENTO: MASSIME FINO A ${Math.round(caldo.max)}°`, gancio:`☀️ ${gm.charAt(0).toUpperCase() + gm.slice(1)} bel tempo su tutto il Cilento. Ecco le temperature paese per paese.` };
+  // Importanza: serve a decidere se pubblicare anche fuori dai giorni fissi
+  n.importante = ["neve", "temporali", "vento", "caldo", "freddo"].includes(n.tipo) || (n.tipo === "pioggia" && piove.pioggia >= 15);
+  n.giorno = giorno; n.indice = g;
+  // Riassunto per zone, per la didascalia
+  const righe = Object.entries(ZONE_NOTIZIA).map(([zona, nomi]) => {
+    const q = P.filter(p => nomi.includes(p.nome));
+    const mx = Math.round(Math.max(...q.map(p => p.max))), mn = Math.round(Math.min(...q.map(p => p.min)));
+    const mm = Math.max(...q.map(p => p.pioggia));
+    const em = mm >= 10 ? "🌧️" : mm >= 1 ? "🌦️" : q.some(p => p.codice >= 3) ? "⛅" : "☀️";
+    return `${em} ${zona}: ${mn}°/${mx}°${mm >= 1 ? ` · ${Math.round(mm)} mm` : ""}`;
+  });
+  n.didascalia = `${n.gancio}\n\n${righe.join("\n")}\n\n👉 Le previsioni ora per ora del tuo paese su cilentometeo.it (link in bio)\n💾 Salva il post e condividilo con chi deve venire nel Cilento\n\n#cilento #meteocilento #meteo #cilentonotizie #cilentolovers #cilentocoast #salerno #campania #previsionimeteo`;
+  return n;
+}
+const comeGiorno = s => new Date(s + "T12:00:00").toLocaleDateString("it-IT", { weekday:"long", day:"numeric" });
+
 // Dove piove adesso? (precipitazione degli ultimi 15 minuti, Open-Meteo)
 async function pioggiaAdesso(){
   try{
@@ -142,6 +208,21 @@ async function decidi(){
   if(forza.includes("reel-guida") || (!stato["reel-guida"] && ora >= 9 && ora <= 21)) compiti.push("reel-guida");
   if(forza.includes("carosello") || (!stato.carosello && ora >= 9 && ora <= 21)) compiti.push("carosello");
 
+  // Post «notizia» con la mappa: lunedì e mercoledì tra le 13 e le 15,
+  // e ogni altro giorno se domani c'è qualcosa di importante (temporali, neve, vento, caldo, freddo)
+  let notizia = null;
+  if(forza.includes("notizia") || (ora >= 13 && ora <= 15 && stato.notizia !== data)){
+    try{
+      const m = await meteoGriglia();
+      const n = scegliNotizia(m, 1);
+      if(forza.includes("notizia") || giorno === "Mon" || giorno === "Wed" || n.importante){
+        compiti.push("notizia");
+        notizia = { meteo:m, scelta:n };
+        console.log("Notizia:", n.titolo);
+      }
+    }catch(e){ console.warn("Notizia saltata:", e.message); }
+  }
+
   // Reel del weekend: il venerdì tra le 12 e le 15
   if(forza.includes("reel-weekend") || (giorno === "Fri" && ora >= 12 && ora <= 15 && stato["reel-weekend"] !== data)) compiti.push("reel-weekend");
 
@@ -170,7 +251,7 @@ async function decidi(){
     rinnovo = false;
   }
 
-  scrivi(COMPITI, { data, compiti, allerta, rinnovo, reelPaese });
+  scrivi(COMPITI, { data, compiti, allerta, rinnovo, reelPaese, notizia });
   console.log(`Italia: ${data} ore ${ora} (${giorno}). Da pubblicare: ${compiti.join(", ") || "niente"}. Rinnovo token: ${rinnovo ? "sì" : "no"}`);
   if(process.env.GITHUB_OUTPUT){
     fs.appendFileSync(process.env.GITHUB_OUTPUT, `compiti=${compiti.join(",")}\nrinnovo=${rinnovo ? "1" : ""}\n`);
@@ -245,6 +326,13 @@ async function genera(){
       esito.testi["reel-weekend"] = `☀️ Che tempo farà nel weekend nel Cilento?\n\nDal mare alla montagna: previsioni ora per ora per tutti i 118 paesi, mare, radar e allerte.\n\n📲 Gratis su 👉 cilentometeo.it (link in bio)\n\n#cilento #meteocilento #weekend #cilentocoast #cilentomeraviglie #cilentolovers #cilentogram #palinuro #agropoli #sapri`;
       console.log("Creato", nome);
     }
+    if(compiti.includes("notizia")){
+      const nome = `${data}-notizia.jpg`;
+      fs.writeFileSync(path.join(IMMAGINI, nome), await creaNotizia(browser, cc.notizia));
+      file.notizia = nome;
+      esito.testi.notizia = cc.notizia.scelta.didascalia;
+      console.log("Creata", nome);
+    }
     if(compiti.includes("reel-guida")){
       const nome = `${data}-reel-guida.mp4`;
       await creaReelGuida(browser, s.address().port, path.join(IMMAGINI, nome));
@@ -268,7 +356,7 @@ async function genera(){
       console.log("Creato il carosello:", nomi.length, "immagini");
     }
     for(const tipo of compiti){
-      if(tipo === "promo" || tipo === "carosello" || tipo.startsWith("reel-")) continue;
+      if(tipo === "promo" || tipo === "carosello" || tipo === "notizia" || tipo.startsWith("reel-")) continue;
       if(!esito[tipo]) throw new Error(`Immagine ${tipo} non disponibile`);
       const nome = `${data}-${tipo}.jpg`;
       fs.writeFileSync(path.join(IMMAGINI, nome), Buffer.from(esito[tipo], "base64"));
@@ -461,6 +549,185 @@ async function creaReelRadar(browser, porta, paese, uscita){
   await finale(pagina, ft);
   await ctx.close();
   ft.video(uscita);
+}
+
+async function creaNotizia(browser, { meteo, scelta }){
+  const M = JSON.parse(fs.readFileSync(path.join(CARTELLA, "mappa.json"), "utf8"));
+  const b64 = f => fs.readFileSync(path.join(f.startsWith("icone") ? RADICE : CARTELLA, f)).toString("base64");
+  const base = b64("mappa-base.png"), terra = b64("mappa-terra.png"), logo = b64("icone/icona-192.png");
+  const codiceIcone = fs.readFileSync(path.join(CARTELLA, "icone-meteo.js"), "utf8");
+  const g = scelta.indice;
+  const valori = meteo.griglia.map(d => scelta.var === "pioggia" ? d.precipitation_sum[g] : scelta.var === "neve" ? d.snowfall_sum[g]
+    : scelta.var === "vento" ? d.wind_gusts_10m_max[g] : scelta.var === "min" ? d.temperature_2m_min[g] : d.temperature_2m_max[g]);
+  const paesi = meteo.paesi.map(p => ({ nome:p.nome, lat:p.lat, lon:p.lon, lato:p.lato, codice:p.d.weather_code[g],
+    t:Math.round(scelta.var === "min" ? p.d.temperature_2m_min[g] : p.d.temperature_2m_max[g]) }));
+  const etichetta = { pioggia:"Pioggia prevista (mm)", neve:"Neve prevista (cm)", vento:"Raffiche di vento (km/h)", min:"Temperatura minima (°C)", max:"Temperatura massima (°C)" }[scelta.var];
+  const allarme = ["temporali", "neve", "vento", "pioggia"].includes(scelta.tipo) && scelta.importante;
+  const coloreTag = allarme ? "#ff3b3b" : scelta.tipo === "caldo" ? "#ff7a1a" : scelta.tipo === "freddo" ? "#3d8bff" : "#ffd400";
+  const testoTag = allarme ? "#fff" : scelta.tipo === "freddo" ? "#fff" : "#111";
+  const dataLunga = new Date(meteo.paesi[0].d.time[g] + "T12:00:00").toLocaleDateString("it-IT", { weekday:"long", day:"numeric", month:"long" });
+  const dati = JSON.stringify({ M, G:meteo.G, valori, var:scelta.var, paesi });
+  const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;" }[c]));
+  const html = `<!doctype html><html><head><meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@600;700;800;900&family=Space+Grotesk:wght@700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0}
+body{width:1080px;height:1350px;overflow:hidden;background:#030712;font-family:Inter,Arial,sans-serif;color:#fff;position:relative}
+canvas{position:absolute;left:0;top:0}
+.marchio{position:absolute;top:30px;left:30px;display:flex;align-items:center;gap:14px;padding:10px 22px 10px 10px;border-radius:22px;
+background:rgba(3,10,28,.72);backdrop-filter:blur(10px);border:2px solid rgba(255,255,255,.22);box-shadow:0 10px 30px rgba(0,0,0,.35);font:700 25px "Space Grotesk",Inter,sans-serif;letter-spacing:5px}
+.marchio img{width:54px;height:54px;border-radius:14px}
+.legenda{position:absolute;top:30px;right:30px;padding:14px 18px 12px;border-radius:20px;background:rgba(3,10,28,.72);border:2px solid rgba(255,255,255,.22);box-shadow:0 10px 30px rgba(0,0,0,.35);font-weight:800;font-size:18px;text-align:left;min-width:330px}
+.legenda .barra{height:16px;border-radius:8px;margin:10px 0 6px;box-shadow:inset 0 0 0 1px rgba(255,255,255,.25)}
+.legenda .num{display:flex;justify-content:space-between;font-size:17px;font-weight:700;color:#dbe9ff}
+.fondo{display:none}
+.testo{position:absolute;left:46px;right:46px;bottom:100px;display:flex;flex-direction:column;align-items:flex-start;gap:14px}
+.riga{display:flex;align-items:center;gap:18px}
+.data{font-weight:800;font-size:28px;color:#cfe0ff;letter-spacing:.5px}
+.tag{display:flex;align-items:center;gap:10px;padding:8px 18px 4px;border-radius:6px;background:${coloreTag};color:${testoTag};font:400 44px Anton,Impact,sans-serif;letter-spacing:1.5px;box-shadow:0 8px 30px ${coloreTag}66}
+h1{font:400 84px/1.02 Anton,Impact,sans-serif;text-transform:uppercase;letter-spacing:.5px;text-shadow:0 6px 24px rgba(0,0,0,.55)}
+.sito{position:absolute;left:46px;right:46px;bottom:34px;display:flex;justify-content:space-between;align-items:center}
+.sito b{font-weight:900;font-size:30px;color:#8cc4ff}
+.sito small{font-size:14px;color:rgba(220,230,255,.45);font-weight:600;text-align:right;line-height:1.3}
+</style></head><body>
+<canvas id="c" width="1080" height="1350"></canvas>
+<div class="marchio"><img src="data:image/png;base64,${logo}">CILENTO METEO</div>
+<div class="legenda">${esc(etichetta)}<div class="barra" id="barra"></div><div class="num" id="num"></div></div>
+<div class="fondo"></div>
+<div class="testo">
+  <div class="riga"><div class="tag">${allarme ? "⚠️ " : ""}PREVISIONI ${esc(scelta.giorno)}</div><div class="data">${esc(dataLunga.charAt(0).toUpperCase() + dataLunga.slice(1))}</div></div>
+  <h1 id="titolo">${esc(scelta.titolo)}</h1>
+</div>
+<div class="sito"><b>Il meteo del tuo paese su cilentometeo.it</b><small>Dati: Open-Meteo<br>Rilievo: Mapzen / AWS Terrain Tiles</small></div>
+<img id="base" src="data:image/png;base64,${base}" hidden>
+<img id="terra" src="data:image/png;base64,${terra}" hidden>
+<script>${codiceIcone}</script>
+<script>
+const D = ${dati}, M = D.M;
+const c = document.getElementById("c"), x = c.getContext("2d");
+const W = M.larghezza, H = M.altezza, SU = 100;     // la mappa sale di 100 px: la costa sud resta sopra il titolo
+const aPx = (lat, lon) => [(lon - M.ovest) / (M.est - M.ovest) * W, (lat - M.nord) / (M.sud - M.nord) * H - SU];
+const carica = id => new Promise(ok => { const i = document.getElementById(id); i.complete ? ok(i) : i.onload = () => ok(i); });
+
+const SCALE = {
+  pioggia:{ min:0, max:40, alfa:.82, stop:[[0,"#00000000"],[.04,"#2f8cff00"],[.1,"#2f8cff"],[.25,"#14d1ff"],[.38,"#1fe07a"],[.52,"#f4ee2a"],[.68,"#ff9a1a"],[.84,"#ff2b3a"],[1,"#d23cff"]] },
+  neve:{ min:0, max:30, alfa:.85, stop:[[0,"#00000000"],[.05,"#bfe3ff00"],[.12,"#bfe3ff"],[.45,"#b49bff"],[1,"#ffffff"]] },
+  vento:{ min:20, max:90, alfa:.7, stop:[[0,"#00000000"],[.12,"#2f8cff00"],[.25,"#2f8cff"],[.45,"#14d1c8"],[.65,"#f4ee2a"],[.82,"#ff9a1a"],[1,"#ff2b3a"]] },
+  max:{ min:0, max:38, alfa:.62, stop:[[0,"#5b3cff"],[.2,"#2f6bff"],[.36,"#14c2ff"],[.5,"#1fe07a"],[.62,"#d7f52a"],[.72,"#ffd21a"],[.84,"#ff8a1a"],[1,"#ff2b3a"]] },
+  min:{ min:-6, max:20, alfa:.62, stop:[[0,"#d9b8ff"],[.15,"#8a5cff"],[.32,"#2f6bff"],[.5,"#14c2ff"],[.68,"#1fe07a"],[.84,"#ffd21a"],[1,"#ff8a1a"]] }
+}[D.var];
+const tav = document.createElement("canvas"); tav.width = 256; tav.height = 1;
+const tc = tav.getContext("2d"), gr = tc.createLinearGradient(0, 0, 256, 0);
+SCALE.stop.forEach(([p, col]) => gr.addColorStop(p, col)); tc.fillStyle = gr; tc.fillRect(0, 0, 256, 1);
+const PAL = tc.getImageData(0, 0, 256, 1).data;
+document.getElementById("barra").style.background = "linear-gradient(90deg," + SCALE.stop.filter(s => !s[1].endsWith("00") || s[0] === 0 && !["pioggia","neve","vento"].includes(D.var)).map(s => s[1] + " " + Math.round(s[0] * 100) + "%").join(",") + ")";
+document.getElementById("num").innerHTML = "<span>" + SCALE.min + "</span><span>" + Math.round((SCALE.min + SCALE.max) / 2) + "</span><span>" + SCALE.max + "+</span>";
+
+// Campo del meteo: interpolazione morbida (bicubica) della griglia
+function cub(p0, p1, p2, p3, t){ return p1 + .5 * t * (p2 - p0 + t * (2 * p0 - 5 * p1 + 4 * p2 - p3 + t * (3 * (p1 - p2) + p3 - p0))); }
+function campo(u, v){
+  const G = D.G, fx = u * (G - 1), fy = v * (G - 1), ix = Math.floor(fx), iy = Math.floor(fy), tx = fx - ix, ty = fy - iy;
+  const V = (i, j) => D.valori[Math.min(G - 1, Math.max(0, j)) * G + Math.min(G - 1, Math.max(0, i))];
+  const r = [-1, 0, 1, 2].map(d => cub(V(ix - 1, iy + d), V(ix, iy + d), V(ix + 1, iy + d), V(ix + 2, iy + d), tx));
+  return cub(r[0], r[1], r[2], r[3], ty);
+}
+
+(async () => {
+  await document.fonts.ready;
+  // il titolo resta su due righe al massimo
+  const h1 = document.getElementById("titolo");
+  // due righe se possibile, altrimenti tre, senza scendere sotto i 64 px
+  for(let s = 86; s >= 72 && h1.getBoundingClientRect().height > (s + 2) * 1.02 * 2 + 4; s -= 2) h1.style.fontSize = s + "px";
+  for(let s = 72; s > 64 && h1.getBoundingClientRect().height > (s + 2) * 1.02 * 3 + 4; s -= 2) h1.style.fontSize = s + "px";
+  const base = await carica("base"), terraImg = await carica("terra");
+  const ICONE = await caricaIcone();
+  const radar = ["pioggia", "neve", "vento"].includes(D.var);
+
+  // 1. Mappa di base (un po' più scura quando c'è il radar, così i colori risaltano)
+  x.filter = radar ? "brightness(.78) saturate(.85)" : "brightness(.92)";
+  x.drawImage(base, 0, -SU, W, H);
+  x.filter = "none";
+
+  // 2. Strato del meteo, calcolato a bassa risoluzione e ingrandito morbido
+  const lw = 270, lh = Math.round(270 * H / W);
+  const strato = document.createElement("canvas"); strato.width = lw; strato.height = lh;
+  const sx = strato.getContext("2d"), im = sx.createImageData(lw, lh);
+  for(let j = 0; j < lh; j++) for(let i = 0; i < lw; i++){
+    const val = campo(i / (lw - 1), j / (lh - 1));
+    const t = Math.max(0, Math.min(1, (val - SCALE.min) / (SCALE.max - SCALE.min)));
+    const p = Math.round(t * 255) * 4, k = (j * lw + i) * 4;
+    im.data[k] = PAL[p]; im.data[k + 1] = PAL[p + 1]; im.data[k + 2] = PAL[p + 2]; im.data[k + 3] = PAL[p + 3] * SCALE.alfa;
+  }
+  sx.putImageData(im, 0, 0);
+  const grande = document.createElement("canvas"); grande.width = W; grande.height = H;
+  const gx = grande.getContext("2d");
+  gx.imageSmoothingQuality = "high"; gx.filter = "blur(6px)";
+  gx.drawImage(strato, 0, 0, W, H);
+  gx.filter = "none";
+  if(!radar){
+    // le temperature solo sulla terraferma
+    gx.globalCompositeOperation = "destination-in";
+    gx.drawImage(terraImg, 0, 0, W, H);
+    gx.globalCompositeOperation = "source-over";
+    x.globalCompositeOperation = "color"; x.globalAlpha = .9; x.drawImage(grande, 0, -SU);
+    x.globalCompositeOperation = "soft-light"; x.globalAlpha = .55; x.drawImage(grande, 0, -SU);
+    x.globalCompositeOperation = "source-over"; x.globalAlpha = 1;
+  }else{
+    x.save(); x.filter = "blur(14px)"; x.globalAlpha = .55; x.drawImage(grande, 0, -SU); x.restore();   // alone
+    x.drawImage(grande, 0, -SU);
+  }
+
+  // 3. La mappa sfuma nel fondo scuro sotto
+  const altoTesto = document.querySelector(".testo").getBoundingClientRect().top;
+  const fineMappa = Math.min(H - SU, altoTesto + 20);
+  const sf = x.createLinearGradient(0, fineMappa - 210, 0, fineMappa);
+  sf.addColorStop(0, "rgba(3,7,18,0)"); sf.addColorStop(.6, "rgba(3,7,18,.75)"); sf.addColorStop(1, "rgba(3,7,18,1)");
+  x.fillStyle = sf; x.fillRect(0, fineMappa - 210, W, 210);
+  x.fillStyle = "#030712"; x.fillRect(0, fineMappa, W, 1350);
+  // Vignetta leggera
+  const vg = x.createRadialGradient(W / 2, H * .45, H * .35, W / 2, H * .45, H * .85);
+  vg.addColorStop(0, "rgba(0,0,0,0)"); vg.addColorStop(1, "rgba(0,0,0,.35)");
+  x.fillStyle = vg; x.fillRect(0, 0, W, H);
+
+  // 4. Paesi: icona grande con ombra, etichetta in vetro con la temperatura colorata
+  const ICONA = c => c === 0 ? "☀️" : c <= 2 ? "🌤️" : c === 3 ? "☁️" : c <= 48 ? "🌫️" : c <= 67 ? "🌧️" : c <= 77 ? "❄️" : c <= 82 ? "🌦️" : c <= 86 ? "🌨️" : "⛈️";
+  const coloreT = t => t >= 32 ? "#ff3b3b" : t >= 26 ? "#ff8a1a" : t >= 20 ? "#ffc61a" : t >= 14 ? "#3fe08a" : t >= 8 ? "#2fb8ff" : t >= 2 ? "#5a8cff" : "#b89bff";
+  const pos = D.paesi.map(p => { const [X, Y] = aPx(p.lat, p.lon); return { p, X, Y }; }).filter(o => o.Y > 120 && o.Y < document.querySelector(".testo").getBoundingClientRect().top - 40);
+  x.textBaseline = "middle";
+  pos.forEach(o => {
+    x.font = '800 26px Inter, Arial, sans-serif';
+    o.wn = x.measureText(o.p.nome).width; o.w = o.wn + 30 + 74;
+  });
+  pos.forEach(o => {
+    // puntino del paese
+    x.beginPath(); x.arc(o.X, o.Y, 7, 0, Math.PI * 2); x.fillStyle = "#fff"; x.fill();
+    x.lineWidth = 3; x.strokeStyle = "rgba(0,0,0,.45)"; x.stroke();
+    const ix = o.p.lato === "sx" ? o.X - o.w / 2 - 40 : o.p.lato === "dx" ? o.X + o.w / 2 + 40 : o.X;
+    const iy = o.p.lato ? o.Y + 30 : o.Y - 40;
+    const img = ICONE[tipoIcona(o.p.codice)], dim = 104;
+    if(img) x.drawImage(img, ix - dim / 2, iy - dim / 2 - 4, dim, dim);
+  });
+  pos.forEach(o => {
+    const y = o.Y + 12, h = 42, l = o.X - o.w / 2;
+    x.save(); x.shadowColor = "rgba(0,0,0,.45)"; x.shadowBlur = 16; x.shadowOffsetY = 6;
+    x.fillStyle = "rgba(6,14,34,.86)"; x.beginPath(); x.roundRect(l, y, o.w, h, 21); x.fill(); x.restore();
+    x.strokeStyle = "rgba(255,255,255,.28)"; x.lineWidth = 1.5; x.beginPath(); x.roundRect(l, y, o.w, h, 21); x.stroke();
+    x.font = '800 26px Inter, Arial, sans-serif'; x.textAlign = "left"; x.fillStyle = "#fff";
+    x.fillText(o.p.nome, l + 16, y + h / 2 + 1);
+    const bx = l + o.w - 70, bw = 64;
+    x.fillStyle = coloreT(o.p.t); x.beginPath(); x.roundRect(bx, y + 4, bw, h - 8, 17); x.fill();
+    x.font = '900 24px Inter, Arial, sans-serif'; x.textAlign = "center"; x.fillStyle = o.p.t >= 14 && o.p.t < 26 ? "#08210f" : "#fff";
+    x.fillText(o.p.t + "°", bx + bw / 2, y + h / 2 + 1);
+  });
+  window.pronto = true;
+})();
+</script></body></html>`;
+  const pagina = await browser.newPage({ viewport:{ width:1080, height:1350 } });
+  await pagina.setContent(html, { waitUntil:"networkidle" });
+  await pagina.waitForFunction(() => window.pronto === true, null, { timeout:60000 });
+  const jpg = await pagina.screenshot({ type:"jpeg", quality:93 });
+  await pagina.close();
+  return jpg;
 }
 
 async function creaCopertina(browser){

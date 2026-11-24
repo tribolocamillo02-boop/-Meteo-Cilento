@@ -1,0 +1,9 @@
+{
+ "nord": 40.72,
+ "sud": 39.93,
+ "ovest": 14.82,
+ "est": 15.88,
+ "larghezza": 1080,
+ "altezza": 1050,
+ "fonte": "Rilievo: Mapzen / AWS Terrain Tiles (SRTM e altri)"
+}

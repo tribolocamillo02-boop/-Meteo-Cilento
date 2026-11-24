@@ -93,7 +93,15 @@ ol{padding-left:20px;color:var(--testo-2);font-size:14px;margin:0;}
     </ol>
   </section>
 </main>
+<script src="social/icone-meteo.js"></script>
 <script>
+let ICONE = {};
+// Icona meteo 3D (se non è caricata, ripiega sull'emoji)
+function icona(x, codice, cx, cy, dim){
+  const img = ICONE[tipoIcona(codice)];
+  if(img) x.drawImage(img, cx - dim / 2, cy - dim / 2, dim, dim);
+  else scrivi(x, infoMeteo(codice).e, cx, cy, { size:dim * .62, peso:400, allinea:"center", font:EMOJI });
+}
 const PAESI = [
   ["Agropoli", 40.3492, 14.9907, true],
   ["Castellabate", 40.2821, 14.9574, true],
@@ -210,7 +218,7 @@ function disegnaStoria(){
     const d = dati[k].daily, y = y0 + k * (alt + 10);
     const info = infoMeteo(d.weather_code[i]);
     riquadro(x, 60, y, 960, alt, 30, "rgba(255,255,255,.06)", "rgba(255,255,255,.1)");
-    scrivi(x, info.e, 125, y + alt / 2 + 3, { size:64, peso:400, allinea:"center", font:EMOJI });
+    icona(x, d.weather_code[i], 125, y + alt / 2 - 2, 104);
     const s = adatta(x, nome, 470, 44);
     scrivi(x, nome, 190, y + 42, { size:s, peso:700 });
     const pioggia = d.precipitation_probability_max[i];
@@ -270,7 +278,7 @@ function disegnaWeekend(){
     const s = adatta(x, nome, 500, 38);
     scrivi(x, nome, 85, y + alt / 2 + 2, { size:s, peso:700 });
     [[a, 700], [b, 905]].forEach(([g, cx]) => {
-      scrivi(x, infoMeteo(d.weather_code[g]).e, cx - 58, y + alt / 2 + 3, { size:46, peso:400, allinea:"center", font:EMOJI });
+      icona(x, d.weather_code[g], cx - 58, y + alt / 2 - 1, 80);
       scrivi(x, Math.round(d.temperature_2m_max[g]) + "°", cx + 10, y + alt / 2 + 2, { size:44, peso:800 });
       scrivi(x, Math.round(d.temperature_2m_min[g]) + "°", cx + 80, y + alt / 2 + 6, { size:28, peso:600, colore:"rgba(228,238,255,.5)" });
     });
@@ -437,6 +445,7 @@ document.addEventListener("click", e => {
 });
 
 (async () => {
+  try{ ICONE = await caricaIcone(); }catch(e){}
   logo = await new Promise(ok => { const i = new Image(); i.onload = () => ok(i); i.onerror = () => ok(null); i.src = "icone/icona-192.png"; });
   try{
     await carica();
