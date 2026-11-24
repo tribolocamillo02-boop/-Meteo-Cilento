@@ -64,7 +64,21 @@ const PROMO = [
     sotto:"Per il mare, una passeggiata o un giro in bici",
     testo:"🕐 Quando conviene uscire oggi? Cilento Meteo ti indica le ore migliori della giornata per il mare, una passeggiata o un giro in bici." }
 ];
-const HASHTAG_PROMO = "#cilento #meteocilento #cilentocoast #salerno #campania #parconazionaledelcilento #meteo #app";
+// Paesi per i Reel (slug come nei link dell'app)
+const PAESI_REEL = [
+  ["Agropoli", "agropoli", 40.3492, 14.9907],
+  ["Castellabate", "castellabate", 40.2821, 14.9574],
+  ["Acciaroli", "acciaroli", 40.181, 15.0272],
+  ["Palinuro", "palinuro", 40.0368, 15.2881],
+  ["Marina di Camerota", "marina-di-camerota", 40.0036, 15.3672],
+  ["Sapri", "sapri", 40.0746, 15.6321],
+  ["Vallo della Lucania", "vallo-della-lucania", 40.2279, 15.2663],
+  ["Sala Consilina", "sala-consilina", 40.4013, 15.5914]
+];
+// I video li scarica Instagram dal sito (GitHub Pages li serve come video/mp4)
+const SITO = process.env.SITO || "https://cilentometeo.it";
+
+const HASHTAG_PROMO = "#cilento #meteocilento #cilentocoast #cilentomeraviglie #cilentolandia #cilentolovers #cilentogram #cilentoemenevanto #salerno";
 
 const leggi = (f, base) => { try{ return JSON.parse(fs.readFileSync(f, "utf8")); }catch(e){ return base; } };
 const scrivi = (f, v) => { fs.mkdirSync(path.dirname(f), { recursive:true }); fs.writeFileSync(f, JSON.stringify(v, null, 2) + "\n"); };
@@ -93,7 +107,20 @@ function allertaAttuale(oggi){
 
 /* ---------------- decidi ---------------- */
 
-function decidi(){
+// Dove piove adesso? (precipitazione degli ultimi 15 minuti, Open-Meteo)
+async function pioggiaAdesso(){
+  try{
+    const lat = PAESI_REEL.map(p => p[2]).join(","), lon = PAESI_REEL.map(p => p[3]).join(",");
+    const r = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=precipitation,rain,showers&timezone=Europe%2FRome`);
+    if(!r.ok) return null;
+    const j = await r.json();
+    const lista = (Array.isArray(j) ? j : [j]).map((x, k) => ({ paese:PAESI_REEL[k], mm:(x.current && x.current.precipitation) || 0 }));
+    lista.sort((a, b) => b.mm - a.mm);
+    return lista[0];
+  }catch(e){ return null; }
+}
+
+async function decidi(){
   const stato = leggi(STATO, {});
   const { data, ora, giorno } = adessoRoma();
   const forza = (process.env.FORZA || "").split(",").map(s => s.trim()).filter(Boolean);
@@ -107,6 +134,20 @@ function decidi(){
 
   // Martedì e sabato tra le 12 e le 15: un post che mostra l'app
   if(forza.includes("promo") || ((giorno === "Tue" || giorno === "Sat") && ora >= 12 && ora <= 15 && stato.promo !== data)) compiti.push("promo");
+
+  // Reel del weekend: il venerdì tra le 12 e le 15
+  if(forza.includes("reel-weekend") || (giorno === "Fri" && ora >= 12 && ora <= 15 && stato["reel-weekend"] !== data)) compiti.push("reel-weekend");
+
+  // Reel del radar: quando piove nel Cilento, al massimo uno al giorno, tra le 8 e le 20
+  let reelPaese = null;
+  if(forza.includes("reel-radar") || (ora >= 8 && ora <= 20 && stato["reel-radar"] !== data)){
+    const p = await pioggiaAdesso();
+    if(p && (p.mm >= 0.3 || forza.includes("reel-radar"))){
+      compiti.push("reel-radar");
+      reelPaese = p.paese[1];
+      console.log(`Pioggia adesso: ${p.paese[0]} ${p.mm} mm`);
+    }
+  }
 
   // Allerta gialla, arancione o rossa: una volta per bollettino, tra le 7 e le 23
   const allerta = allertaAttuale(data);
@@ -122,7 +163,7 @@ function decidi(){
     rinnovo = false;
   }
 
-  scrivi(COMPITI, { data, compiti, allerta, rinnovo });
+  scrivi(COMPITI, { data, compiti, allerta, rinnovo, reelPaese });
   console.log(`Italia: ${data} ore ${ora} (${giorno}). Da pubblicare: ${compiti.join(", ") || "niente"}. Rinnovo token: ${rinnovo ? "sì" : "no"}`);
   if(process.env.GITHUB_OUTPUT){
     fs.appendFileSync(process.env.GITHUB_OUTPUT, `compiti=${compiti.join(",")}\nrinnovo=${rinnovo ? "1" : ""}\n`);
@@ -182,8 +223,23 @@ async function genera(){
       esito.testi.promo = `${p.titolo} ✨\n\n${p.testo}\n\n📲 Gratis su 👉 cilentometeo.it (link in bio)\n\n${HASHTAG_PROMO}`;
       console.log("Creata", nome);
     }
+    const cc = leggi(COMPITI, {});
+    if(compiti.includes("reel-radar")){
+      const nome = `${data}-reel-radar.mp4`;
+      await creaReelRadar(browser, s.address().port, cc.reelPaese || "agropoli", path.join(IMMAGINI, nome));
+      file["reel-radar"] = nome;
+      esito.testi["reel-radar"] = `🌧️ Piove nel Cilento: ecco il radar della Protezione Civile in diretta.\n\nGuarda dove piove adesso e dove sta andando la pioggia, paese per paese, aggiornato ogni 5 minuti.\n\n📲 Gratis su 👉 cilentometeo.it (link in bio)\n\n#cilento #meteocilento #cilentonotizie #pioggia #radarmeteo #maltempo #cilentolovers #salerno #protezionecivile`;
+      console.log("Creato", nome);
+    }
+    if(compiti.includes("reel-weekend")){
+      const nome = `${data}-reel-weekend.mp4`;
+      await creaReelWeekend(browser, s.address().port, path.join(IMMAGINI, nome));
+      file["reel-weekend"] = nome;
+      esito.testi["reel-weekend"] = `☀️ Che tempo farà nel weekend nel Cilento?\n\nDal mare alla montagna: previsioni ora per ora per tutti i 118 paesi, mare, radar e allerte.\n\n📲 Gratis su 👉 cilentometeo.it (link in bio)\n\n#cilento #meteocilento #weekend #cilentocoast #cilentomeraviglie #cilentolovers #cilentogram #palinuro #agropoli #sapri`;
+      console.log("Creato", nome);
+    }
     for(const tipo of compiti){
-      if(tipo === "promo") continue;
+      if(tipo === "promo" || tipo.startsWith("reel-")) continue;
       if(!esito[tipo]) throw new Error(`Immagine ${tipo} non disponibile`);
       const nome = `${data}-${tipo}.jpg`;
       fs.writeFileSync(path.join(IMMAGINI, nome), Buffer.from(esito[tipo], "base64"));
@@ -261,6 +317,151 @@ background:rgba(5,14,36,.78);border:2px solid rgba(140,196,255,.5);backdrop-filt
   return jpg;
 }
 
+/* ---------------- Reel (video 1080×1920) ---------------- */
+
+import { execFileSync } from "node:child_process";
+
+async function telefonoReel(browser){
+  const ctx = await browser.newContext({
+    viewport:{ width:360, height:640 }, deviceScaleFactor:3, isMobile:true, hasTouch:true,
+    locale:"it-IT", timezoneId:"Europe/Rome", serviceWorkers:"block"
+  });
+  await ctx.addInitScript(() => {
+    try{
+      localStorage.setItem("meteoCilento.leggera", "no");
+      localStorage.setItem("meteoCilento.installaNo", String(Date.now()));
+      localStorage.setItem("meteoCilento.lingua", "it");
+    }catch(e){}
+  });
+  return ctx;
+}
+
+// Titolo in alto, indirizzo in basso e cartello finale, sopra l'app
+async function sovrapponi(pagina, titolo, sotto){
+  await pagina.evaluate(([titolo, sotto]) => {
+    const st = document.createElement("style");
+    st.textContent = `
+.topbar{visibility:hidden}
+#reelTesta{position:fixed;z-index:99999;top:0;left:0;right:0;padding:26px 18px 34px;text-align:center;pointer-events:none;
+background:linear-gradient(rgba(2,4,10,.92) 0%,rgba(2,4,10,.75) 60%,rgba(2,4,10,0));font-family:Inter,system-ui,sans-serif;color:#f4f8ff}
+#reelTesta .m{font:700 10px/1 "Space Grotesk",Inter,sans-serif;letter-spacing:.32em;color:#8cc4ff;margin-bottom:8px}
+#reelTesta .t{font-weight:800;font-size:25px;line-height:1.1;letter-spacing:-.3px}
+#reelTesta .s{margin-top:6px;font-weight:600;font-size:13px;color:#cfe3ff}
+#reelSito{position:fixed;z-index:99999;left:50%;bottom:92px;transform:translateX(-50%);padding:9px 20px;border-radius:999px;font:800 15px Inter,system-ui,sans-serif;color:#fff;
+background:rgba(5,14,36,.8);border:1px solid rgba(140,196,255,.55);box-shadow:0 6px 24px rgba(0,0,0,.5);pointer-events:none}
+#reelFine{position:fixed;z-index:100000;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;gap:14px;text-align:center;padding:30px;
+background:radial-gradient(ellipse 90% 50% at 50% 30%,rgba(47,125,255,.55),transparent 70%),linear-gradient(#061433,#02040a);font-family:Inter,system-ui,sans-serif;color:#f4f8ff}
+#reelFine img{width:84px;height:84px;border-radius:22px;box-shadow:0 10px 40px rgba(47,125,255,.5)}
+#reelFine .t{font-weight:800;font-size:30px;line-height:1.1}
+#reelFine .s{font-size:16px;color:#8cc4ff;font-weight:600}
+#reelFine .u{margin-top:8px;padding:12px 26px;border-radius:999px;font-weight:800;font-size:22px;background:linear-gradient(135deg,#2f7dff,#5aa2ff);box-shadow:0 10px 30px rgba(47,125,255,.45)}`;
+    document.head.appendChild(st);
+    const testa = document.createElement("div");
+    testa.id = "reelTesta";
+    testa.innerHTML = `<div class="m">CILENTO METEO</div><div class="t"></div><div class="s"></div>`;
+    testa.querySelector(".t").textContent = titolo;
+    testa.querySelector(".s").textContent = sotto || "";
+    document.body.appendChild(testa);
+    const sito = document.createElement("div");
+    sito.id = "reelSito"; sito.textContent = "cilentometeo.it";
+    document.body.appendChild(sito);
+    const fine = document.createElement("div");
+    fine.id = "reelFine";
+    fine.innerHTML = `<img src="icone/icona-192.png" alt=""><div class="t">Il meteo di tutto il Cilento</div><div class="s">118 paesi · mare · radar · allerte</div><div class="u">cilentometeo.it</div><div class="s">Gratis, senza registrazione</div>`;
+    document.body.appendChild(fine);
+  }, [titolo, sotto]);
+}
+
+class Fotogrammi{
+  constructor(cartella){ this.cartella = cartella; this.n = 0; fs.rmSync(cartella, { recursive:true, force:true }); fs.mkdirSync(cartella, { recursive:true }); }
+  nome(k){ return path.join(this.cartella, `f${String(k).padStart(5, "0")}.jpg`); }
+  async scatta(pagina, ripeti = 1){
+    const f = this.nome(this.n++);
+    await pagina.screenshot({ path:f, type:"jpeg", quality:90 });
+    for(let k = 1; k < ripeti; k++) fs.copyFileSync(f, this.nome(this.n++));
+  }
+  video(uscita){
+    execFileSync("ffmpeg", ["-y", "-loglevel", "error", "-framerate", "30", "-i", path.join(this.cartella, "f%05d.jpg"),
+      "-f", "lavfi", "-i", "anullsrc=channel_layout=stereo:sample_rate=44100",
+      "-shortest", "-vf", "scale=1080:1920:flags=lanczos,format=yuv420p",
+      "-c:v", "libx264", "-profile:v", "high", "-preset", "medium", "-crf", "19", "-r", "30",
+      "-c:a", "aac", "-b:a", "128k", "-movflags", "+faststart", uscita]);
+    fs.rmSync(this.cartella, { recursive:true, force:true });
+  }
+}
+
+const morbido = x => x < .5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2;
+
+async function finale(pagina, ft){
+  await pagina.evaluate(() => { document.getElementById("reelFine").style.display = "flex"; });
+  await pagina.waitForTimeout(400);
+  await ft.scatta(pagina, 75);   // 2,5 secondi
+}
+
+async function creaReelRadar(browser, porta, paese, uscita){
+  const ctx = await telefonoReel(browser);
+  const pagina = await ctx.newPage();
+  await pagina.goto(`http://127.0.0.1:${porta}/index.html?paese=${paese}#radar`, { waitUntil:"load" });
+  await pagina.waitForTimeout(15000);
+  await sovrapponi(pagina, "Piove nel Cilento", "Il radar della Protezione Civile, in diretta");
+  // Mappa più grande e ferma: i fotogrammi li scorriamo noi
+  await pagina.evaluate(() => {
+    const st = document.createElement("style");
+    st.textContent = "#map{height:400px !important}";
+    document.head.appendChild(st);
+    window.dispatchEvent(new Event("resize"));
+    const play = document.getElementById("radarPlay");
+    if(play && play.getAttribute("aria-label") === "Pausa") play.click();
+    const carta = document.querySelector("#sezione-radar .card");
+    if(carta) window.scrollTo(0, carta.getBoundingClientRect().top + window.scrollY - 100);
+  });
+  await pagina.waitForTimeout(2500);
+  const ft = new Fotogrammi(uscita + ".fotogrammi");
+  const max = await pagina.evaluate(() => Number(document.getElementById("radarCursore").max) || 0);
+  const inizio = Math.max(0, max - 17);     // circa l'ultima ora e mezza
+  for(let giro = 0; giro < 2; giro++){
+    for(let i = inizio; i <= max; i++){
+      await pagina.evaluate(v => {
+        const c = document.getElementById("radarCursore");
+        c.value = v; c.dispatchEvent(new Event("input", { bubbles:true })); c.dispatchEvent(new Event("change", { bubbles:true }));
+      }, i);
+      await pagina.waitForTimeout(giro === 0 ? 900 : 250);
+      await ft.scatta(pagina, i === max ? 24 : 9);
+    }
+  }
+  await finale(pagina, ft);
+  await ctx.close();
+  ft.video(uscita);
+}
+
+async function creaReelWeekend(browser, porta, uscita){
+  const ctx = await telefonoReel(browser);
+  const ft = new Fotogrammi(uscita + ".fotogrammi");
+  for(const [nome, slug] of [["Palinuro", "palinuro"], ["Agropoli", "agropoli"], ["Sapri", "sapri"]]){
+    const pagina = await ctx.newPage();
+    await pagina.goto(`http://127.0.0.1:${porta}/index.html?paese=${slug}#meteo`, { waitUntil:"load" });
+    await pagina.waitForTimeout(10000);
+    await sovrapponi(pagina, "Il weekend nel Cilento", nome);
+    await pagina.evaluate(() => window.scrollTo(0, 0));
+    await pagina.waitForTimeout(800);
+    for(let k = 0; k < 36; k++) await ft.scatta(pagina);          // 1,2 s con la pioggia o il sole animati
+    const meta = await pagina.evaluate(() => {
+      const el = document.querySelector('[data-tendina="settimana"]');
+      return el ? el.getBoundingClientRect().top + window.scrollY - 80 : 600;
+    });
+    for(let k = 1; k <= 30; k++){                                   // 1 s di scorrimento morbido
+      await pagina.evaluate(y => window.scrollTo(0, y), Math.round(meta * morbido(k / 30)));
+      await ft.scatta(pagina);
+    }
+    await pagina.waitForTimeout(300);
+    await ft.scatta(pagina, 54);                                     // 1,8 s fermo sui 7 giorni
+    if(slug === "sapri") await finale(pagina, ft);
+    await pagina.close();
+  }
+  await ctx.close();
+  ft.video(uscita);
+}
+
 /* ---------------- Instagram ---------------- */
 
 async function chiamata(metodo, percorso, parametri = {}){
@@ -276,12 +477,12 @@ async function chiamata(metodo, percorso, parametri = {}){
   return j;
 }
 
-async function pubblicaUna(utente, url, { didascalia, storia }){
-  const param = { image_url:url };
+async function pubblicaUna(utente, url, { didascalia, storia, reel }){
+  const param = reel ? { media_type:"REELS", video_url:url, share_to_feed:"true" } : { image_url:url };
   if(storia) param.media_type = "STORIES";
-  else if(didascalia) param.caption = didascalia;
+  if(didascalia && !storia) param.caption = didascalia;
   const { id } = await chiamata("POST", `/${utente}/media`, param);
-  for(let k = 0; k < 30; k++){
+  for(let k = 0; k < (reel ? 120 : 30); k++){
     const { status_code } = await chiamata("GET", `/${id}`, { fields:"status_code" });
     if(status_code === "FINISHED") break;
     if(status_code === "ERROR" || status_code === "EXPIRED") throw new Error(`Contenitore ${id}: ${status_code}`);
@@ -292,7 +493,8 @@ async function pubblicaUna(utente, url, { didascalia, storia }){
 }
 
 async function urlRaggiungibile(url){
-  for(let k = 0; k < 30; k++){
+  // Per i video si aspetta che GitHub Pages pubblichi il file (1–3 minuti)
+  for(let k = 0; k < 48; k++){
     try{
       const r = await fetch(url, { method:"HEAD" });
       if(r.ok) return true;
@@ -325,13 +527,16 @@ async function pubblica(){
 
   const errori = [];
   for(const tipo of c.compiti){
-    const url = `${base.replace(/\/$/, "")}/social/immagini/${c.file[tipo]}`;
+    const reel = tipo.startsWith("reel-");
+    const url = `${(reel ? SITO : base).replace(/\/$/, "")}/social/immagini/${c.file[tipo]}`;
     try{
       if(prova){
         console.log(`[PROVA] ${tipo}: ${url}\n${c.testi[tipo] || ""}\n`);
       }else{
         if(!await urlRaggiungibile(url)) throw new Error("Immagine non raggiungibile: " + url);
-        if(tipo === "storia"){
+        if(reel){
+          console.log(`Reel ${tipo} pubblicato:`, await pubblicaUna(utente, url, { didascalia:c.testi[tipo], reel:true }));
+        }else if(tipo === "storia"){
           console.log("Storia pubblicata:", await pubblicaUna(utente, url, { storia:true }));
         }else{
           console.log(`Post ${tipo} pubblicato:`, await pubblicaUna(utente, url, { didascalia:c.testi[tipo] }));
