@@ -76,6 +76,13 @@ jobs:
         if: steps.d.outputs.compiti != ''
         run: node scripts/social.mjs pubblica
 
+      - name: Statistiche e pulizia
+        if: steps.d.outputs.statistiche == '1' && env.PROVA != '1'
+        continue-on-error: true
+        env:
+          AUTO_PULIZIA: ${{ vars.AUTO_PULIZIA }}
+        run: node scripts/social.mjs statistiche
+
       - name: Rinnova il token
         if: steps.d.outputs.rinnovo == '1' && env.GH_PAT != '' && env.PROVA != '1'
         env:
@@ -93,10 +100,10 @@ jobs:
       - name: Salva lo stato
         if: always() && env.PROVA != '1'
         run: |
-          if [ -n "$(git status --porcelain social/stato.json)" ]; then
+          if [ -n "$(git status --porcelain social/stato.json social/statistiche.json)" ]; then
             git config user.name "github-actions[bot]"
             git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-            git add social/stato.json
+            git add social/stato.json social/statistiche.json 2>/dev/null || git add social/stato.json
             git commit -q -m "Stato delle pubblicazioni su Instagram"
             git pull -q --rebase origin main
             git push -q origin HEAD:main

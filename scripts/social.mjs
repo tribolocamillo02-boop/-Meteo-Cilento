@@ -299,7 +299,7 @@ async function decidi(){
 
   // Reel «la giornata ora per ora»: la domenica, e ogni giorno in cui arriva il maltempo (tra le 12 e le 15)
   let cilento72 = null;
-  if(forza.includes("reel-giornata") || (ora >= 12 && ora <= 15 && stato["reel-giornata"] !== data)){
+  if(forza.includes("reel-giornata") || (ora >= 18 && ora <= 21 && stato["reel-giornata"] !== data)){
     try{
       const m = await meteoCilento72();
       const s = scegliCilento72(m);
@@ -312,7 +312,7 @@ async function decidi(){
   }
 
   // Reel del weekend: il venerdì tra le 12 e le 15
-  if(forza.includes("reel-weekend") || (giorno === "Fri" && ora >= 12 && ora <= 15 && stato["reel-weekend"] !== data)) compiti.push("reel-weekend");
+  if(forza.includes("reel-weekend") || (giorno === "Fri" && ora >= 18 && ora <= 21 && stato["reel-weekend"] !== data)) compiti.push("reel-weekend");
 
   // Reel del radar: quando piove nel Cilento, al massimo uno al giorno, tra le 8 e le 20
   let reelPaese = null;
@@ -339,10 +339,11 @@ async function decidi(){
     rinnovo = false;
   }
 
+  const contaStatistiche = !!process.env.IG_TOKEN && (!stato.statistiche || Date.now() - Date.parse(stato.statistiche) > 6 * 36e5);
   scrivi(COMPITI, { data, compiti, allerta, rinnovo, reelPaese, notizia, cilento72 });
   console.log(`Italia: ${data} ore ${ora} (${giorno}). Da pubblicare: ${compiti.join(", ") || "niente"}. Rinnovo token: ${rinnovo ? "sì" : "no"}`);
   if(process.env.GITHUB_OUTPUT){
-    fs.appendFileSync(process.env.GITHUB_OUTPUT, `compiti=${compiti.join(",")}\nrinnovo=${rinnovo ? "1" : ""}\n`);
+    fs.appendFileSync(process.env.GITHUB_OUTPUT, `compiti=${compiti.join(",")}\nrinnovo=${rinnovo ? "1" : ""}\nstatistiche=${contaStatistiche ? "1" : ""}\n`);
   }
 }
 
@@ -401,7 +402,7 @@ async function genera(){
     const limite = new Date(Date.now() - 7 * 864e5).toISOString().slice(0, 10);
     for(const f of fs.readdirSync(IMMAGINI)) if(f.slice(0, 10) < limite) fs.unlinkSync(path.join(IMMAGINI, f));
 
-    const file = {};
+    const file = {}, copertine = {};
     if(compiti.includes("promo")) try{
       const stato = leggi(STATO, {});
       const indice = (stato.promoIndice || 0) % PROMO.length;
@@ -417,14 +418,14 @@ async function genera(){
       const nome = `${data}-reel-radar.mp4`;
       await creaReelRadar(browser, s.address().port, cc.reelPaese || "agropoli", path.join(IMMAGINI, nome));
       file["reel-radar"] = nome;
-      esito.testi["reel-radar"] = `🌧️ Piove nel Cilento: ecco il radar della Protezione Civile in diretta.\n\nGuarda dove piove adesso e dove sta andando la pioggia, paese per paese, aggiornato ogni 5 minuti.\n\n📲 Gratis su 👉 cilentometeo.it (link in bio)\n\n#cilento #meteocilento #cilentonotizie #pioggia #radarmeteo #maltempo #cilentolovers #salerno #protezionecivile`;
+      esito.testi["reel-radar"] = `🌧️ Piove nel Cilento: ecco il radar della Protezione Civile in diretta.\n\nGuarda dove piove adesso e dove sta andando la pioggia, paese per paese, aggiornato ogni 5 minuti.\n\n💬 Da te com'è il cielo? Scrivilo nei commenti 👇\n📤 Mandalo a chi deve venire nel Cilento!\n\n📲 Gratis su 👉 cilentometeo.it (link in bio)\n\n#cilento #meteocilento #cilentonotizie #pioggia #radarmeteo #maltempo #cilentolovers #salerno #protezionecivile`;
       console.log("Creato", nome);
     }catch(e){ salta("reel-radar", e); }
     if(compiti.includes("reel-weekend")) try{
       const nome = `${data}-reel-weekend.mp4`;
       await creaReelWeekend(browser, s.address().port, path.join(IMMAGINI, nome));
       file["reel-weekend"] = nome;
-      esito.testi["reel-weekend"] = `☀️ Che tempo farà nel weekend nel Cilento?\n\nDal mare alla montagna: previsioni ora per ora per tutti i 118 paesi, mare, radar e allerte.\n\n📲 Gratis su 👉 cilentometeo.it (link in bio)\n\n#cilento #meteocilento #weekend #cilentocoast #cilentomeraviglie #cilentolovers #cilentogram #palinuro #agropoli #sapri`;
+      esito.testi["reel-weekend"] = `☀️ Che tempo farà nel weekend nel Cilento?\n\nDal mare alla montagna: previsioni ora per ora per tutti i 118 paesi, mare, radar e allerte.\n\n💬 Da te com'è il cielo? Scrivilo nei commenti 👇\n📤 Mandalo a chi deve venire nel Cilento!\n\n📲 Gratis su 👉 cilentometeo.it (link in bio)\n\n#cilento #meteocilento #weekend #cilentocoast #cilentomeraviglie #cilentolovers #cilentogram #palinuro #agropoli #sapri`;
       console.log("Creato", nome);
     }catch(e){ salta("reel-weekend", e); }
     if(compiti.includes("notizia")) try{
@@ -438,7 +439,10 @@ async function genera(){
       const nome = `${data}-reel-giornata.mp4`;
       await creaReelCilento72(browser, cc.cilento72, path.join(IMMAGINI, nome));
       file["reel-giornata"] = nome;
-      esito.testi["reel-giornata"] = cc.cilento72.scelta.didascalia + `📲 Le previsioni ora per ora del tuo paese su 👉 cilentometeo.it (link in bio)\n💾 Salva il video e condividilo con chi ama il Cilento!\n\n#cilento #meteocilento #cilentocoast #cilentomeraviglie #cilentolovers #palinuro #agropoli #sapri #salerno`;
+      { const s = cc.cilento72.scelta, m = cc.cilento72.meteo; let hm = s.da, mx = -1;
+        for(let h = s.da; h <= s.a; h++){ const v = m.pioggia[h].reduce((x, y) => x + (y || 0), 0); if(v > mx){ mx = v; hm = h; } }
+        copertine["reel-giornata"] = Math.round(Math.max(2, (hm - s.da) / (s.a - s.da) * 13) * 1000); }
+      esito.testi["reel-giornata"] = cc.cilento72.scelta.didascalia + `💬 Nel tuo paese com'è il cielo? Scrivilo nei commenti 👇\n📤 Mandalo a chi deve uscire o viaggiare quel giorno!\n\n📲 Le previsioni ora per ora del tuo paese su 👉 cilentometeo.it (link in bio)\n💾 Salva il video e condividilo con chi ama il Cilento!\n\n#cilento #meteocilento #cilentocoast #cilentomeraviglie #cilentolovers #palinuro #agropoli #sapri #salerno`;
       console.log("Creato", nome);
     }catch(e){ salta("reel-giornata", e); }
     if(compiti.includes("reel-guida")) try{
@@ -473,7 +477,7 @@ async function genera(){
     }
     const c = leggi(COMPITI, {});
     // I contenuti saltati non si pubblicano: il robot li riprova all'ora successiva
-    scrivi(COMPITI, { ...c, compiti:compiti.filter(x => !saltati.includes(x)), file, testi: esito.testi });
+    scrivi(COMPITI, { ...c, compiti:compiti.filter(x => !saltati.includes(x)), file, copertine, testi: esito.testi });
     if(saltati.length) console.log("Rimandati all'ora successiva:", saltati.join(", "));
   }finally{
     await browser.close();
@@ -607,9 +611,16 @@ class Fotogrammi{
     await pagina.screenshot({ path:f, type:"jpeg", quality:90 });
     for(let k = 1; k < ripeti; k++) fs.copyFileSync(f, this.nome(this.n++));
   }
-  video(uscita){
+  // suono: "pioggia" (fruscio di pioggia), "calmo" (accordo morbido) oppure "muto"
+  video(uscita, suono = "calmo"){
+    const dur = (this.n / 30).toFixed(2), fine = Math.max(0, this.n / 30 - 1.2).toFixed(2);
+    const audio = suono === "pioggia"
+      ? `anoisesrc=color=brown:amplitude=0.9:sample_rate=48000:duration=${dur},highpass=f=180,lowpass=f=3500,volume=0.55,afade=t=in:d=0.6,afade=t=out:st=${fine}:d=1.2`
+      : suono === "calmo"
+      ? `aevalsrc='0.10*(sin(2*PI*110*t)+0.7*sin(2*PI*164.81*t)+0.55*sin(2*PI*220*t)+0.45*sin(2*PI*277.18*t)+0.3*sin(2*PI*329.63*t))*(0.65+0.35*sin(2*PI*0.2*t))':s=48000:d=${dur},lowpass=f=1600,aecho=0.8:0.7:120|240:0.35|0.2,afade=t=in:d=0.8,afade=t=out:st=${fine}:d=1.2`
+      : `anullsrc=channel_layout=stereo:sample_rate=48000`;
     execFileSync("ffmpeg", ["-y", "-loglevel", "error", "-framerate", "30", "-i", path.join(this.cartella, "f%05d.jpg"),
-      "-f", "lavfi", "-i", "anullsrc=channel_layout=stereo:sample_rate=44100",
+      "-f", "lavfi", "-i", audio,
       "-shortest", "-vf", "scale=1080:1920:flags=lanczos:in_range=full:out_range=tv,format=yuv420p",
       "-c:v", "libx264", "-profile:v", "high", "-level", "4.1", "-preset", "medium", "-crf", "20", "-r", "30",
       "-g", "30", "-keyint_min", "30", "-sc_threshold", "0", "-maxrate", "8M", "-bufsize", "16M",
@@ -618,6 +629,26 @@ class Fotogrammi{
     fs.rmSync(this.cartella, { recursive:true, force:true });
   }
 }
+
+// Grande scritta al centro nei primi secondi: ferma chi scorre
+async function gancio(pagina, emoji, testo, colore = "#ffd400"){
+  await pagina.evaluate(([emoji, testo, colore]) => {
+    let g = document.getElementById("gancioReel");
+    if(!g){
+      const st = document.createElement("style");
+      st.textContent = `#gancioReel{position:fixed;z-index:200000;left:6%;right:6%;top:50%;transform:translateY(-50%);text-align:center;pointer-events:none;transition:none}
+#gancioReel .e{font-size:120px;line-height:1;filter:drop-shadow(0 10px 30px rgba(0,0,0,.5))}
+#gancioReel .t{display:inline-block;margin-top:18px;padding:16px 28px 10px;background:var(--c);color:#111;font:400 92px/1.02 Anton,Impact,sans-serif;text-transform:uppercase;letter-spacing:1px;box-shadow:0 18px 50px rgba(0,0,0,.55);transform:rotate(-2deg)}`;
+      document.head.appendChild(st);
+      g = document.createElement("div"); g.id = "gancioReel"; document.body.appendChild(g);
+    }
+    g.style.setProperty("--c", colore);
+    g.innerHTML = `<div class="t"></div>`;
+    g.querySelector(".t").textContent = testo;
+    g.style.opacity = 1; g.style.display = "block";
+  }, [emoji, testo, colore]);
+}
+const gancioOpacita = (pagina, o) => pagina.evaluate(o => { const g = document.getElementById("gancioReel"); if(g){ g.style.opacity = o; g.style.display = o > 0 ? "block" : "none"; } }, o);
 
 const morbido = x => x < .5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2;
 
@@ -648,6 +679,7 @@ async function creaReelRadar(browser, porta, paese, uscita){
   const ft = new Fotogrammi(uscita + ".fotogrammi");
   const max = await pagina.evaluate(() => Number(document.getElementById("radarCursore").max) || 0);
   const inizio = Math.max(0, max - 17);     // circa l'ultima ora e mezza
+  await gancio(pagina, "🌧️", "PIOVE ADESSO NEL CILENTO", "#5ab4ff");
   for(let giro = 0; giro < 2; giro++){
     for(let i = inizio; i <= max; i++){
       await pagina.evaluate(v => {
@@ -655,12 +687,13 @@ async function creaReelRadar(browser, porta, paese, uscita){
         c.value = v; c.dispatchEvent(new Event("input", { bubbles:true })); c.dispatchEvent(new Event("change", { bubbles:true }));
       }, i);
       await pagina.waitForTimeout(giro === 0 ? 900 : 250);
+      if(ft.n >= 36) await gancioOpacita(pagina, 0);
       await ft.scatta(pagina, i === max ? 24 : 9);
     }
   }
   await finale(pagina, ft);
   await ctx.close();
-  ft.video(uscita);
+  ft.video(uscita, "pioggia");
 }
 
 async function creaNotizia(browser, { meteo, scelta }){
@@ -1026,18 +1059,19 @@ window.finale = () => { document.getElementById("fine").style.display = "flex"; 
   await pagina.evaluate(() => window.prepara());
   const ft = new Fotogrammi(uscita + ".fotogrammi");
   const da = scelta.da, a = scelta.a;
-  await pagina.evaluate(t => window.disegna(t), da);
-  await ft.scatta(pagina, 30);
-  const N = 480;                                                  // 16 s per la giornata: circa 28 fotogrammi per ogni ora
-  for(let k = 1; k <= N; k++){
+  const [em, col] = /TEMPORALI/.test(scelta.titolo) ? ["⛈️", "#ff4d4d"] : /PIOGGIA/.test(scelta.titolo) ? ["🌧️", "#5ab4ff"] : /NUVOLE/.test(scelta.titolo) ? ["☁️", "#dfe8f5"] : ["☀️", "#ffd400"];
+  await gancio(pagina, em, scelta.titolo + " NEL CILENTO", col);
+  const N = 390;                                                  // 13 s per la giornata, ~23 fotogrammi per ogni ora, nessuna pausa iniziale
+  for(let k = 0; k <= N; k++){
+    if(k <= 50) await gancioOpacita(pagina, k < 36 ? 1 : 1 - (k - 36) / 14);   // il titolo grande resta 1,2 s e poi sfuma
     await pagina.evaluate(t => window.disegna(t), da + (a - da) * k / N);
     await ft.scatta(pagina);
   }
-  await ft.scatta(pagina, 24);
+  await ft.scatta(pagina, 12);
   await pagina.evaluate(() => window.finale());
-  await ft.scatta(pagina, 66);
+  await ft.scatta(pagina, 45);                                    // cartello finale breve: il video si riguarda volentieri
   await pagina.close();
-  ft.video(uscita);
+  ft.video(uscita, /TEMPORALI|PIOGGIA/.test(scelta.titolo) ? "pioggia" : "calmo");
 }
 
 async function creaCopertina(browser){
@@ -1136,7 +1170,11 @@ async function creaReelWeekend(browser, porta, uscita){
     await sovrapponi(pagina, "Il weekend nel Cilento", nome);
     await pagina.evaluate(() => window.scrollTo(0, 0));
     await pagina.waitForTimeout(800);
-    for(let k = 0; k < 36; k++) await ft.scatta(pagina);          // 1,2 s con la pioggia o il sole animati
+    if(slug === "palinuro") await gancio(pagina, "🏖️", "IL METEO DEL WEEKEND NEL CILENTO", "#ffd400");
+    for(let k = 0; k < 36; k++){                                     // 1,2 s con la pioggia o il sole animati
+      if(slug === "palinuro" && k === 30) await gancioOpacita(pagina, 0);
+      await ft.scatta(pagina);
+    }
     const meta = await pagina.evaluate(() => {
       const el = document.querySelector('[data-tendina="settimana"]');
       return el ? el.getBoundingClientRect().top + window.scrollY - 80 : 600;
@@ -1151,7 +1189,7 @@ async function creaReelWeekend(browser, porta, uscita){
     await pagina.close();
   }
   await ctx.close();
-  ft.video(uscita);
+  ft.video(uscita, "calmo");
 }
 
 /* ---------------- Instagram ---------------- */
@@ -1161,7 +1199,7 @@ async function chiamata(metodo, percorso, parametri = {}){
   if(!token) throw new Error("Manca il segreto IG_TOKEN");
   const url = new URL(percorso.startsWith("http") ? percorso : API + percorso);
   const opzioni = { method:metodo, headers:{ Authorization:`Bearer ${token}` } };
-  if(metodo === "GET") for(const [k, v] of Object.entries(parametri)) url.searchParams.set(k, v);
+  if(metodo === "GET" || metodo === "DELETE") for(const [k, v] of Object.entries(parametri)) url.searchParams.set(k, v);
   else opzioni.body = new URLSearchParams(parametri);
   const r = await fetch(url, opzioni);
   const j = await r.json().catch(() => ({}));
@@ -1169,8 +1207,20 @@ async function chiamata(metodo, percorso, parametri = {}){
   return j;
 }
 
-async function pubblicaUna(utente, url, { didascalia, storia, reel }, tentativo = 1){
+function registra(stato, id, tipo, data){
+  stato.pubblicati = (stato.pubblicati || []).concat([{ id, tipo, data }]).slice(-150);
+}
+
+async function pubblicaUna(utente, url, { didascalia, storia, reel, copertina, prova }, tentativo = 1){
   const param = reel ? { media_type:"REELS", video_url:url, share_to_feed:"true" } : { image_url:url };
+  if(reel && copertina) param.thumb_offset = String(copertina);
+  if(reel && prova){
+    // Trial Reel con promozione automatica se va bene; se l'account non può ancora usarli, si pubblica normale
+    try{
+      const { id } = await chiamata("POST", `/${utente}/media`, { ...param, caption:didascalia || "", trial_params:JSON.stringify({ graduation_strategy:"SS_PERFORMANCE" }) });
+      return await completa(utente, id, reel, async () => pubblicaUna(utente, url, { didascalia, storia, reel, copertina, prova:false }, tentativo));
+    }catch(e){ console.warn("Reel di prova non disponibile, pubblico normale:", e.message.slice(0, 160)); }
+  }
   if(storia) param.media_type = "STORIES";
   if(didascalia && !storia) param.caption = didascalia;
   let id;
@@ -1189,10 +1239,21 @@ async function pubblicaUna(utente, url, { didascalia, storia, reel }, tentativo 
       if(tentativo < 2){
         console.warn(motivo, "→ riprovo tra un minuto");
         await attendi(60000);
-        return pubblicaUna(utente, url, { didascalia, storia, reel }, tentativo + 1);
+        return pubblicaUna(utente, url, { didascalia, storia, reel, copertina, prova }, tentativo + 1);
       }
       throw new Error(motivo);
     }
+    await attendi(5000);
+  }
+  const pubblicato = await chiamata("POST", `/${utente}/media_publish`, { creation_id:id });
+  return pubblicato.id;
+}
+
+async function completa(utente, id, reel, ripiego){
+  for(let k = 0; k < (reel ? 120 : 30); k++){
+    const st = await chiamata("GET", `/${id}`, { fields:"status_code,status" });
+    if(st.status_code === "FINISHED") break;
+    if(st.status_code === "ERROR" || st.status_code === "EXPIRED"){ console.warn(`Contenitore ${id}: ${st.status_code} ${st.status || ""}`); return ripiego(); }
     await attendi(5000);
   }
   const pubblicato = await chiamata("POST", `/${utente}/media_publish`, { creation_id:id });
@@ -1266,7 +1327,7 @@ async function pubblica(){
       if(tipo === "carosello"){
         const urls = c.file.carosello.map(n => `${base.replace(/\/$/, "")}/social/immagini/${n}`);
         if(prova) console.log(`[PROVA] carosello:\n${urls.join("\n")}\n${c.testi.carosello}\n`);
-        else console.log("Carosello pubblicato:", await pubblicaCarosello(utente, urls, c.testi.carosello));
+        else { const id = await pubblicaCarosello(utente, urls, c.testi.carosello); registra(stato, id, "carosello", c.data); console.log("Carosello pubblicato:", id); }
         stato.carosello = c.data;
         continue;
       }
@@ -1275,11 +1336,18 @@ async function pubblica(){
       }else{
         if(!await urlRaggiungibile(url)) throw new Error("Immagine non raggiungibile: " + url);
         if(reel){
-          console.log(`Reel ${tipo} pubblicato:`, await pubblicaUna(utente, url, { didascalia:c.testi[tipo], reel:true }));
+          // Reel «di prova»: Instagram lo mostra prima a chi non ci segue e lo mette sul profilo solo se va bene
+          // (il Reel «Come si usa» esce invece subito per tutti, perché va fissato sul profilo)
+          const diProva = tipo !== "reel-guida" && process.env.TRIAL_REELS !== "0";
+          const id = await pubblicaUna(utente, url, { didascalia:c.testi[tipo], reel:true, copertina:(c.copertine || {})[tipo], prova:diProva });
+          registra(stato, id, tipo, c.data);
+          console.log(`Reel ${tipo} pubblicato:`, id);
         }else if(tipo === "storia"){
           console.log("Storia pubblicata:", await pubblicaUna(utente, url, { storia:true }));
         }else{
-          console.log(`Post ${tipo} pubblicato:`, await pubblicaUna(utente, url, { didascalia:c.testi[tipo] }));
+          const id = await pubblicaUna(utente, url, { didascalia:c.testi[tipo] });
+          registra(stato, id, tipo, c.data);
+          console.log(`Post ${tipo} pubblicato:`, id);
           // Weekend e allerta vanno anche nelle storie
           await attendi(5000);
           console.log(`Storia ${tipo} pubblicata:`, await pubblicaUna(utente, url, { storia:true }));
@@ -1319,7 +1387,86 @@ function rinnovato(){
   scrivi(STATO, stato);
 }
 
-const comandi = { decidi, genera, pubblica, rinnova, rinnovato };
+/* ---------------- Statistiche, test e pulizia ---------------- */
+
+const STATISTICHE = path.join(CARTELLA, "statistiche.json");
+
+// Scarica le statistiche dei contenuti pubblicati dal robot (servono i permessi «insights»)
+async function statistiche(){
+  if(!process.env.IG_TOKEN){ console.log("Instagram non collegato"); return; }
+  const stato = leggi(STATO, {});
+  const st = leggi(STATISTICHE, { aggiornato:null, contenuti:{} });
+  const elenco = (stato.pubblicati || []).slice(-30);
+  let ok = 0, permesso = true;
+  for(const p of elenco){
+    if(st.contenuti[p.id] && st.contenuti[p.id].eliminato) continue;
+    const dati = { tipo:p.tipo, data:p.data };
+    // dati di base (sempre disponibili): like, commenti, link
+    try{
+      const b = await chiamata("GET", `/${p.id}`, { fields:"like_count,comments_count,permalink,media_product_type" });
+      Object.assign(dati, { like:b.like_count || 0, commenti:b.comments_count || 0, link:b.permalink });
+    }catch(e){
+      if(/does not exist|Unsupported get request|cannot be loaded/i.test(e.message)){ dati.eliminato = true; st.contenuti[p.id] = { ...(st.contenuti[p.id] || {}), ...dati }; continue; }
+    }
+    // statistiche (visualizzazioni, copertura, salvataggi, condivisioni)
+    if(permesso){
+      const leggiMetriche = async metriche => {
+        const r = await chiamata("GET", `/${p.id}/insights`, { metric:metriche.join(",") });
+        for(const m of r.data || []){ const v = m.values && m.values[0]; dati[m.name] = v ? v.value : m.total_value && m.total_value.value; }
+      };
+      try{ await leggiMetriche(["views", "reach", "saved", "shares", "total_interactions"]); }
+      catch(e){
+        if(/metric/i.test(e.message)){
+          // qualche metrica non vale per questo tipo di contenuto: si chiedono quelle di base
+          try{ await leggiMetriche(["reach", "saved"]); }catch(err){}
+        }else{ permesso = false; console.warn("Statistiche non disponibili: manca il permesso «insights» nel token.", e.message.slice(0, 120)); }
+      }
+    }
+    st.contenuti[p.id] = { ...(st.contenuti[p.id] || {}), ...dati };
+    ok++;
+  }
+  st.aggiornato = new Date().toISOString();
+  st.permessoStatistiche = permesso;
+  scrivi(STATISTICHE, st);
+  stato.statistiche = st.aggiornato;
+  scrivi(STATO, stato);
+  console.log(`Statistiche aggiornate per ${ok} contenuti`);
+  await pulizia(st);
+}
+
+// Elimina i Reel che vanno molto peggio degli altri. Regole prudenti:
+// - solo se il proprietario l'ha attivato (variabile AUTO_PULIZIA = 1);
+// - solo con almeno 10 Reel misurati (servono dati per confrontare);
+// - solo Reel pubblicati da almeno 3 giorni e da non più di 14;
+// - solo se le visualizzazioni sono meno di un quarto della mediana;
+// - mai i contenuti del kit di benvenuto, mai più di uno al giorno.
+async function pulizia(st){
+  if(process.env.AUTO_PULIZIA !== "1"){ console.log("Pulizia automatica non attiva"); return; }
+  const reel = Object.entries(st.contenuti).filter(([, c]) => c.tipo.startsWith("reel-") && c.tipo !== "reel-guida" && !c.eliminato && typeof c.views === "number");
+  if(reel.length < 10){ console.log(`Pulizia: servono almeno 10 Reel misurati (ora ${reel.length})`); return; }
+  const oggi = Date.now();
+  const v = reel.map(([, c]) => c.views).sort((a, b) => a - b), mediana = v[Math.floor(v.length / 2)];
+  if(st.ultimaPulizia && oggi - Date.parse(st.ultimaPulizia) < 864e5) return;
+  const candidati = reel.filter(([, c]) => { const eta = (oggi - Date.parse(c.data)) / 864e5; return eta >= 3 && eta <= 14 && c.views < mediana / 4; })
+    .sort((a, b) => a[1].views - b[1].views);
+  if(!candidati.length){ console.log(`Pulizia: nessun Reel sotto soglia (mediana ${mediana} visualizzazioni)`); return; }
+  const [id, c] = candidati[0];
+  try{
+    await chiamata("DELETE", `/${id}`);
+    c.eliminato = true; c.motivo = `${c.views} visualizzazioni contro una mediana di ${mediana}`;
+    st.ultimaPulizia = new Date().toISOString();
+    console.log(`Eliminato il Reel ${c.tipo} del ${c.data}: ${c.motivo}`);
+    // lo stesso tipo di contenuto verrà rifatto alla prossima occasione: si azzera lo stato
+    const stato = leggi(STATO, {});
+    if(stato[c.tipo] === c.data){ delete stato[c.tipo]; scrivi(STATO, stato); }
+  }catch(e){
+    c.eliminazioneFallita = e.message.slice(0, 200);
+    console.warn("Eliminazione non riuscita (serve il permesso di gestione dei contenuti):", e.message.slice(0, 200));
+  }
+  scrivi(STATISTICHE, st);
+}
+
+const comandi = { decidi, genera, pubblica, rinnova, rinnovato, statistiche };
 const cmd = process.argv[2];
 if(!comandi[cmd]){ console.error("Uso: node scripts/social.mjs decidi|genera|pubblica|rinnova|rinnovato"); process.exit(2); }
 await comandi[cmd]();
