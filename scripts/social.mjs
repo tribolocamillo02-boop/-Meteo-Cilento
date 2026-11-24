@@ -113,20 +113,20 @@ function allertaAttuale(oggi){
 
 // Paesi scritti sulla mappa
 const PAESI_MAPPA = [
-  ["Agropoli", 40.3492, 14.9907], ["Castellabate", 40.2821, 14.9574, "dx"], ["Acciaroli", 40.181, 15.0272],
-  ["Ascea", 40.1426, 15.1837, "sx"], ["Palinuro", 40.0368, 15.2881], ["Sapri", 40.0746, 15.6321],
+  ["Agropoli", 40.3492, 14.9907], ["Acciaroli", 40.181, 15.0272],
+  ["Ascea", 40.1426, 15.1837, "dx"], ["Palinuro", 40.0368, 15.2881], ["Sapri", 40.0746, 15.6321],
   ["Vallo della Lucania", 40.2279, 15.2663], ["Sala Consilina", 40.4013, 15.5914],
   ["Roccadaspide", 40.4255, 15.1918], ["Piaggine", 40.345, 15.3778]
 ];
 const ZONE_NOTIZIA = {
-  "Costa nord": ["Agropoli", "Castellabate", "Acciaroli"],
+  "Costa nord": ["Agropoli", "Acciaroli"],
   "Costa sud": ["Ascea", "Palinuro", "Sapri"],
   "Entroterra": ["Vallo della Lucania", "Piaggine", "Roccadaspide"],
   "Vallo di Diano": ["Sala Consilina"]
 };
 
 async function meteoGriglia(){
-  const R = JSON.parse(fs.readFileSync(path.join(CARTELLA, "rilievo.json"), "utf8"));
+  const R = JSON.parse(fs.readFileSync(path.join(CARTELLA, "mappa.json"), "utf8"));
   const G = 10, punti = [];
   for(let i = 0; i < G; i++) for(let j = 0; j < G; j++)
     punti.push([R.nord + (R.sud - R.nord) * i / (G - 1), R.ovest + (R.est - R.ovest) * j / (G - 1)]);
@@ -552,152 +552,179 @@ async function creaReelRadar(browser, porta, paese, uscita){
 }
 
 async function creaNotizia(browser, { meteo, scelta }){
-  const rilievo = JSON.parse(fs.readFileSync(path.join(CARTELLA, "rilievo.json"), "utf8"));
-  const logo = fs.readFileSync(path.join(RADICE, "icone/icona-192.png")).toString("base64");
+  const M = JSON.parse(fs.readFileSync(path.join(CARTELLA, "mappa.json"), "utf8"));
+  const b64 = f => fs.readFileSync(path.join(f.startsWith("icone") ? RADICE : CARTELLA, f)).toString("base64");
+  const base = b64("mappa-base.png"), terra = b64("mappa-terra.png"), logo = b64("icone/icona-192.png");
   const g = scelta.indice;
   const valori = meteo.griglia.map(d => scelta.var === "pioggia" ? d.precipitation_sum[g] : scelta.var === "neve" ? d.snowfall_sum[g]
     : scelta.var === "vento" ? d.wind_gusts_10m_max[g] : scelta.var === "min" ? d.temperature_2m_min[g] : d.temperature_2m_max[g]);
   const paesi = meteo.paesi.map(p => ({ nome:p.nome, lat:p.lat, lon:p.lon, lato:p.lato, codice:p.d.weather_code[g],
     t:Math.round(scelta.var === "min" ? p.d.temperature_2m_min[g] : p.d.temperature_2m_max[g]) }));
-  const etichetta = { pioggia:"PIOGGIA (mm)", neve:"NEVE (cm)", vento:"RAFFICHE (km/h)", min:"TEMPERATURA MINIMA", max:"TEMPERATURA MASSIMA" }[scelta.var];
-  const dati = JSON.stringify({ rilievo, G:meteo.G, valori, var:scelta.var, paesi });
+  const etichetta = { pioggia:"Pioggia prevista (mm)", neve:"Neve prevista (cm)", vento:"Raffiche di vento (km/h)", min:"Temperatura minima (°C)", max:"Temperatura massima (°C)" }[scelta.var];
+  const allarme = ["temporali", "neve", "vento", "pioggia"].includes(scelta.tipo) && scelta.importante;
+  const coloreTag = allarme ? "#ff3b3b" : scelta.tipo === "caldo" ? "#ff7a1a" : scelta.tipo === "freddo" ? "#3d8bff" : "#ffd400";
+  const testoTag = allarme ? "#fff" : scelta.tipo === "freddo" ? "#fff" : "#111";
+  const dataLunga = new Date(meteo.paesi[0].d.time[g] + "T12:00:00").toLocaleDateString("it-IT", { weekday:"long", day:"numeric", month:"long" });
+  const dati = JSON.stringify({ M, G:meteo.G, valori, var:scelta.var, paesi });
   const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;" }[c]));
   const html = `<!doctype html><html><head><meta charset="utf-8">
-<link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@600;800&family=Space+Grotesk:wght@700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@600;700;800;900&family=Space+Grotesk:wght@700&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box;margin:0}
-body{width:1080px;height:1350px;overflow:hidden;background:#02040a;font-family:Inter,Arial,sans-serif;color:#fff;position:relative}
+body{width:1080px;height:1350px;overflow:hidden;background:#030712;font-family:Inter,Arial,sans-serif;color:#fff;position:relative}
 canvas{position:absolute;left:0;top:0}
-.marchio{position:absolute;top:34px;left:34px;display:flex;align-items:center;gap:14px;padding:12px 22px 12px 12px;border-radius:20px;background:rgba(2,6,18,.78);border:2px solid rgba(140,196,255,.35);font:700 26px "Space Grotesk",Inter,sans-serif;letter-spacing:5px}
-.marchio img{width:52px;height:52px;border-radius:13px}
-.legenda{position:absolute;top:44px;right:34px;padding:12px 18px;border-radius:16px;background:rgba(2,6,18,.78);border:2px solid rgba(255,255,255,.15);font-weight:800;font-size:19px;letter-spacing:1px;text-align:right}
-.legenda .barra{width:300px;height:14px;border-radius:7px;margin:9px 0 5px}
-.legenda .num{display:flex;justify-content:space-between;font-size:17px;font-weight:600;color:#cfe3ff}
-.fondo{position:absolute;left:0;right:0;bottom:0;height:520px;background:linear-gradient(rgba(2,4,10,0),rgba(2,4,10,.7) 30%,#02040a 55%)}
-.tag{position:absolute;left:44px;bottom:330px;padding:6px 14px 2px;background:#ffd400;color:#000;font:400 44px Anton,Impact,sans-serif;letter-spacing:1px}
-h1{position:absolute;left:44px;right:44px;bottom:96px;font:400 72px/1.04 Anton,Impact,sans-serif;text-transform:uppercase;letter-spacing:.5px;text-shadow:0 4px 18px rgba(0,0,0,.6)}
-.sito{position:absolute;left:0;right:0;bottom:32px;text-align:center;font-weight:800;font-size:30px;color:#8cc4ff}
+.marchio{position:absolute;top:30px;left:30px;display:flex;align-items:center;gap:14px;padding:10px 22px 10px 10px;border-radius:22px;
+background:rgba(3,10,28,.72);backdrop-filter:blur(10px);border:2px solid rgba(255,255,255,.22);box-shadow:0 10px 30px rgba(0,0,0,.35);font:700 25px "Space Grotesk",Inter,sans-serif;letter-spacing:5px}
+.marchio img{width:54px;height:54px;border-radius:14px}
+.legenda{position:absolute;top:30px;right:30px;padding:14px 18px 12px;border-radius:20px;background:rgba(3,10,28,.72);border:2px solid rgba(255,255,255,.22);box-shadow:0 10px 30px rgba(0,0,0,.35);font-weight:800;font-size:18px;text-align:left;min-width:330px}
+.legenda .barra{height:16px;border-radius:8px;margin:10px 0 6px;box-shadow:inset 0 0 0 1px rgba(255,255,255,.25)}
+.legenda .num{display:flex;justify-content:space-between;font-size:17px;font-weight:700;color:#dbe9ff}
+.fondo{display:none}
+.testo{position:absolute;left:46px;right:46px;bottom:100px;display:flex;flex-direction:column;align-items:flex-start;gap:14px}
+.riga{display:flex;align-items:center;gap:18px}
+.data{font-weight:800;font-size:28px;color:#cfe0ff;letter-spacing:.5px}
+.tag{display:flex;align-items:center;gap:10px;padding:8px 18px 4px;border-radius:6px;background:${coloreTag};color:${testoTag};font:400 44px Anton,Impact,sans-serif;letter-spacing:1.5px;box-shadow:0 8px 30px ${coloreTag}66}
+h1{font:400 84px/1.02 Anton,Impact,sans-serif;text-transform:uppercase;letter-spacing:.5px;text-shadow:0 6px 24px rgba(0,0,0,.55)}
+.sito{position:absolute;left:46px;right:46px;bottom:34px;display:flex;justify-content:space-between;align-items:center}
+.sito b{font-weight:900;font-size:30px;color:#8cc4ff}
+.sito small{font-size:14px;color:rgba(220,230,255,.45);font-weight:600;text-align:right;line-height:1.3}
 </style></head><body>
 <canvas id="c" width="1080" height="1350"></canvas>
 <div class="marchio"><img src="data:image/png;base64,${logo}">CILENTO METEO</div>
 <div class="legenda">${esc(etichetta)}<div class="barra" id="barra"></div><div class="num" id="num"></div></div>
 <div class="fondo"></div>
-<div class="tag">PREVISIONI ${esc(scelta.giorno)}</div>
-<h1>${esc(scelta.titolo)}</h1>
-<div class="sito">Il meteo del tuo paese su cilentometeo.it</div>
+<div class="testo">
+  <div class="riga"><div class="tag">${allarme ? "⚠️ " : ""}PREVISIONI ${esc(scelta.giorno)}</div><div class="data">${esc(dataLunga.charAt(0).toUpperCase() + dataLunga.slice(1))}</div></div>
+  <h1 id="titolo">${esc(scelta.titolo)}</h1>
+</div>
+<div class="sito"><b>Il meteo del tuo paese su cilentometeo.it</b><small>Dati: Open-Meteo<br>Rilievo: Mapzen / AWS Terrain Tiles</small></div>
+<img id="base" src="data:image/png;base64,${base}" hidden>
+<img id="terra" src="data:image/png;base64,${terra}" hidden>
 <script>
-const D = ${dati};
+const D = ${dati}, M = D.M;
 const c = document.getElementById("c"), x = c.getContext("2d");
-const W = 1080, H = 1350, R = D.rilievo;
-// Area della mappa: tutta la larghezza, dall'alto fino a sotto il titolo
-const MX = 0, MY = 0, MW = W, MH = 980;
-const aPx = (lat, lon) => [MX + (lon - R.ovest) / (R.est - R.ovest) * MW, MY + (lat - R.nord) / (R.sud - R.nord) * MH];
-function bilin(arr, righe, col, u, v){
-  const fx = u * (col - 1), fy = v * (righe - 1), x0 = Math.floor(fx), y0 = Math.floor(fy);
-  const x1 = Math.min(col - 1, x0 + 1), y1 = Math.min(righe - 1, y0 + 1), tx = fx - x0, ty = fy - y0;
-  const a = arr[y0 * col + x0], b = arr[y0 * col + x1], cc = arr[y1 * col + x0], d = arr[y1 * col + x1];
-  return (a * (1 - tx) + b * tx) * (1 - ty) + (cc * (1 - tx) + d * tx) * ty;
-}
-// Scale di colore
+const W = M.larghezza, H = M.altezza, SU = 100;     // la mappa sale di 100 px: la costa sud resta sopra il titolo
+const aPx = (lat, lon) => [(lon - M.ovest) / (M.est - M.ovest) * W, (lat - M.nord) / (M.sud - M.nord) * H - SU];
+const carica = id => new Promise(ok => { const i = document.getElementById(id); i.complete ? ok(i) : i.onload = () => ok(i); });
+
 const SCALE = {
-  pioggia:{ min:0, max:40, stop:[[0,"rgba(0,0,0,0)"],[.03,"rgba(70,140,255,.0)"],[.08,"#3c8cff"],[.22,"#20d080"],[.4,"#e8e23a"],[.6,"#ff8a1e"],[.8,"#ff2d2d"],[1,"#c63cff"]] },
-  neve:{ min:0, max:30, stop:[[0,"rgba(0,0,0,0)"],[.05,"#9fd0ff"],[.4,"#c9a0ff"],[1,"#ffffff"]] },
-  vento:{ min:20, max:90, stop:[[0,"rgba(0,0,0,0)"],[.15,"#3c8cff"],[.45,"#20d0c0"],[.7,"#ffd23f"],[1,"#ff3d3d"]] },
-  max:{ min:0, max:38, stop:[[0,"#3b5bdb"],[.3,"#3c9cff"],[.5,"#20c997"],[.65,"#ffd23f"],[.82,"#ff8a1e"],[1,"#e8253c"]] },
-  min:{ min:-6, max:20, stop:[[0,"#c9a0ff"],[.25,"#3b5bdb"],[.45,"#3c9cff"],[.65,"#20c997"],[.85,"#ffd23f"],[1,"#ff8a1e"]] }
+  pioggia:{ min:0, max:40, alfa:.82, stop:[[0,"#00000000"],[.04,"#2f8cff00"],[.1,"#2f8cff"],[.25,"#14d1ff"],[.38,"#1fe07a"],[.52,"#f4ee2a"],[.68,"#ff9a1a"],[.84,"#ff2b3a"],[1,"#d23cff"]] },
+  neve:{ min:0, max:30, alfa:.85, stop:[[0,"#00000000"],[.05,"#bfe3ff00"],[.12,"#bfe3ff"],[.45,"#b49bff"],[1,"#ffffff"]] },
+  vento:{ min:20, max:90, alfa:.7, stop:[[0,"#00000000"],[.12,"#2f8cff00"],[.25,"#2f8cff"],[.45,"#14d1c8"],[.65,"#f4ee2a"],[.82,"#ff9a1a"],[1,"#ff2b3a"]] },
+  max:{ min:0, max:38, alfa:.62, stop:[[0,"#5b3cff"],[.2,"#2f6bff"],[.36,"#14c2ff"],[.5,"#1fe07a"],[.62,"#d7f52a"],[.72,"#ffd21a"],[.84,"#ff8a1a"],[1,"#ff2b3a"]] },
+  min:{ min:-6, max:20, alfa:.62, stop:[[0,"#d9b8ff"],[.15,"#8a5cff"],[.32,"#2f6bff"],[.5,"#14c2ff"],[.68,"#1fe07a"],[.84,"#ffd21a"],[1,"#ff8a1a"]] }
 }[D.var];
-// Tavolozza da gradiente
 const tav = document.createElement("canvas"); tav.width = 256; tav.height = 1;
-const tx2 = tav.getContext("2d"); const gr = tx2.createLinearGradient(0, 0, 256, 0);
-SCALE.stop.forEach(([p, col]) => gr.addColorStop(p, col)); tx2.fillStyle = gr; tx2.fillRect(0, 0, 256, 1);
-const PAL = tx2.getImageData(0, 0, 256, 1).data;
-document.getElementById("barra").style.background = "linear-gradient(90deg," + SCALE.stop.filter(s => s[0] >= .05).map(s => s[1] + " " + Math.round(s[0] * 100) + "%").join(",") + ")";
+const tc = tav.getContext("2d"), gr = tc.createLinearGradient(0, 0, 256, 0);
+SCALE.stop.forEach(([p, col]) => gr.addColorStop(p, col)); tc.fillStyle = gr; tc.fillRect(0, 0, 256, 1);
+const PAL = tc.getImageData(0, 0, 256, 1).data;
+document.getElementById("barra").style.background = "linear-gradient(90deg," + SCALE.stop.filter(s => !s[1].endsWith("00") || s[0] === 0 && !["pioggia","neve","vento"].includes(D.var)).map(s => s[1] + " " + Math.round(s[0] * 100) + "%").join(",") + ")";
 document.getElementById("num").innerHTML = "<span>" + SCALE.min + "</span><span>" + Math.round((SCALE.min + SCALE.max) / 2) + "</span><span>" + SCALE.max + "+</span>";
 
-// 1. Rilievo: mare blu notte, terra ombreggiata come un satellite di notte
-const img = x.createImageData(W, H), px = img.data;
-const quota = (u, v) => bilin(R.quota, R.righe, R.colonne, Math.min(1, Math.max(0, u)), Math.min(1, Math.max(0, v)));
-function sfoca(a, w, h, r){
-  const t = new Float32Array(a.length);
-  for(let pass = 0; pass < 2; pass++){
-    for(let j = 0; j < h; j++){ let s = 0; for(let i = -r; i <= r; i++) s += a[j * w + Math.min(w - 1, Math.max(0, i))];
-      for(let i = 0; i < w; i++){ t[j * w + i] = s / (2 * r + 1); s += a[j * w + Math.min(w - 1, i + r + 1)] - a[j * w + Math.max(0, i - r)]; } }
-    for(let i = 0; i < w; i++){ let s = 0; for(let j = -r; j <= r; j++) s += t[Math.min(h - 1, Math.max(0, j)) * w + i];
-      for(let j = 0; j < h; j++){ a[j * w + i] = s / (2 * r + 1); s += t[Math.min(h - 1, j + r + 1) * w + i] - t[Math.max(0, j - r) * w + i]; } }
-  }
+// Campo del meteo: interpolazione morbida (bicubica) della griglia
+function cub(p0, p1, p2, p3, t){ return p1 + .5 * t * (p2 - p0 + t * (2 * p0 - 5 * p1 + 4 * p2 - p3 + t * (3 * (p1 - p2) + p3 - p0))); }
+function campo(u, v){
+  const G = D.G, fx = u * (G - 1), fy = v * (G - 1), ix = Math.floor(fx), iy = Math.floor(fy), tx = fx - ix, ty = fy - iy;
+  const V = (i, j) => D.valori[Math.min(G - 1, Math.max(0, j)) * G + Math.min(G - 1, Math.max(0, i))];
+  const r = [-1, 0, 1, 2].map(d => cub(V(ix - 1, iy + d), V(ix, iy + d), V(ix + 1, iy + d), V(ix + 2, iy + d), tx));
+  return cub(r[0], r[1], r[2], r[3], ty);
 }
-const Q = new Float32Array(W * H), TERRA = new Float32Array(W * H);
-for(let j = 0; j < H; j++) for(let i = 0; i < W; i++){
-  const q = j < MH ? quota(i / MW, j / MH) : 0;
-  Q[j * W + i] = q;
-  TERRA[j * W + i] = Math.min(1, Math.max(0, (q - 8) / 50));
-}
-sfoca(Q, W, H, 12); sfoca(TERRA, W, H, 3);
-for(let j = 0; j < H; j++){
-  for(let i = 0; i < W; i++){
-    const k = j * W + i, m = TERRA[k];
-    const prof = 1 - Math.min(1, j / H) * .35;
-    let r = 6 * prof, g = 22 * prof, b = 48 * prof + 6;
-    if(m > 0){
-      const dzx = Q[k + (i < W - 1 ? 1 : 0)] - Q[k - (i > 0 ? 1 : 0)], dzy = Q[k + (j < H - 1 ? W : 0)] - Q[k - (j > 0 ? W : 0)];
-      const ombra = Math.max(.45, Math.min(1.25, .88 - (dzx - dzy) * .06));
-      const h = Math.min(1, Q[k] / 1500);
-      const rr = (30 + 66 * h) * ombra, gg = (50 + 44 * h) * ombra, bb = (38 + 36 * h) * ombra;
-      r = r * (1 - m) + rr * m; g = g * (1 - m) + gg * m; b = b * (1 - m) + bb * m;
-    }
-    // la mappa sfuma nel nero sotto, dove c'è il titolo
-    const sf = j < 780 ? 1 : Math.max(0, 1 - (j - 780) / 230);
-    px[k * 4] = r * sf + 2 * (1 - sf); px[k * 4 + 1] = g * sf + 4 * (1 - sf); px[k * 4 + 2] = b * sf + 10 * (1 - sf); px[k * 4 + 3] = 255;
-  }
-}
-// 2. Colori del meteo sopra il rilievo
-for(let j = 0; j < MH; j++){
-  for(let i = 0; i < MW; i++){
-    const val = bilin(D.valori, D.G, D.G, i / MW, j / MH);
+
+(async () => {
+  await document.fonts.ready;
+  // il titolo resta su due righe al massimo
+  const h1 = document.getElementById("titolo");
+  // due righe se possibile, altrimenti tre, senza scendere sotto i 64 px
+  for(let s = 86; s >= 72 && h1.getBoundingClientRect().height > (s + 2) * 1.02 * 2 + 4; s -= 2) h1.style.fontSize = s + "px";
+  for(let s = 72; s > 64 && h1.getBoundingClientRect().height > (s + 2) * 1.02 * 3 + 4; s -= 2) h1.style.fontSize = s + "px";
+  const base = await carica("base"), terraImg = await carica("terra");
+  const radar = ["pioggia", "neve", "vento"].includes(D.var);
+
+  // 1. Mappa di base (un po' più scura quando c'è il radar, così i colori risaltano)
+  x.filter = radar ? "brightness(.78) saturate(.85)" : "brightness(.92)";
+  x.drawImage(base, 0, -SU, W, H);
+  x.filter = "none";
+
+  // 2. Strato del meteo, calcolato a bassa risoluzione e ingrandito morbido
+  const lw = 270, lh = Math.round(270 * H / W);
+  const strato = document.createElement("canvas"); strato.width = lw; strato.height = lh;
+  const sx = strato.getContext("2d"), im = sx.createImageData(lw, lh);
+  for(let j = 0; j < lh; j++) for(let i = 0; i < lw; i++){
+    const val = campo(i / (lw - 1), j / (lh - 1));
     const t = Math.max(0, Math.min(1, (val - SCALE.min) / (SCALE.max - SCALE.min)));
-    const sf = j < 780 ? 1 : Math.max(0, 1 - (j - 780) / 210);
-    const p = Math.round(t * 255) * 4, a = PAL[p + 3] / 255 * (D.var === "max" || D.var === "min" ? .5 : .62) * sf;
-    if(a <= 0) continue;
-    const k = (j * W + i) * 4;
-    px[k] = px[k] * (1 - a) + PAL[p] * a; px[k + 1] = px[k + 1] * (1 - a) + PAL[p + 1] * a; px[k + 2] = px[k + 2] * (1 - a) + PAL[p + 2] * a;
+    const p = Math.round(t * 255) * 4, k = (j * lw + i) * 4;
+    im.data[k] = PAL[p]; im.data[k + 1] = PAL[p + 1]; im.data[k + 2] = PAL[p + 2]; im.data[k + 3] = PAL[p + 3] * SCALE.alfa;
   }
-}
-x.putImageData(img, 0, 0);
-// 3. Costa luminosa
-x.save(); x.globalCompositeOperation = "lighter"; x.fillStyle = "rgba(140,196,255,.5)";
-for(let j = 1; j < MH - 1; j++) for(let i = 1; i < W - 1; i++){
-  const a = TERRA[j * W + i] >= .5;
-  if(a !== (TERRA[j * W + i + 1] >= .5) || a !== (TERRA[(j + 1) * W + i] >= .5)) x.fillRect(i - 1, j - 1, 2.5, 2.5);
-}
-x.restore();
-// 4. Paesi con icona e temperatura (dopo il caricamento dei caratteri)
-document.fonts.ready.then(() => {
-const ICONA = c => c === 0 ? "☀️" : c <= 2 ? "🌤️" : c === 3 ? "☁️" : c <= 48 ? "🌫️" : c <= 67 ? "🌧️" : c <= 77 ? "❄️" : c <= 82 ? "🌦️" : c <= 86 ? "🌨️" : "⛈️";
-x.textBaseline = "middle";
-// prima tutte le icone, poi tutte le etichette (sopra le icone)
-const pos = D.paesi.map(p => { const [X, Y] = aPx(p.lat, p.lon); return { p, X, Y }; }).filter(o => o.Y < MH - 40);
-x.font = '800 25px Inter, Arial, sans-serif';
-pos.forEach(o => { o.testo = o.p.nome + "  " + o.p.t + "°"; o.w = x.measureText(o.testo).width + 26; });
-pos.forEach(o => {
-  x.font = '54px "Apple Color Emoji","Noto Color Emoji",sans-serif'; x.textAlign = "center";
-  if(o.p.lato === "sx") x.fillText(ICONA(o.p.codice), o.X - o.w / 2 - 34, o.Y + 24);
-  else if(o.p.lato === "dx") x.fillText(ICONA(o.p.codice), o.X + o.w / 2 + 34, o.Y + 24);
-  else x.fillText(ICONA(o.p.codice), o.X, o.Y - 30);
-});
-pos.forEach(o => {
-  x.font = '800 25px Inter, Arial, sans-serif'; x.textAlign = "center";
-  x.fillStyle = "rgba(2,6,18,.82)"; x.beginPath(); x.roundRect(o.X - o.w / 2, o.Y + 6, o.w, 40, 20); x.fill();
-  x.strokeStyle = "rgba(140,196,255,.4)"; x.lineWidth = 2; x.stroke();
-  x.fillStyle = "#fff"; x.fillText(o.testo, o.X, o.Y + 27);
-});
-window.pronto = true;
-});
+  sx.putImageData(im, 0, 0);
+  const grande = document.createElement("canvas"); grande.width = W; grande.height = H;
+  const gx = grande.getContext("2d");
+  gx.imageSmoothingQuality = "high"; gx.filter = "blur(6px)";
+  gx.drawImage(strato, 0, 0, W, H);
+  gx.filter = "none";
+  if(!radar){
+    // le temperature solo sulla terraferma
+    gx.globalCompositeOperation = "destination-in";
+    gx.drawImage(terraImg, 0, 0, W, H);
+    gx.globalCompositeOperation = "source-over";
+    x.globalCompositeOperation = "color"; x.globalAlpha = .9; x.drawImage(grande, 0, -SU);
+    x.globalCompositeOperation = "soft-light"; x.globalAlpha = .55; x.drawImage(grande, 0, -SU);
+    x.globalCompositeOperation = "source-over"; x.globalAlpha = 1;
+  }else{
+    x.save(); x.filter = "blur(14px)"; x.globalAlpha = .55; x.drawImage(grande, 0, -SU); x.restore();   // alone
+    x.drawImage(grande, 0, -SU);
+  }
+
+  // 3. La mappa sfuma nel fondo scuro sotto
+  const altoTesto = document.querySelector(".testo").getBoundingClientRect().top;
+  const fineMappa = Math.min(H - SU, altoTesto + 20);
+  const sf = x.createLinearGradient(0, fineMappa - 210, 0, fineMappa);
+  sf.addColorStop(0, "rgba(3,7,18,0)"); sf.addColorStop(.6, "rgba(3,7,18,.75)"); sf.addColorStop(1, "rgba(3,7,18,1)");
+  x.fillStyle = sf; x.fillRect(0, fineMappa - 210, W, 210);
+  x.fillStyle = "#030712"; x.fillRect(0, fineMappa, W, 1350);
+  // Vignetta leggera
+  const vg = x.createRadialGradient(W / 2, H * .45, H * .35, W / 2, H * .45, H * .85);
+  vg.addColorStop(0, "rgba(0,0,0,0)"); vg.addColorStop(1, "rgba(0,0,0,.35)");
+  x.fillStyle = vg; x.fillRect(0, 0, W, H);
+
+  // 4. Paesi: icona grande con ombra, etichetta in vetro con la temperatura colorata
+  const ICONA = c => c === 0 ? "☀️" : c <= 2 ? "🌤️" : c === 3 ? "☁️" : c <= 48 ? "🌫️" : c <= 67 ? "🌧️" : c <= 77 ? "❄️" : c <= 82 ? "🌦️" : c <= 86 ? "🌨️" : "⛈️";
+  const coloreT = t => t >= 32 ? "#ff3b3b" : t >= 26 ? "#ff8a1a" : t >= 20 ? "#ffc61a" : t >= 14 ? "#3fe08a" : t >= 8 ? "#2fb8ff" : t >= 2 ? "#5a8cff" : "#b89bff";
+  const pos = D.paesi.map(p => { const [X, Y] = aPx(p.lat, p.lon); return { p, X, Y }; }).filter(o => o.Y > 120 && o.Y < document.querySelector(".testo").getBoundingClientRect().top - 40);
+  x.textBaseline = "middle";
+  pos.forEach(o => {
+    x.font = '800 26px Inter, Arial, sans-serif';
+    o.wn = x.measureText(o.p.nome).width; o.w = o.wn + 30 + 74;
+  });
+  pos.forEach(o => {
+    // puntino del paese
+    x.beginPath(); x.arc(o.X, o.Y, 7, 0, Math.PI * 2); x.fillStyle = "#fff"; x.fill();
+    x.lineWidth = 3; x.strokeStyle = "rgba(0,0,0,.45)"; x.stroke();
+    const ix = o.p.lato === "sx" ? o.X - o.w / 2 - 40 : o.p.lato === "dx" ? o.X + o.w / 2 + 40 : o.X;
+    const iy = o.p.lato ? o.Y + 30 : o.Y - 40;
+    x.save(); x.shadowColor = "rgba(0,0,0,.55)"; x.shadowBlur = 14; x.shadowOffsetY = 5;
+    x.font = '64px "Apple Color Emoji","Noto Color Emoji",sans-serif'; x.textAlign = "center";
+    x.fillText(ICONA(o.p.codice), ix, iy);
+    x.restore();
+  });
+  pos.forEach(o => {
+    const y = o.Y + 12, h = 42, l = o.X - o.w / 2;
+    x.save(); x.shadowColor = "rgba(0,0,0,.45)"; x.shadowBlur = 16; x.shadowOffsetY = 6;
+    x.fillStyle = "rgba(6,14,34,.86)"; x.beginPath(); x.roundRect(l, y, o.w, h, 21); x.fill(); x.restore();
+    x.strokeStyle = "rgba(255,255,255,.28)"; x.lineWidth = 1.5; x.beginPath(); x.roundRect(l, y, o.w, h, 21); x.stroke();
+    x.font = '800 26px Inter, Arial, sans-serif'; x.textAlign = "left"; x.fillStyle = "#fff";
+    x.fillText(o.p.nome, l + 16, y + h / 2 + 1);
+    const bx = l + o.w - 70, bw = 64;
+    x.fillStyle = coloreT(o.p.t); x.beginPath(); x.roundRect(bx, y + 4, bw, h - 8, 17); x.fill();
+    x.font = '900 24px Inter, Arial, sans-serif'; x.textAlign = "center"; x.fillStyle = o.p.t >= 14 && o.p.t < 26 ? "#08210f" : "#fff";
+    x.fillText(o.p.t + "°", bx + bw / 2, y + h / 2 + 1);
+  });
+  window.pronto = true;
+})();
 </script></body></html>`;
   const pagina = await browser.newPage({ viewport:{ width:1080, height:1350 } });
   await pagina.setContent(html, { waitUntil:"networkidle" });
-  await pagina.evaluate(() => document.fonts.ready);
   await pagina.waitForFunction(() => window.pronto === true, null, { timeout:60000 });
-  const jpg = await pagina.screenshot({ type:"jpeg", quality:92 });
+  const jpg = await pagina.screenshot({ type:"jpeg", quality:93 });
   await pagina.close();
   return jpg;
 }
