@@ -5,12 +5,17 @@
   "reel-weekend": "2026-11-24",
   "carosello": "2026-11-24",
   "reel-guida": "2026-11-24",
-  "notizia": "2026-11-24",
+  "notizia": "2026-11-25",
   "pubblicati": [
     {
       "id": "17911307373656784",
       "tipo": "reel-giornata",
       "data": "2026-11-24"
+    },
+    {
+      "id": "18028193939936176",
+      "tipo": "notizia",
+      "data": "2026-11-25"
     }
   ],
   "reel-giornata": "2026-11-24",
