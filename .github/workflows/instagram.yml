@@ -3,13 +3,13 @@
 # - il giovedì dalle 17: post e storia del weekend;
 # - quando c'è un'allerta gialla, arancione o rossa: post e storia (una volta per bollettino).
 # - il martedì e il sabato dalle 12: un post che mostra l'app (a rotazione).
-# Gira ogni ora; non fa niente finché non c'è il segreto IG_TOKEN.
+# Gira ogni 5 minuti (il minimo di GitHub); non fa niente finché non c'è il segreto IG_TOKEN.
 # Il segreto GH_PAT (facoltativo ma consigliato) serve a rinnovare da solo il token ogni settimana.
 name: Instagram
 
 on:
   schedule:
-    - cron: "41 * * * *"
+    - cron: "*/5 * * * *"
   workflow_dispatch:
     inputs:
       forza:
@@ -24,8 +24,9 @@ on:
 permissions:
   contents: write
 
+# Gruppo proprio: con le esecuzioni ogni 5 minuti non deve far saltare quelle di allerta e balneazione
 concurrency:
-  group: dati-repository
+  group: instagram
   cancel-in-progress: false
 
 jobs:
@@ -72,8 +73,7 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add -A social/immagini
           git commit -q -m "Immagini per Instagram" || true
-          git pull -q --rebase origin main
-          git push -q origin HEAD:main
+          for i in 1 2 3; do git pull -q --rebase origin main && git push -q origin HEAD:main && break; sleep 5; done
           echo "URL_BASE=https://raw.githubusercontent.com/${{ github.repository }}/$(git rev-parse HEAD)" >> "$GITHUB_ENV"
 
       - name: Pubblica su Instagram
@@ -109,6 +109,5 @@ jobs:
             git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
             git add social/stato.json social/statistiche.json 2>/dev/null || git add social/stato.json
             git commit -q -m "Stato delle pubblicazioni su Instagram"
-            git pull -q --rebase origin main
-            git push -q origin HEAD:main
+            for i in 1 2 3; do git pull -q --rebase origin main && git push -q origin HEAD:main && break; sleep 5; done
           fi

@@ -308,7 +308,7 @@ In alternativa si possono mandare le foto a Claude, che le mette nella cartella 
 
 ## Instagram automatico (@cilentometeo)
 
-Il workflow `.github/workflows/instagram.yml` gira ogni ora e pubblica da solo:
+Il workflow `.github/workflows/instagram.yml` gira ogni 5 minuti e pubblica da solo:
 
 | Quando | Cosa |
 |---|---|
