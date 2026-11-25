@@ -115,6 +115,7 @@ const PAESI = [
 const ZONE_ALLERTA = { S:"Piana del Sele e Alto Cilento", B:"Basso Cilento", T:"Tanagro e Vallo di Diano" };
 const COLORI_ALLERTA = { verde:"#33c27f", gialla:"#ffd23f", arancione:"#ff8c2e", rossa:"#ff4d4d" };
 const ORDINE_ALLERTA = ["verde", "gialla", "arancione", "rossa"];
+const livelloAllerta = l => ({ giallo:"gialla", rosso:"rossa" })[l] || l;
 
 const $ = id => document.getElementById(id);
 const tele = {};      // canvas generati
@@ -310,8 +311,8 @@ function peggioreAllerta(){
   for(const [data, zone] of Object.entries(allerta.giorni).sort()){
     if(data < oggi) continue;
     for(const [z, v] of Object.entries(zone)){
-      const l = ORDINE_ALLERTA.indexOf(v.livello);
-      if(l > 0 && (!migliore || l > migliore.l)) migliore = { data, l, livello:v.livello, zone };
+      const l = ORDINE_ALLERTA.indexOf(livelloAllerta(v.livello));
+      if(l > 0 && (!migliore || l > migliore.l)) migliore = { data, l, livello:livelloAllerta(v.livello), zone };
     }
     if(migliore) return migliore;
   }
@@ -333,7 +334,7 @@ function disegnaAllerta(){
     pulsanti.forEach(p => p.disabled = true);
     return;
   }
-  const colore = COLORI_ALLERTA[a.livello];
+  const colore = COLORI_ALLERTA[livelloAllerta(a.livello)];
   const quando = a.data === oggiRoma() ? "Oggi" : maiuscola(dataLunga(a.data));
   riquadro(x, 60, 170, 960, 330, 40, colore + "26", colore);
   scrivi(x, "⚠️", 540, 245, { size:80, peso:400, allinea:"center", font:EMOJI });
@@ -344,7 +345,7 @@ function disegnaAllerta(){
   const tipi = { idrogeologico:"Idrogeologica", idraulico:"Idraulica", temporali:"Temporali" };
   let y = 560;
   for(const [z, v] of Object.entries(a.zone)){
-    const cz = COLORI_ALLERTA[v.livello] || "#ffffff";
+    const cz = COLORI_ALLERTA[livelloAllerta(v.livello)] || "#ffffff";
     riquadro(x, 60, y, 960, 150, 30, "rgba(255,255,255,.06)", "rgba(255,255,255,.1)");
     x.beginPath(); x.arc(115, y + 75, 22, 0, Math.PI * 2); x.fillStyle = cz; x.fill();
     scrivi(x, ZONE_ALLERTA[z] || z, 165, y + 52, { size:40, peso:700 });

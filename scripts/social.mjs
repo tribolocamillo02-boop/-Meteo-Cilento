@@ -28,6 +28,8 @@ const API = process.env.IG_API || (TOKEN_FACEBOOK ? "https://graph.facebook.com/
 // ID dell'account Instagram @cilentometeo (pubblico, si vede nella dashboard di Meta)
 const ID_INSTAGRAM = process.env.IG_UTENTE || "17841456978976858";
 const ORDINE_ALLERTA = ["verde", "gialla", "arancione", "rossa"];
+// il bollettino scrive «giallo» e «rosso»: si normalizza
+const livelloAllerta = l => ({ giallo:"gialla", rosso:"rossa" })[l] || l;
 
 // Post che mostrano l'app: a rotazione, il martedì e il sabato
 const PROMO = [
@@ -101,7 +103,7 @@ function allertaAttuale(oggi){
   for(const [data, zone] of Object.entries(a.giorni).sort()){
     if(data < oggi) continue;
     let peggiore = 0;
-    for(const v of Object.values(zone)) peggiore = Math.max(peggiore, ORDINE_ALLERTA.indexOf(v.livello));
+    for(const v of Object.values(zone)) peggiore = Math.max(peggiore, ORDINE_ALLERTA.indexOf(livelloAllerta(v.livello)));
     if(peggiore > 0) return { chiave:`${a.id}:${data}:${ORDINE_ALLERTA[peggiore]}`, data, livello:ORDINE_ALLERTA[peggiore] };
   }
   return null;
@@ -490,6 +492,16 @@ async function genera(){
       fs.writeFileSync(path.join(IMMAGINI, nome), Buffer.from(esito[tipo], "base64"));
       file[tipo] = nome;
       console.log("Creata", nome);
+    }
+    // Versione verticale (9:16) per le storie dei post 4:5: niente lati tagliati da Instagram
+    for(const tipo of ["weekend", "allerta", "promo", "notizia"]){
+      if(!file[tipo] || saltati.includes(tipo)) continue;
+      try{
+        const nome = file[tipo].replace(/\.jpg$/, "-storia.jpg");
+        fs.writeFileSync(path.join(IMMAGINI, nome), await versioneStoria(browser, path.join(IMMAGINI, file[tipo])));
+        file[tipo + "-storia"] = nome;
+        console.log("Creata", nome);
+      }catch(e){ console.warn(`Versione per le storie di ${tipo} non creata:`, e.message); }
     }
     const c = leggi(COMPITI, {});
     // I contenuti saltati non si pubblicano: il robot li riprova all'ora successiva
@@ -1110,6 +1122,24 @@ window.finale = () => { document.getElementById("fine").style.display = "flex"; 
   ft.video(uscita, /TEMPORALI|PIOGGIA/.test(scelta.titolo) ? "pioggia" : "calmo");
 }
 
+// Mette un'immagine 4:5 dentro uno schermo 9:16: immagine intera al centro (nella zona sicura delle storie)
+// e, intorno, la stessa immagine ingrandita, sfocata e scurita
+async function versioneStoria(browser, file){
+  const b = fs.readFileSync(file).toString("base64");
+  const pagina = await browser.newPage({ viewport:{ width:1080, height:1920 } });
+  await pagina.setContent(`<!doctype html><html><head><style>
+*{margin:0;box-sizing:border-box}
+body{width:1080px;height:1920px;overflow:hidden;background:#02040a;position:relative}
+.sfondo{position:absolute;inset:-80px;background:url(data:image/jpeg;base64,${b}) center/cover;filter:blur(46px) brightness(.45) saturate(1.2)}
+.foto{position:absolute;left:50%;top:300px;width:1000px;height:1250px;margin-left:-500px;border-radius:34px;overflow:hidden;
+box-shadow:0 30px 90px rgba(0,0,0,.6),0 0 0 2px rgba(255,255,255,.12)}
+.foto img{display:block;width:100%;height:100%}
+</style></head><body><div class="sfondo"></div><div class="foto"><img src="data:image/jpeg;base64,${b}"></div></body></html>`, { waitUntil:"load" });
+  const jpg = await pagina.screenshot({ type:"jpeg", quality:92 });
+  await pagina.close();
+  return jpg;
+}
+
 async function creaCopertina(browser){
   const logo = fs.readFileSync(path.join(RADICE, "icone/icona-512.png")).toString("base64");
   const html = `<!doctype html><html><head><meta charset="utf-8">
@@ -1406,9 +1436,10 @@ async function pubblica(){
           const id = await pubblicaUna(utente, url, { didascalia:c.testi[tipo] });
           registra(stato, id, tipo, c.data);
           console.log(`Post ${tipo} pubblicato:`, id);
-          // Weekend e allerta vanno anche nelle storie
+          // Anche nelle storie, nella versione verticale (se c'è)
           await attendi(5000);
-          console.log(`Storia ${tipo} pubblicata:`, await pubblicaUna(utente, url, { storia:true }));
+          const urlStoria = c.file[tipo + "-storia"] ? `${base.replace(/\/$/, "")}/social/immagini/${c.file[tipo + "-storia"]}` : url;
+          console.log(`Storia ${tipo} pubblicata:`, await pubblicaUna(utente, urlStoria, { storia:true }));
         }
       }
       if(tipo === "allerta") stato.allerta = c.allerta.chiave;
