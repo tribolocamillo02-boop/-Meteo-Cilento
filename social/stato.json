@@ -20,11 +20,14 @@
     {
       "id": "17981686092136223",
       "tipo": "reel-radar",
-      "data": "2026-11-25"
+      "data": "2026-11-25",
+      "eliminato": true
     }
   ],
   "reel-giornata": "2026-11-24",
   "statistiche": "2026-11-25T09:50:35.516Z",
   "trialNo": "2026-11-25T14:49:12.629Z",
-  "reel-radar": "2026-11-25"
+  "controllati": {
+    "data": "2026-11-25"
+  }
 }
