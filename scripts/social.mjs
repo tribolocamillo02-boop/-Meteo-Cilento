@@ -268,6 +268,9 @@ async function decidi(){
   const forza = (process.env.FORZA || "").split(",").map(s => s.trim()).filter(Boolean);
   const compiti = [];
 
+  // Ogni mattina tra le 7 e le 9: la storia «Oggi nel Cilento» (la gente guarda il meteo prima di uscire)
+  if(forza.includes("mattina") || (ora >= 7 && ora <= 9 && stato.mattina !== data)) compiti.push("mattina");
+
   // Ogni sera dalle 19: la storia con il meteo di domani
   if(forza.includes("storia") || (ora >= 19 && ora <= 22 && stato.storia !== data)) compiti.push("storia");
 
@@ -377,7 +380,7 @@ async function genera(){
   const salta = (tipo, e) => { console.warn(`Salto ${tipo}:`, e && e.message || e); saltati.push(tipo); };
   try{
     let esito = { testi:{} };
-    const DA_PAGINA = ["storia", "weekend", "allerta"];
+    const DA_PAGINA = ["storia", "mattina", "weekend", "allerta"];
     if(compiti.some(c => DA_PAGINA.includes(c))){
       try{
         const pagina = await browser.newPage({ locale:"it-IT", timezoneId:"Europe/Rome" });
@@ -390,10 +393,14 @@ async function genera(){
         const e = await pagina.evaluate(() => {
           if(!dati) return null;
           const jpg = c => c ? c.toDataURL("image/jpeg", .92).split(",")[1] : null;
-          return {
+          const r = {
             storia: jpg(tele.storia), weekend: jpg(tele.weekend), allerta: jpg(tele.allerta),
             testi: { storia: testi.storia, weekend: testi.weekend, allerta: testi.allerta }
           };
+          // la stessa storia, ma per oggi
+          giornoStoria = 0; disegnaStoria();
+          r.mattina = jpg(tele.storia); r.testi.mattina = testi.storia;
+          return r;
         });
         if(!e) throw new Error("la pagina non ha caricato le previsioni");
         esito = e;
@@ -1368,7 +1375,7 @@ async function pubblica(){
             try{ await attendi(5000); console.log("Storia video pubblicata:", await pubblicaUna(utente, url, { storia:true })); }
             catch(e){ console.warn("Storia video non pubblicata:", e.message.slice(0, 160)); }
           }
-        }else if(tipo === "storia"){
+        }else if(tipo === "storia" || tipo === "mattina"){
           console.log("Storia pubblicata:", await pubblicaUna(utente, url, { storia:true }));
         }else{
           const id = await pubblicaUna(utente, url, { didascalia:c.testi[tipo] });
