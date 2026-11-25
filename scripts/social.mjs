@@ -587,7 +587,7 @@ async function sovrapponi(pagina, titolo, sotto){
     st.textContent = `
 .topbar{visibility:hidden}
 #reelTesta{position:fixed;z-index:99999;top:0;left:0;right:0;padding:84px 18px 34px;text-align:center;pointer-events:none;
-background:linear-gradient(rgba(2,4,10,.92) 0%,rgba(2,4,10,.75) 60%,rgba(2,4,10,0));font-family:Inter,system-ui,sans-serif;color:#f4f8ff}
+background:linear-gradient(#02040a 0%,#02040a 72%,rgba(2,4,10,0));font-family:Inter,system-ui,sans-serif;color:#f4f8ff}
 #reelTesta .m{font:700 10px/1 "Space Grotesk",Inter,sans-serif;letter-spacing:.32em;color:#8cc4ff;margin-bottom:8px}
 #reelTesta .t{font-weight:800;font-size:25px;line-height:1.1;letter-spacing:-.3px}
 #reelTesta .s{margin-top:6px;font-weight:600;font-size:13px;color:#cfe3ff}
@@ -644,22 +644,37 @@ class Fotogrammi{
 }
 
 // Grande scritta al centro nei primi secondi: ferma chi scorre
+// Carattere Anton incorporato (licenza SIL OFL): non dipende dalla connessione a Google Fonts
+const ANTON = (() => { try{ return fs.readFileSync(path.join(CARTELLA, "anton.woff2")).toString("base64"); }catch(e){ return ""; } })();
+
 async function gancio(pagina, emoji, testo, colore = "#ffd400"){
-  await pagina.evaluate(([emoji, testo, colore]) => {
+  await pagina.evaluate(([emoji, testo, colore, anton]) => {
     let g = document.getElementById("gancioReel");
     if(!g){
       const st = document.createElement("style");
-      st.textContent = `#gancioReel{position:fixed;z-index:200000;left:6%;right:6%;top:50%;transform:translateY(-50%);text-align:center;pointer-events:none;transition:none}
-#gancioReel .e{font-size:120px;line-height:1;filter:drop-shadow(0 10px 30px rgba(0,0,0,.5))}
-#gancioReel .t{display:inline-block;margin-top:18px;padding:16px 28px 10px;background:var(--c);color:#111;font:400 92px/1.02 Anton,Impact,sans-serif;text-transform:uppercase;letter-spacing:1px;box-shadow:0 18px 50px rgba(0,0,0,.55);transform:rotate(-2deg)}`;
+      // misure in vw: la scritta ha la stessa proporzione sia sulle grafiche (1080 px) sia sull'app (360 px)
+      st.textContent = `#gancioReel{position:fixed;z-index:200000;left:6vw;right:6vw;top:50%;transform:translateY(-50%);text-align:center;pointer-events:none;transition:none}
+#gancioReel .gancio-testo{display:inline-block;-webkit-text-fill-color:#111;background-clip:border-box;-webkit-background-clip:border-box;text-shadow:none;opacity:1;visibility:visible;max-width:100%;padding:1.5vw 2.6vw 1vw;background:var(--c);color:#111;font:400 8.2vw/1.04 Anton,Impact,"Arial Narrow",sans-serif;text-transform:uppercase;letter-spacing:.1vw;
+overflow-wrap:break-word;box-shadow:0 1.6vw 4.6vw rgba(0,0,0,.55);transform:rotate(-2deg)}`;
+      if(anton) st.textContent += `@font-face{font-family:"AntonGancio";src:url(data:font/woff2;base64,${anton}) format("woff2");font-display:block}`;
+      st.textContent = st.textContent.replace('font:400 8.2vw/1.04 Anton,', 'font:400 8.2vw/1.04 AntonGancio,Anton,');
       document.head.appendChild(st);
       g = document.createElement("div"); g.id = "gancioReel"; document.body.appendChild(g);
     }
     g.style.setProperty("--c", colore);
-    g.innerHTML = `<div class="t"></div>`;
-    g.querySelector(".t").textContent = testo;
+    g.innerHTML = `<div class="gancio-testo"></div>`;
+    g.querySelector(".gancio-testo").textContent = testo;
     g.style.opacity = 1; g.style.display = "block";
-  }, [emoji, testo, colore]);
+  }, [emoji, testo, colore, ANTON]);
+  // aspetta il carattere Anton (fino a 5 s), poi controlla che la scritta stia nello schermo
+  await pagina.evaluate(async () => {
+    const t0 = Date.now();
+    while(Date.now() - t0 < 5000 && !document.fonts.check('400 20px "AntonGancio"')){ await document.fonts.load('400 20px "AntonGancio"').catch(() => {}); await new Promise(r => setTimeout(r, 200)); }
+    const el = document.querySelector("#gancioReel .gancio-testo");
+    let fs = parseFloat(getComputedStyle(el).fontSize);
+    while(fs > 10 && (el.scrollWidth > el.clientWidth + 1 || el.getBoundingClientRect().height > innerHeight * .45)){ fs -= 1; el.style.fontSize = fs + "px"; }
+    await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
+  });
 }
 const gancioOpacita = (pagina, o) => pagina.evaluate(o => { const g = document.getElementById("gancioReel"); if(g){ g.style.opacity = o; g.style.display = o > 0 ? "block" : "none"; } }, o);
 
@@ -686,7 +701,7 @@ async function creaReelRadar(browser, porta, paese, uscita){
     const play = document.getElementById("radarPlay");
     if(play && play.getAttribute("aria-label") === "Pausa") play.click();
     const carta = document.querySelector("#sezione-radar .card");
-    if(carta) window.scrollTo(0, carta.getBoundingClientRect().top + window.scrollY - 100);
+    if(carta) window.scrollTo(0, carta.getBoundingClientRect().top + window.scrollY - 175);
   });
   await pagina.waitForTimeout(2500);
   const ft = new Fotogrammi(uscita + ".fotogrammi");
