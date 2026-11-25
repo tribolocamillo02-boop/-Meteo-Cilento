@@ -209,37 +209,38 @@ function disegnaStoria(){
   const i = indiceGiorno(giornoStoria);
   const [c, x] = nuovaTela(1080, 1920);
   const data = dati[0].daily.time[i];
-  intestazione(x, 1080, 250);
-  scrivi(x, giornoStoria === 0 ? "Oggi nel Cilento" : "Domani nel Cilento", 540, 370, { size:84, peso:800, allinea:"center" });
-  scrivi(x, maiuscola(dataLunga(data)), 540, 455, { size:42, peso:600, allinea:"center", colore:"#8cc4ff" });
+  // zona sicura delle storie: in alto il nome del profilo (≈220 px), in basso «Invia messaggio» (≈260 px)
+  intestazione(x, 1080, 260);
+  scrivi(x, giornoStoria === 0 ? "Oggi nel Cilento" : "Domani nel Cilento", 540, 365, { size:80, peso:800, allinea:"center" });
+  scrivi(x, maiuscola(dataLunga(data)), 540, 440, { size:40, peso:600, allinea:"center", colore:"#8cc4ff" });
 
-  const y0 = 520, alt = 110;
+  const y0 = 490, alt = 104;
   PAESI.forEach(([nome], k) => {
-    const d = dati[k].daily, y = y0 + k * (alt + 10);
+    const d = dati[k].daily, y = y0 + k * (alt + 8);
     const info = infoMeteo(d.weather_code[i]);
     riquadro(x, 60, y, 960, alt, 30, "rgba(255,255,255,.06)", "rgba(255,255,255,.1)");
-    icona(x, d.weather_code[i], 125, y + alt / 2 - 2, 104);
+    icona(x, d.weather_code[i], 125, y + alt / 2 - 2, 96);
     const s = adatta(x, nome, 470, 44);
-    scrivi(x, nome, 190, y + 42, { size:s, peso:700 });
+    scrivi(x, nome, 190, y + 38, { size:s, peso:700 });
     const pioggia = d.precipitation_probability_max[i];
-    scrivi(x, info.testo + (pioggia >= 20 ? ` · 💧 ${pioggia}%` : ""), 190, y + 86, { size:30, peso:500, colore:"rgba(228,238,255,.7)" });
+    scrivi(x, info.testo + (pioggia >= 20 ? ` · 💧 ${pioggia}%` : ""), 190, y + 80, { size:29, peso:500, colore:"rgba(228,238,255,.7)" });
     scrivi(x, Math.round(d.temperature_2m_max[i]) + "°", 900, y + alt / 2 + 2, { size:62, peso:800, allinea:"right" });
     scrivi(x, Math.round(d.temperature_2m_min[i]) + "°", 990, y + alt / 2 + 6, { size:40, peso:600, allinea:"right", colore:"rgba(228,238,255,.5)" });
   });
 
   // Mare
-  const ym = y0 + PAESI.length * (alt + 10) + 8;
-  riquadro(x, 60, ym, 960, 120, 30, "rgba(47,125,255,.14)", "rgba(140,196,255,.3)");
+  const ym = y0 + PAESI.length * (alt + 8) + 6;
+  riquadro(x, 60, ym, 960, 108, 30, "rgba(47,125,255,.14)", "rgba(140,196,255,.3)");
   const onde = mareGiorno(i);
-  scrivi(x, "🌊", 125, ym + 63, { size:58, peso:400, allinea:"center", font:EMOJI });
+  scrivi(x, "🌊", 125, ym + 57, { size:54, peso:400, allinea:"center", font:EMOJI });
   if(onde){
-    scrivi(x, "Mare " + statoMare(onde.max), 190, ym + 42, { size:40, peso:700 });
-    scrivi(x, `Onde fino a ${num(onde.max)} m · più calmo a ${onde.calmo}`, 190, ym + 86, { size:30, peso:500, colore:"rgba(228,238,255,.75)" });
+    scrivi(x, "Mare " + statoMare(onde.max), 190, ym + 38, { size:38, peso:700 });
+    scrivi(x, `Onde fino a ${num(onde.max)} m · più calmo a ${onde.calmo}`, 190, ym + 78, { size:29, peso:500, colore:"rgba(228,238,255,.75)" });
   }else{
-    scrivi(x, "Mare: dati non disponibili", 190, ym + 62, { size:36, peso:600 });
+    scrivi(x, "Mare: dati non disponibili", 190, ym + 56, { size:36, peso:600 });
   }
 
-  piede(x, 1080, 1700);
+  piede(x, 1080, 1590);
   tele.storia = c;
   $("imgStoria").src = c.toDataURL("image/jpeg", .9);
 

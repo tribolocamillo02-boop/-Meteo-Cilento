@@ -586,12 +586,12 @@ async function sovrapponi(pagina, titolo, sotto){
     const st = document.createElement("style");
     st.textContent = `
 .topbar{visibility:hidden}
-#reelTesta{position:fixed;z-index:99999;top:0;left:0;right:0;padding:26px 18px 34px;text-align:center;pointer-events:none;
+#reelTesta{position:fixed;z-index:99999;top:0;left:0;right:0;padding:84px 18px 34px;text-align:center;pointer-events:none;
 background:linear-gradient(rgba(2,4,10,.92) 0%,rgba(2,4,10,.75) 60%,rgba(2,4,10,0));font-family:Inter,system-ui,sans-serif;color:#f4f8ff}
 #reelTesta .m{font:700 10px/1 "Space Grotesk",Inter,sans-serif;letter-spacing:.32em;color:#8cc4ff;margin-bottom:8px}
 #reelTesta .t{font-weight:800;font-size:25px;line-height:1.1;letter-spacing:-.3px}
 #reelTesta .s{margin-top:6px;font-weight:600;font-size:13px;color:#cfe3ff}
-#reelSito{position:fixed;z-index:99999;left:50%;bottom:92px;transform:translateX(-50%);padding:9px 20px;border-radius:999px;font:800 15px Inter,system-ui,sans-serif;color:#fff;
+#reelSito{position:fixed;z-index:99999;left:50%;bottom:130px;transform:translateX(-50%);padding:9px 20px;border-radius:999px;font:800 15px Inter,system-ui,sans-serif;color:#fff;
 background:rgba(5,14,36,.8);border:1px solid rgba(140,196,255,.55);box-shadow:0 6px 24px rgba(0,0,0,.5);pointer-events:none}
 #reelFine{position:fixed;z-index:100000;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;gap:14px;text-align:center;padding:30px;
 background:radial-gradient(ellipse 90% 50% at 50% 30%,rgba(47,125,255,.55),transparent 70%),linear-gradient(#061433,#02040a);font-family:Inter,system-ui,sans-serif;color:#f4f8ff}
@@ -732,19 +732,19 @@ async function creaNotizia(browser, { meteo, scelta }){
 *{box-sizing:border-box;margin:0}
 body{width:1080px;height:1350px;overflow:hidden;background:#030712;font-family:Inter,Arial,sans-serif;color:#fff;position:relative}
 canvas{position:absolute;left:0;top:0}
-.marchio{position:absolute;top:30px;left:30px;display:flex;align-items:center;gap:14px;padding:10px 22px 10px 10px;border-radius:22px;
+.marchio{position:absolute;top:34px;left:56px;display:flex;align-items:center;gap:14px;padding:10px 22px 10px 10px;border-radius:22px;
 background:rgba(3,10,28,.72);backdrop-filter:blur(10px);border:2px solid rgba(255,255,255,.22);box-shadow:0 10px 30px rgba(0,0,0,.35);font:700 25px "Space Grotesk",Inter,sans-serif;letter-spacing:5px}
 .marchio img{width:54px;height:54px;border-radius:14px}
-.legenda{position:absolute;top:30px;right:30px;padding:14px 18px 12px;border-radius:20px;background:rgba(3,10,28,.72);border:2px solid rgba(255,255,255,.22);box-shadow:0 10px 30px rgba(0,0,0,.35);font-weight:800;font-size:18px;text-align:left;min-width:330px}
+.legenda{position:absolute;top:34px;right:56px;padding:14px 18px 12px;border-radius:20px;background:rgba(3,10,28,.72);border:2px solid rgba(255,255,255,.22);box-shadow:0 10px 30px rgba(0,0,0,.35);font-weight:800;font-size:18px;text-align:left;min-width:330px}
 .legenda .barra{height:16px;border-radius:8px;margin:10px 0 6px;box-shadow:inset 0 0 0 1px rgba(255,255,255,.25)}
 .legenda .num{display:flex;justify-content:space-between;font-size:17px;font-weight:700;color:#dbe9ff}
 .fondo{display:none}
-.testo{position:absolute;left:46px;right:46px;bottom:100px;display:flex;flex-direction:column;align-items:flex-start;gap:14px}
+.testo{position:absolute;left:60px;right:60px;bottom:100px;display:flex;flex-direction:column;align-items:flex-start;gap:14px}
 .riga{display:flex;align-items:center;gap:18px}
 .data{font-weight:800;font-size:28px;color:#cfe0ff;letter-spacing:.5px}
 .tag{display:flex;align-items:center;gap:10px;padding:8px 18px 4px;border-radius:6px;background:${coloreTag};color:${testoTag};font:400 44px Anton,Impact,sans-serif;letter-spacing:1.5px;box-shadow:0 8px 30px ${coloreTag}66}
 h1{font:400 84px/1.02 Anton,Impact,sans-serif;text-transform:uppercase;letter-spacing:.5px;text-shadow:0 6px 24px rgba(0,0,0,.55)}
-.sito{position:absolute;left:46px;right:46px;bottom:34px;display:flex;justify-content:space-between;align-items:center}
+.sito{position:absolute;left:60px;right:60px;bottom:34px;display:flex;justify-content:space-between;align-items:center}
 .sito b{font-weight:900;font-size:30px;color:#8cc4ff}
 .sito small{font-size:14px;color:rgba(220,230,255,.45);font-weight:600;text-align:right;line-height:1.3}
 </style></head><body>
@@ -903,22 +903,22 @@ async function creaReelCilento72(browser, { meteo, scelta }, uscita){
 *{box-sizing:border-box;margin:0}
 body{width:1080px;height:1920px;overflow:hidden;background:#030712;font-family:Inter,Arial,sans-serif;color:#fff;position:relative}
 canvas{position:absolute;left:0;top:0}
-.testa{position:absolute;left:0;right:0;top:0;padding:120px 40px 80px;background:linear-gradient(#030712 62%,rgba(3,7,18,0))}
+.testa{position:absolute;left:0;right:0;top:0;padding:250px 50px 30px;background:linear-gradient(#030712 82%,rgba(3,7,18,0))}
 .marchio{display:flex;align-items:center;gap:14px;font:700 25px "Space Grotesk",Inter,sans-serif;letter-spacing:6px;color:#bcd6ff}
 .marchio img{width:52px;height:52px;border-radius:14px}
-h1{margin-top:18px;font:400 92px/1 Anton,Impact,sans-serif;letter-spacing:1px;text-shadow:0 6px 30px rgba(47,125,255,.45)}
-.sotto{margin-top:8px;font-weight:800;font-size:32px;color:#8cc4ff}
-.giorni{display:flex;gap:16px;margin-top:26px}
+h1{margin-top:12px;font:400 80px/1 Anton,Impact,sans-serif;letter-spacing:1px;text-shadow:0 6px 30px rgba(47,125,255,.45)}
+.sotto{margin-top:6px;font-weight:800;font-size:30px;color:#8cc4ff}
+.giorni{display:flex;gap:14px;margin-top:16px}
 .g{flex:1;display:flex;align-items:center;gap:10px;padding:10px 16px;border-radius:22px;background:rgba(255,255,255,.07);border:2px solid rgba(255,255,255,.14)}
 .g .n{font-weight:900;font-size:28px;width:62px}
 .g.sel{background:rgba(47,125,255,.3);border-color:rgba(140,196,255,.7);box-shadow:0 0 30px rgba(47,125,255,.45)}
-.g .i{width:70px;height:70px}
-.g .i svg{width:70px;height:70px}
+.g .i{width:62px;height:62px}
+.g .i svg{width:62px;height:62px}
 .g .tt{font-size:25px;color:#b9c8e6;font-weight:700}.g .tt b{color:#fff;font-size:31px;font-weight:900}
-.ora{position:absolute;left:50%;top:600px;transform:translateX(-50%);display:flex;align-items:center;gap:14px;padding:14px 30px;border-radius:24px;background:rgba(6,12,30,.84);
+.ora{position:absolute;left:50%;top:640px;transform:translateX(-50%);display:flex;align-items:center;gap:14px;padding:14px 30px;border-radius:24px;background:rgba(6,12,30,.84);
 border:2px solid rgba(255,255,255,.22);box-shadow:0 12px 36px rgba(0,0,0,.45);font-weight:900;font-size:38px;white-space:nowrap}
 .ora .p{width:16px;height:16px;border-radius:50%;background:#ff4d4d;box-shadow:0 0 14px #ff4d4d}
-.scala{position:absolute;left:40px;right:40px;bottom:250px;padding:14px 20px;border-radius:20px;background:rgba(6,12,30,.8);border:2px solid rgba(255,255,255,.16)}
+.scala{position:absolute;left:70px;right:170px;top:1440px;padding:14px 20px;border-radius:20px;background:rgba(6,12,30,.8);border:2px solid rgba(255,255,255,.16)}
 .scala .b{height:16px;border-radius:8px}
 .scala .num{display:flex;justify-content:space-between;margin-top:8px;font-weight:800;font-size:21px;color:#dbe6ff}
 .scala .tit{display:flex;justify-content:space-between;font-weight:800;font-size:21px;margin-bottom:10px;color:#fff}
@@ -942,7 +942,8 @@ background:radial-gradient(ellipse 90% 50% at 50% 35%,rgba(47,125,255,.55),trans
 const D = ${JSON.stringify({ M, m:meteo })}, M = D.M, X = D.m;
 const c = document.getElementById("c"), x = c.getContext("2d");
 // La mappa del Cilento ingrandita a tutta altezza
-const S = 1, MW = M.larghezza * S, MH = M.altezza * S, OX = 0, OY = 520;
+// zona sicura di Instagram: sopra (≈250 px) c'è il nome del profilo, sotto (≈360 px) la didascalia, a destra i pulsanti
+const S = .96, MW = M.larghezza * S, MH = M.altezza * S, OX = (1080 - MW) / 2, OY = 600;
 const aPx = (lat, lon) => [OX + (lon - M.ovest) / (M.est - M.ovest) * MW, OY + (lat - M.nord) / (M.sud - M.nord) * MH];
 // Scale di colore
 function tavolozza(stop){
@@ -1038,15 +1039,19 @@ window.disegna = (t) => {
   x.textBaseline = "middle";
   X.paesi.forEach(p => {
     let [px, py] = aPx(p.lat, p.lon);
-    if(px < 60 || px > 1020 || py > OY + MH - 120) return;
+    if(px < 60 || px > 1020 || py > 1420) return;
     const tt = Math.round(cub(p.t[hc(h0 - 1)] || 0, p.t[h0] || 0, p.t[h1] || 0, p.t[hc(h1 + 1)] || 0, f));
     const img = ICONE[tipoIcona(p.codice[f < .5 ? h0 : h1])];
     x.font = "800 27px Inter, Arial, sans-serif";
     const w = x.measureText(p.nome).width + 30 + 72;
-    const ix = p.lato === "sx" ? px - w / 2 - 44 : p.lato === "dx" ? px + w / 2 + 44 : px, iy = p.lato ? py + 32 : py - 42;
+    // le etichette non vanno mai sotto i pulsanti di Instagram (a destra) né fuori dallo schermo
+    const limite = py > 1000 ? 920 : 1040;
+    const sposta = Math.min(0, limite - (px + w / 2)) + Math.max(0, 40 - (px - w / 2));
+    const cx = px + sposta;
+    const ix = p.lato === "sx" ? cx - w / 2 - 44 : p.lato === "dx" ? cx + w / 2 + 44 : cx, iy = p.lato ? py + 32 : py - 42;
     x.beginPath(); x.arc(px, py, 7, 0, 7); x.fillStyle = "#fff"; x.fill(); x.lineWidth = 3; x.strokeStyle = "rgba(0,0,0,.45)"; x.stroke();
-    if(img) x.drawImage(img, ix - 56, iy - 60, 112, 112);
-    const l = px - w / 2, y = py + 12, h = 44;
+    if(img) x.drawImage(img, Math.min(ix, limite - 56) - 56, iy - 60, 112, 112);
+    const l = cx - w / 2, y = py + 12, h = 44;
     x.save(); x.shadowColor = "rgba(0,0,0,.5)"; x.shadowBlur = 16; x.shadowOffsetY = 6;
     x.fillStyle = "rgba(6,14,34,.86)"; x.beginPath(); x.roundRect(l, y, w, h, 22); x.fill(); x.restore();
     x.strokeStyle = "rgba(255,255,255,.28)"; x.lineWidth = 1.5; x.beginPath(); x.roundRect(l, y, w, h, 22); x.stroke();
@@ -1058,8 +1063,8 @@ window.disegna = (t) => {
   // la mappa sfuma in alto e in basso
   let sf = x.createLinearGradient(0, OY, 0, OY + 160); sf.addColorStop(0, "#030712"); sf.addColorStop(1, "rgba(3,7,18,0)");
   x.fillStyle = sf; x.fillRect(0, OY - 2, 1080, 162);
-  sf = x.createLinearGradient(0, OY + MH - 200, 0, OY + MH); sf.addColorStop(0, "rgba(3,7,18,0)"); sf.addColorStop(1, "#030712");
-  x.fillStyle = sf; x.fillRect(0, OY + MH - 200, 1080, 1920);
+  sf = x.createLinearGradient(0, 1380, 0, 1600); sf.addColorStop(0, "rgba(3,7,18,0)"); sf.addColorStop(1, "#030712");
+  x.fillStyle = sf; x.fillRect(0, 1380, 1080, 220); x.fillStyle = "#030712"; x.fillRect(0, 1600, 1080, 320);
   const d = new Date(X.ore[h0] + ":00");
   const g = d.toLocaleDateString("it-IT", { weekday:"long", day:"numeric" });
   const min = Math.floor(f * 60 / 10) * 10;
