@@ -312,6 +312,7 @@ Il workflow `.github/workflows/instagram.yml` gira ogni ora e pubblica da solo:
 
 | Quando | Cosa |
 |---|---|
+| ogni mattina tra le 7 e le 9 | storia «Oggi nel Cilento» |
 | ogni sera dalle 19 | storia «Domani nel Cilento» |
 | il giovedì dalle 17 | post + storia «Il weekend nel Cilento» con didascalia e hashtag |
 | allerta gialla, arancione o rossa | post + storia dell'allerta (una volta per bollettino, tra le 7 e le 23) |
