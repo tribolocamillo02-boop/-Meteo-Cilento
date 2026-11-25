@@ -288,7 +288,8 @@ async function decidi(){
   // Post «notizia» con la mappa: lunedì e mercoledì tra le 13 e le 15,
   // e ogni altro giorno se domani c'è qualcosa di importante (temporali, neve, vento, caldo, freddo)
   let notizia = null;
-  if(forza.includes("notizia") || (ora >= 13 && ora <= 15 && stato.notizia !== data)){
+  const controllati = stato.controllati && stato.controllati.data === data ? stato.controllati : { data };
+  if(forza.includes("notizia") || (ora >= 13 && ora <= 15 && stato.notizia !== data && !controllati.notizia)){
     try{
       const m = await meteoGriglia();
       const n = scegliNotizia(m, 1);
@@ -296,13 +297,13 @@ async function decidi(){
         compiti.push("notizia");
         notizia = { meteo:m, scelta:n };
         console.log("Notizia:", n.titolo);
-      }
+      }else controllati.notizia = true;
     }catch(e){ console.warn("Notizia saltata:", e.message); }
   }
 
   // Reel «la giornata ora per ora»: la domenica, e ogni giorno in cui arriva il maltempo (tra le 12 e le 15)
   let cilento72 = null;
-  if(forza.includes("reel-giornata") || (ora >= 18 && ora <= 21 && stato["reel-giornata"] !== data)){
+  if(forza.includes("reel-giornata") || (ora >= 18 && ora <= 21 && stato["reel-giornata"] !== data && !controllati.giornata)){
     try{
       const m = await meteoCilento72();
       const s = scegliCilento72(m);
@@ -310,7 +311,7 @@ async function decidi(){
         cilento72 = { meteo:m, scelta:s };
         compiti.push("reel-giornata");
         console.log("Reel della giornata:", s.titolo);
-      }
+      }else controllati.giornata = true;
     }catch(e){ console.warn("Reel della giornata saltato:", e.message); }
   }
 
@@ -319,7 +320,8 @@ async function decidi(){
 
   // Reel del radar: quando piove nel Cilento, al massimo uno al giorno, tra le 8 e le 20
   let reelPaese = null;
-  if(forza.includes("reel-radar") || (ora >= 8 && ora <= 20 && stato["reel-radar"] !== data)){
+  const minuto = new Date().getUTCMinutes();
+  if(forza.includes("reel-radar") || (ora >= 8 && ora <= 20 && stato["reel-radar"] !== data && minuto % 15 < 5)){
     const p = await pioggiaAdesso();
     if(p && (p.mm >= 0.3 || forza.includes("reel-radar"))){
       compiti.push("reel-radar");
@@ -348,6 +350,7 @@ async function decidi(){
     rinnovo = false;
   }
 
+  if(JSON.stringify(stato.controllati) !== JSON.stringify(controllati)){ stato.controllati = controllati; scrivi(STATO, stato); }
   const contaStatistiche = !!process.env.IG_TOKEN && (!stato.statistiche || Date.now() - Date.parse(stato.statistiche) > 6 * 36e5);
   scrivi(COMPITI, { data, compiti, allerta, rinnovo, reelPaese, notizia, cilento72 });
   console.log(`Italia: ${data} ore ${ora} (${giorno}). Da pubblicare: ${compiti.join(", ") || "niente"}. Rinnovo token: ${rinnovo ? "sì" : "no"}`);
