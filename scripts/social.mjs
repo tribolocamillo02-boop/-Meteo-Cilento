@@ -1396,7 +1396,9 @@ async function pubblica(){
             catch(e){ console.warn("Storia video non pubblicata:", e.message.slice(0, 160)); }
           }
         }else if(tipo === "storia" || tipo === "mattina"){
-          console.log("Storia pubblicata:", await pubblicaUna(utente, url, { storia:true }));
+          const id = await pubblicaUna(utente, url, { storia:true });
+          registra(stato, id, tipo, c.data);
+          console.log("Storia pubblicata:", id);
         }else{
           const id = await pubblicaUna(utente, url, { didascalia:c.testi[tipo] });
           registra(stato, id, tipo, c.data);
@@ -1519,7 +1521,32 @@ async function pulizia(st){
   scrivi(STATISTICHE, st);
 }
 
-const comandi = { decidi, genera, pubblica, rinnova, rinnovato, statistiche };
+// Ogni ora, prima di decidere: se un contenuto pubblicato oggi o ieri è stato eliminato
+// (a mano dall'app o dalla pulizia), lo si toglie dallo stato così il robot lo rifà alla prima occasione
+async function controlla(){
+  if(!process.env.IG_TOKEN) return;
+  const stato = leggi(STATO, {});
+  if(stato.bloccatoFino && Date.now() < Date.parse(stato.bloccatoFino)) return;
+  const { data } = adessoRoma();
+  const ieri = new Date(Date.parse(data) - 864e5).toISOString().slice(0, 10);
+  const recenti = (stato.pubblicati || []).filter(p => (p.data === data || p.data === ieri) && !p.eliminato);
+  let cambiato = false;
+  for(const p of recenti){
+    try{ await chiamata("GET", `/${p.id}`, { fields:"id" }); }
+    catch(e){
+      if(!/does not exist|Unsupported get request|cannot be loaded|"code":100/i.test(e.message)) continue;
+      p.eliminato = true; cambiato = true;
+      console.log(`Il contenuto ${p.tipo} del ${p.data} è stato eliminato: verrà rifatto alla prima occasione`);
+      // si rifà solo se è di oggi (le previsioni di ieri non servono più)
+      if(p.data === data && stato[p.tipo] === data) delete stato[p.tipo];
+      if(p.tipo === "allerta") delete stato.allerta;
+    }
+  }
+  if(cambiato) scrivi(STATO, stato);
+  else console.log(`Controllati ${recenti.length} contenuti recenti: tutti presenti`);
+}
+
+const comandi = { decidi, genera, pubblica, rinnova, rinnovato, statistiche, controlla };
 const cmd = process.argv[2];
 if(!comandi[cmd]){ console.error("Uso: node scripts/social.mjs decidi|genera|pubblica|rinnova|rinnovato"); process.exit(2); }
 await comandi[cmd]();

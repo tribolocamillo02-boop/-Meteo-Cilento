@@ -45,6 +45,10 @@ jobs:
         with:
           node-version: 22
 
+      - name: Controlla i contenuti eliminati
+        continue-on-error: true
+        run: node scripts/social.mjs controlla
+
       - name: Decide cosa pubblicare
         id: d
         run: node scripts/social.mjs decidi
