@@ -19,7 +19,7 @@ jobs:
   aggiorna:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Scarica il bollettino e aggiorna allerta.json
         run: python3 scripts/aggiorna_allerta.py allerta.json
       - name: Salva se è cambiato

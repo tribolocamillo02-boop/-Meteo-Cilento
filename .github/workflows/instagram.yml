@@ -37,13 +37,13 @@ jobs:
       FORZA: ${{ inputs.forza }}
       PROVA: ${{ inputs.prova && '1' || '' }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           ref: main
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v5
         with:
-          node-version: 20
+          node-version: 22
 
       - name: Decide cosa pubblicare
         id: d

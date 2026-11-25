@@ -404,8 +404,8 @@ async function genera(){
     }
 
     fs.mkdirSync(IMMAGINI, { recursive:true });
-    // Tiene solo le immagini degli ultimi 7 giorni
-    const limite = new Date(Date.now() - 7 * 864e5).toISOString().slice(0, 10);
+    // Tiene solo i file degli ultimi 3 giorni (Instagram li scarica subito)
+    const limite = new Date(Date.now() - 3 * 864e5).toISOString().slice(0, 10);
     for(const f of fs.readdirSync(IMMAGINI)) if(f.slice(0, 10) < limite) fs.unlinkSync(path.join(IMMAGINI, f));
 
     const file = {}, copertine = {};
@@ -628,8 +628,8 @@ class Fotogrammi{
     execFileSync("ffmpeg", ["-y", "-loglevel", "error", "-framerate", "30", "-i", path.join(this.cartella, "f%05d.jpg"),
       "-f", "lavfi", "-i", audio,
       "-shortest", "-vf", "scale=1080:1920:flags=lanczos:in_range=full:out_range=tv,format=yuv420p",
-      "-c:v", "libx264", "-profile:v", "high", "-level", "4.1", "-preset", "medium", "-crf", "20", "-r", "30",
-      "-g", "30", "-keyint_min", "30", "-sc_threshold", "0", "-maxrate", "8M", "-bufsize", "16M",
+      "-c:v", "libx264", "-profile:v", "high", "-level", "4.1", "-preset", "slow", "-crf", "22", "-r", "30",
+      "-g", "30", "-keyint_min", "30", "-sc_threshold", "0", "-maxrate", "6M", "-bufsize", "12M",
       "-color_range", "tv", "-colorspace", "bt709", "-color_primaries", "bt709", "-color_trc", "bt709",
       "-c:a", "aac", "-b:a", "128k", "-ar", "48000", "-ac", "2", "-movflags", "+faststart", uscita]);
     fs.rmSync(this.cartella, { recursive:true, force:true });
@@ -1213,19 +1213,23 @@ async function chiamata(metodo, percorso, parametri = {}){
   return j;
 }
 
+let esitoTrial = null;   // true = pubblicato come Reel di prova, false = rifiutato
+
 function registra(stato, id, tipo, data){
   stato.pubblicati = (stato.pubblicati || []).concat([{ id, tipo, data }]).slice(-150);
 }
 
 async function pubblicaUna(utente, url, { didascalia, storia, reel, copertina, prova }, tentativo = 1){
-  const param = reel ? { media_type:"REELS", video_url:url, share_to_feed:"true" } : { image_url:url };
+  const video = /\.mp4($|\?)/.test(url);
+  const param = reel ? { media_type:"REELS", video_url:url, share_to_feed:"true" } : video ? { video_url:url } : { image_url:url };
   if(reel && copertina) param.thumb_offset = String(copertina);
   if(reel && prova){
     // Trial Reel con promozione automatica se va bene; se l'account non può ancora usarli, si pubblica normale
     try{
       const { id } = await chiamata("POST", `/${utente}/media`, { ...param, caption:didascalia || "", trial_params:JSON.stringify({ graduation_strategy:"SS_PERFORMANCE" }) });
-      return await completa(utente, id, reel, async () => pubblicaUna(utente, url, { didascalia, storia, reel, copertina, prova:false }, tentativo));
-    }catch(e){ console.warn("Reel di prova non disponibile, pubblico normale:", e.message.slice(0, 160)); }
+      esitoTrial = true;
+      return await completa(utente, id, reel, async () => { esitoTrial = false; return pubblicaUna(utente, url, { didascalia, storia, reel, copertina, prova:false }, tentativo); });
+    }catch(e){ esitoTrial = false; console.warn("Reel di prova non disponibile, pubblico normale:", e.message.slice(0, 160)); }
   }
   if(storia) param.media_type = "STORIES";
   if(didascalia && !storia) param.caption = didascalia;
@@ -1236,7 +1240,7 @@ async function pubblicaUna(utente, url, { didascalia, storia, reel, copertina, p
     catch(e){ console.warn("Luogo non accettato, pubblico senza"); }
   }
   if(!id) ({ id } = await chiamata("POST", `/${utente}/media`, param));
-  for(let k = 0; k < (reel ? 120 : 30); k++){
+  for(let k = 0; k < (reel || video ? 120 : 30); k++){
     const st = await chiamata("GET", `/${id}`, { fields:"status_code,status" });
     if(st.status_code === "FINISHED") break;
     if(st.status_code === "ERROR" || st.status_code === "EXPIRED"){
@@ -1352,10 +1356,18 @@ async function pubblica(){
         if(reel){
           // Reel «di prova»: Instagram lo mostra prima a chi non ci segue e lo mette sul profilo solo se va bene
           // (il Reel «Come si usa» esce invece subito per tutti, perché va fissato sul profilo)
-          const diProva = tipo !== "reel-guida" && process.env.TRIAL_REELS !== "0";
+          const trialSospesi = stato.trialNo && Date.now() - Date.parse(stato.trialNo) < 7 * 864e5;
+          const diProva = tipo !== "reel-guida" && process.env.TRIAL_REELS !== "0" && !trialSospesi;
+          esitoTrial = null;
           const id = await pubblicaUna(utente, url, { didascalia:c.testi[tipo], reel:true, copertina:(c.copertine || {})[tipo], prova:diProva });
+          if(diProva && esitoTrial === false) stato.trialNo = new Date().toISOString();
           registra(stato, id, tipo, c.data);
-          console.log(`Reel ${tipo} pubblicato:`, id);
+          console.log(`Reel ${tipo} pubblicato${esitoTrial ? " come Reel di prova" : ""}:`, id);
+          // Se è un Reel normale (non di prova) lo mettiamo anche nelle storie: lo vedono subito i follower
+          if(!esitoTrial && tipo !== "reel-guida"){
+            try{ await attendi(5000); console.log("Storia video pubblicata:", await pubblicaUna(utente, url, { storia:true })); }
+            catch(e){ console.warn("Storia video non pubblicata:", e.message.slice(0, 160)); }
+          }
         }else if(tipo === "storia"){
           console.log("Storia pubblicata:", await pubblicaUna(utente, url, { storia:true }));
         }else{

@@ -18,7 +18,7 @@ jobs:
   aggiorna:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Scarica aree e divieti e aggiorna balneazione.json
         run: python3 scripts/aggiorna_balneazione.py balneazione.json
       - name: Salva se è cambiato
