@@ -22,12 +22,23 @@
       "tipo": "reel-radar",
       "data": "2026-11-25",
       "eliminato": true
+    },
+    {
+      "id": "17945340765101555",
+      "tipo": "reel-giornata",
+      "data": "2026-11-25"
+    },
+    {
+      "id": "18098158868671108",
+      "tipo": "allerta",
+      "data": "2026-11-25"
     }
   ],
-  "reel-giornata": "2026-11-24",
-  "statistiche": "2026-11-25T09:50:35.516Z",
+  "reel-giornata": "2026-11-25",
+  "statistiche": "2026-11-25T17:49:09.992Z",
   "trialNo": "2026-11-25T14:49:12.629Z",
   "controllati": {
     "data": "2026-11-25"
-  }
+  },
+  "allerta": "20261125_1523:2026-11-25:arancione"
 }
