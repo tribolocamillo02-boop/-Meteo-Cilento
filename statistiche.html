@@ -41,6 +41,8 @@ h2{font-size:17px;margin:26px 0 10px;}
   <div id="avvisi"></div>
   <h2>Cosa funziona meglio (visualizzazioni medie)</h2>
   <div id="tipi"></div>
+  <h2>Cosa sta imparando il robot</h2>
+  <div id="impara"><p class="sotto">Servono ancora dati: il robot impara dopo qualche Reel per ogni variante.</p></div>
   <h2>Tutti i contenuti</h2>
   <div id="elenco"></div>
 </main>
@@ -69,6 +71,22 @@ const num = n => n == null ? "–" : n >= 1000 ? (n / 1000).toFixed(1).replace("
   const medie = Object.entries(perTipo).map(([k, a]) => [k, Math.round(a.reduce((s, x) => s + x, 0) / a.length), a.length]).sort((a, b) => b[1] - a[1]);
   const max = Math.max(1, ...medie.map(m => m[1]));
   document.getElementById("tipi").innerHTML = medie.map(([k, m, n]) => `<div class="tipo"><span class="n">${NOMI[k] || k} <small>(${n})</small></span><span class="barra"><i style="width:${m / max * 100}%"></i></span><span class="v">${num(m)}</span></div>`).join("") || '<p class="sotto">Ancora nessun dato.</p>';
+  const DIM = { gancio:"Scritta iniziale", durata:"Durata", orario:"Orario" };
+  const VAR = { titolo:"titolo", domanda:"domanda", numero:"con il numero", movimento:"«dove va la pioggia»", sabato:"«sabato»", corto:"corto (9 s)", medio:"medio (13 s)", pranzo:"a pranzo", pomeriggio:"nel pomeriggio", sera:"la sera" };
+  try{
+    const ap = await (await fetch("social/apprendimento.json", { cache:"no-cache" })).json();
+    const parti = [];
+    for(const [tipo, dims] of Object.entries(ap.tipi || {})){
+      parti.push(`<div class="card" style="margin-bottom:10px"><b style="font-size:16px">${NOMI[tipo] || tipo}</b>` +
+        Object.entries(dims).map(([dim, r]) => {
+          const max = Math.max(1, ...Object.values(r).map(x => x.media));
+          return `<p class="sotto" style="margin:10px 0 4px">${DIM[dim] || dim}</p>` + Object.entries(r).sort((a, b) => b[1].media - a[1].media).map(([v, x]) =>
+            `<div class="tipo"><span class="n">${VAR[v] || v} <small>(${x.n})</small></span><span class="barra"><i style="width:${x.media / max * 100}%"></i></span><span class="v">${x.media}×</span></div>`).join("");
+        }).join("") + `</div>`);
+    }
+    if(parti.length) document.getElementById("impara").innerHTML = `<p class="sotto">Basato su: ${ap.base}. 1× = un Reel nella media.</p>` + parti.join("") +
+      (ap.consigli.length ? ap.consigli.map(c => `<div class="avviso" style="color:#7ee2a8;border-color:rgba(126,226,168,.4);background:rgba(126,226,168,.08)">✅ ${c}</div>`).join("") : "");
+  }catch(e){}
   document.getElementById("elenco").innerHTML = voci.map(v => `<div class="voce${v.eliminato ? " eliminato" : ""}">
     <div><b>${NOMI[v.tipo] || v.tipo}</b><br><span style="color:var(--testo-3)">${new Date(v.data + "T12:00:00").toLocaleDateString("it-IT", { day:"numeric", month:"short" })}${v.link ? ` · <a href="${v.link}" target="_blank" rel="noopener">apri</a>` : ""}${v.motivo ? " · eliminato: " + v.motivo : ""}</span></div>
     <div class="num"><span>👁 <b>${num(v.views)}</b></span><span>❤️ <b>${num(v.like)}</b></span><span>💬 <b>${num(v.commenti)}</b></span><span>📤 <b>${num(v.shares)}</b></span><span>🔖 <b>${num(v.saved)}</b></span></div>

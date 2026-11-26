@@ -248,7 +248,72 @@ function scegliCilento72(m){
   else if(scelto.codice >= 3){ titolo = `NUVOLE ${Q}`; gancio = `☁️ ${quando.charAt(0).toUpperCase() + quando.slice(1)} nuvole sul Cilento ma niente pioggia: ecco come cambia il cielo ora per ora.`; }
   else { titolo = `SOLE ${Q}`; gancio = `☀️ ${quando.charAt(0).toUpperCase() + quando.slice(1)} bel tempo su tutto il Cilento: ecco la giornata ora per ora.`; }
   const righe = m.giorni.map(g => { const n = new Date(g.data + "T12:00:00").toLocaleDateString("it-IT", { weekday:"long" }); return `${n.charAt(0).toUpperCase() + n.slice(1)}: ${g.min}°/${g.max}°${g.pioggia >= 1 ? ` · fino a ${Math.round(g.pioggia)} mm` : ""}`; });
-  return { titolo, sotto:"Cosa succede nel Cilento, ora per ora", da, a, giornoScelto:scelto.d, didascalia:`${gancio}\n\n${righe.join("\n")}\n\n` };
+  const gg = m.giorni.find(g => g.data === scelto.d) || {};
+  return { titolo, quando:Q, piove:scelto.mm >= 1.5 || scelto.codice >= 95, mmMax:Math.round(gg.pioggia || 0), tMax:gg.max,
+    sotto:"Cosa succede nel Cilento, ora per ora", da, a, giornoScelto:scelto.d, didascalia:`${gancio}\n\n${righe.join("\n")}\n\n` };
+}
+
+/* ---------------- Apprendimento: quali Reel funzionano di più ---------------- */
+
+// Ogni Reel esce in una variante (scritta iniziale, durata, orario). Il robot misura come va
+// e sceglie sempre più spesso le varianti migliori, continuando a provare ogni tanto le altre.
+const ESPERIMENTI = {
+  "reel-giornata": { gancio:["titolo", "domanda", "numero"], durata:["corto", "medio"], orario:["pranzo", "pomeriggio", "sera"] },
+  "reel-radar":    { gancio:["titolo", "domanda", "movimento"] },
+  "reel-weekend":  { gancio:["titolo", "domanda", "sabato"] }
+};
+const FASCE = { pranzo:[12, 14], pomeriggio:[16, 17], sera:[19, 21] };
+const APPRENDIMENTO = path.join(CARTELLA, "apprendimento.json");
+
+function scegliVarianti(tipo){
+  const esp = ESPERIMENTI[tipo]; if(!esp) return {};
+  const ap = leggi(APPRENDIMENTO, { tipi:{} });
+  const scelte = {};
+  for(const [dim, varianti] of Object.entries(esp)){
+    const dati = ((ap.tipi[tipo] || {})[dim]) || {};
+    const n = v => (dati[v] || {}).n || 0, media = v => (dati[v] || {}).media || 0;
+    const poco = varianti.filter(v => n(v) < 3);
+    let v;
+    if(poco.length) v = poco.sort((a, b) => n(a) - n(b) || Math.random() - .5)[0];          // prima si prova tutto
+    else if(Math.random() < .25) v = varianti[Math.floor(Math.random() * varianti.length)];  // ogni tanto si esplora
+    else v = varianti.slice().sort((a, b) => media(b) - media(a))[0];                        // di solito la migliore
+    scelte[dim] = v;
+  }
+  return scelte;
+}
+
+// Punteggio di un contenuto: con le statistiche complete conta soprattutto chi lo guarda, condivide e salva
+function punteggio(c){
+  if(typeof c.views === "number") return c.views + 4 * (c.shares || 0) + 3 * (c.saved || 0) + 2 * (c.commenti || 0) + (c.like || 0);
+  return 1 + (c.like || 0) + 3 * (c.commenti || 0);
+}
+
+function impara(st){
+  const ap = { aggiornato:new Date().toISOString(), base:"", tipi:{}, consigli:[] };
+  const adesso = Date.now();
+  const voci = Object.values(st.contenuti).filter(c => ESPERIMENTI[c.tipo] && c.varianti && !c.eliminato && adesso - Date.parse(c.data) >= 2 * 864e5);
+  ap.base = voci.some(c => typeof c.views === "number") ? "visualizzazioni, condivisioni, salvataggi" : "mi piace e commenti";
+  for(const tipo of Object.keys(ESPERIMENTI)){
+    const qui = voci.filter(c => c.tipo === tipo);
+    if(!qui.length) continue;
+    const pp = qui.map(punteggio).sort((a, b) => a - b), mediana = Math.max(1, pp[Math.floor(pp.length / 2)]);
+    ap.tipi[tipo] = {};
+    for(const dim of Object.keys(ESPERIMENTI[tipo])){
+      const r = {};
+      for(const c of qui){
+        const v = c.varianti[dim]; if(!v) continue;
+        r[v] = r[v] || { n:0, somma:0 };
+        r[v].n++; r[v].somma += punteggio(c) / mediana;
+      }
+      for(const v of Object.values(r)){ v.media = Math.round(v.somma / v.n * 100) / 100; delete v.somma; }
+      ap.tipi[tipo][dim] = r;
+      const ordinate = Object.entries(r).filter(([, x]) => x.n >= 3).sort((a, b) => b[1].media - a[1].media);
+      if(ordinate.length >= 2 && ordinate[0][1].media > ordinate[1][1].media * 1.2)
+        ap.consigli.push(`${tipo} · ${dim}: «${ordinate[0][0]}» va meglio (${ordinate[0][1].media}× la media)`);
+    }
+  }
+  scrivi(APPRENDIMENTO, ap);
+  console.log("Apprendimento aggiornato:", ap.consigli.length ? ap.consigli.join("; ") : "servono ancora dati");
 }
 
 // Dove piove adesso? (precipitazione degli ultimi 15 minuti, Open-Meteo)
@@ -305,7 +370,10 @@ async function decidi(){
 
   // Reel «la giornata ora per ora»: la domenica, e ogni giorno in cui arriva il maltempo (tra le 12 e le 15)
   let cilento72 = null;
-  if(forza.includes("reel-giornata") || (ora >= 18 && ora <= 21 && stato["reel-giornata"] !== data && !controllati.giornata)){
+  // l'orario del Reel della giornata è una delle cose che il robot prova: si sceglie una volta al giorno
+  if(!controllati.varianti) controllati.varianti = { "reel-giornata":scegliVarianti("reel-giornata"), "reel-radar":scegliVarianti("reel-radar"), "reel-weekend":scegliVarianti("reel-weekend") };
+  const fascia = FASCE[controllati.varianti["reel-giornata"].orario] || FASCE.sera;
+  if(forza.includes("reel-giornata") || (ora >= fascia[0] && ora <= fascia[1] && stato["reel-giornata"] !== data && !controllati.giornata)){
     try{
       const m = await meteoCilento72();
       const s = scegliCilento72(m);
@@ -354,7 +422,7 @@ async function decidi(){
 
   if(JSON.stringify(stato.controllati) !== JSON.stringify(controllati)){ stato.controllati = controllati; scrivi(STATO, stato); }
   const contaStatistiche = !!process.env.IG_TOKEN && (!stato.statistiche || Date.now() - Date.parse(stato.statistiche) > 6 * 36e5);
-  scrivi(COMPITI, { data, compiti, allerta, rinnovo, reelPaese, notizia, cilento72 });
+  scrivi(COMPITI, { data, compiti, allerta, rinnovo, reelPaese, notizia, cilento72, varianti:controllati.varianti });
   console.log(`Italia: ${data} ore ${ora} (${giorno}). Da pubblicare: ${compiti.join(", ") || "niente"}. Rinnovo token: ${rinnovo ? "sì" : "no"}`);
   if(process.env.GITHUB_OUTPUT){
     fs.appendFileSync(process.env.GITHUB_OUTPUT, `compiti=${compiti.join(",")}\nrinnovo=${rinnovo ? "1" : ""}\nstatistiche=${contaStatistiche ? "1" : ""}\n`);
@@ -434,14 +502,14 @@ async function genera(){
     const cc = leggi(COMPITI, {});
     if(compiti.includes("reel-radar")) try{
       const nome = `${data}-reel-radar.mp4`;
-      await creaReelRadar(browser, s.address().port, cc.reelPaese || "agropoli", path.join(IMMAGINI, nome));
+      await creaReelRadar(browser, s.address().port, cc.reelPaese || "agropoli", path.join(IMMAGINI, nome), (cc.varianti || {})["reel-radar"] || {});
       file["reel-radar"] = nome;
       esito.testi["reel-radar"] = `🌧️ Piove nel Cilento: ecco il radar della Protezione Civile in diretta.\n\nGuarda dove piove adesso e dove sta andando la pioggia, paese per paese, aggiornato ogni 5 minuti.\n\n💬 Da te com'è il cielo? Scrivilo nei commenti 👇\n📤 Mandalo a chi deve venire nel Cilento!\n\n📲 Gratis su 👉 cilentometeo.it (link in bio)\n\n#cilento #meteocilento #cilentonotizie #pioggia #radarmeteo #maltempo #cilentolovers #salerno #protezionecivile`;
       console.log("Creato", nome);
     }catch(e){ salta("reel-radar", e); }
     if(compiti.includes("reel-weekend")) try{
       const nome = `${data}-reel-weekend.mp4`;
-      await creaReelWeekend(browser, s.address().port, path.join(IMMAGINI, nome));
+      await creaReelWeekend(browser, s.address().port, path.join(IMMAGINI, nome), (cc.varianti || {})["reel-weekend"] || {});
       file["reel-weekend"] = nome;
       esito.testi["reel-weekend"] = `☀️ Che tempo farà nel weekend nel Cilento?\n\nDal mare alla montagna: previsioni ora per ora per tutti i 118 paesi, mare, radar e allerte.\n\n💬 Da te com'è il cielo? Scrivilo nei commenti 👇\n📤 Mandalo a chi deve venire nel Cilento!\n\n📲 Gratis su 👉 cilentometeo.it (link in bio)\n\n#cilento #meteocilento #weekend #cilentocoast #cilentomeraviglie #cilentolovers #cilentogram #palinuro #agropoli #sapri`;
       console.log("Creato", nome);
@@ -455,7 +523,7 @@ async function genera(){
     }catch(e){ salta("notizia", e); }
     if(compiti.includes("reel-giornata")) try{
       const nome = `${data}-reel-giornata.mp4`;
-      await creaReelCilento72(browser, cc.cilento72, path.join(IMMAGINI, nome));
+      await creaReelCilento72(browser, cc.cilento72, path.join(IMMAGINI, nome), (cc.varianti || {})["reel-giornata"] || {});
       file["reel-giornata"] = nome;
       { const s = cc.cilento72.scelta, m = cc.cilento72.meteo; let hm = s.da, mx = -1;
         for(let h = s.da; h <= s.a; h++){ const v = m.pioggia[h].reduce((x, y) => x + (y || 0), 0); if(v > mx){ mx = v; hm = h; } }
@@ -701,7 +769,7 @@ async function finale(pagina, ft){
   await ft.scatta(pagina, 75);   // 2,5 secondi
 }
 
-async function creaReelRadar(browser, porta, paese, uscita){
+async function creaReelRadar(browser, porta, paese, uscita, varianti = {}){
   const ctx = await telefonoReel(browser);
   const pagina = await ctx.newPage();
   await pagina.goto(`http://127.0.0.1:${porta}/index.html?paese=${paese}#radar`, { waitUntil:"load" });
@@ -722,7 +790,7 @@ async function creaReelRadar(browser, porta, paese, uscita){
   const ft = new Fotogrammi(uscita + ".fotogrammi");
   const max = await pagina.evaluate(() => Number(document.getElementById("radarCursore").max) || 0);
   const inizio = Math.max(0, max - 17);     // circa l'ultima ora e mezza
-  await gancio(pagina, "🌧️", "PIOVE ADESSO NEL CILENTO", "#5ab4ff");
+  await gancio(pagina, "🌧️", { domanda:"DOVE PIOVE ADESSO NEL CILENTO?", movimento:"GUARDA DOVE STA ANDANDO LA PIOGGIA" }[varianti.gancio] || "PIOVE ADESSO NEL CILENTO", "#5ab4ff");
   for(let giro = 0; giro < 2; giro++){
     for(let i = inizio; i <= max; i++){
       await pagina.evaluate(v => {
@@ -918,7 +986,7 @@ function campo(u, v){
   return jpg;
 }
 
-async function creaReelCilento72(browser, { meteo, scelta }, uscita){
+async function creaReelCilento72(browser, { meteo, scelta }, uscita, varianti = {}){
   const M = JSON.parse(fs.readFileSync(path.join(CARTELLA, "mappa.json"), "utf8"));
   const b64 = f => fs.readFileSync(path.join(f.startsWith("icone") ? RADICE : CARTELLA, f)).toString("base64");
   const codiceIcone = fs.readFileSync(path.join(CARTELLA, "icone-meteo.js"), "utf8");
@@ -1108,8 +1176,13 @@ window.finale = () => { document.getElementById("fine").style.display = "flex"; 
   const ft = new Fotogrammi(uscita + ".fotogrammi");
   const da = scelta.da, a = scelta.a;
   const [em, col] = /TEMPORALI/.test(scelta.titolo) ? ["⛈️", "#ff4d4d"] : /PIOGGIA/.test(scelta.titolo) ? ["🌧️", "#5ab4ff"] : /NUVOLE/.test(scelta.titolo) ? ["☁️", "#dfe8f5"] : ["☀️", "#ffd400"];
-  await gancio(pagina, em, scelta.titolo + " NEL CILENTO", col);
-  const N = 390;                                                  // 13 s per la giornata, ~23 fotogrammi per ogni ora, nessuna pausa iniziale
+  const scritte = {
+    titolo: scelta.titolo + " NEL CILENTO",
+    domanda: scelta.piove ? `PIOVE ${scelta.quando} NEL TUO PAESE?` : `CHE TEMPO FA ${scelta.quando} NEL CILENTO?`,
+    numero: scelta.piove && scelta.mmMax ? `FINO A ${scelta.mmMax} MM DI PIOGGIA ${scelta.quando}` : `FINO A ${scelta.tMax}° ${scelta.quando} NEL CILENTO`
+  };
+  await gancio(pagina, em, scritte[varianti.gancio] || scritte.titolo, col);
+  const N = varianti.durata === "corto" ? 270 : 390;               // 9 o 13 s per la giornata, nessuna pausa iniziale
   for(let k = 0; k <= N; k++){
     if(k <= 50) await gancioOpacita(pagina, k < 36 ? 1 : 1 - (k - 36) / 14);   // il titolo grande resta 1,2 s e poi sfuma
     await pagina.evaluate(t => window.disegna(t), da + (a - da) * k / N);
@@ -1226,7 +1299,7 @@ async function creaReelGuida(browser, porta, uscita){
   ft.video(uscita);
 }
 
-async function creaReelWeekend(browser, porta, uscita){
+async function creaReelWeekend(browser, porta, uscita, varianti = {}){
   const ctx = await telefonoReel(browser);
   const ft = new Fotogrammi(uscita + ".fotogrammi");
   for(const [nome, slug] of [["Palinuro", "palinuro"], ["Agropoli", "agropoli"], ["Sapri", "sapri"]]){
@@ -1236,7 +1309,7 @@ async function creaReelWeekend(browser, porta, uscita){
     await sovrapponi(pagina, "Il weekend nel Cilento", nome);
     await pagina.evaluate(() => window.scrollTo(0, 0));
     await pagina.waitForTimeout(800);
-    if(slug === "palinuro") await gancio(pagina, "🏖️", "IL METEO DEL WEEKEND NEL CILENTO", "#ffd400");
+    if(slug === "palinuro") await gancio(pagina, "🏖️", { domanda:"WEEKEND NEL CILENTO: MARE O OMBRELLO?", sabato:"CHE TEMPO FA SABATO NEL CILENTO?" }[varianti.gancio] || "IL METEO DEL WEEKEND NEL CILENTO", "#ffd400");
     for(let k = 0; k < 36; k++){                                     // 1,2 s con la pioggia o il sole animati
       if(slug === "palinuro" && k === 30) await gancioOpacita(pagina, 0);
       await ft.scatta(pagina);
@@ -1275,8 +1348,10 @@ async function chiamata(metodo, percorso, parametri = {}){
 
 let esitoTrial = null;   // true = pubblicato come Reel di prova, false = rifiutato
 
-function registra(stato, id, tipo, data){
-  stato.pubblicati = (stato.pubblicati || []).concat([{ id, tipo, data }]).slice(-150);
+function registra(stato, id, tipo, data, varianti){
+  const voce = { id, tipo, data, ora:adessoRoma().ora };
+  if(varianti) voce.varianti = varianti;
+  stato.pubblicati = (stato.pubblicati || []).concat([voce]).slice(-150);
 }
 
 async function pubblicaUna(utente, url, { didascalia, storia, reel, copertina, prova }, tentativo = 1){
@@ -1421,7 +1496,7 @@ async function pubblica(){
           esitoTrial = null;
           const id = await pubblicaUna(utente, url, { didascalia:c.testi[tipo], reel:true, copertina:(c.copertine || {})[tipo], prova:diProva });
           if(diProva && esitoTrial === false) stato.trialNo = new Date().toISOString();
-          registra(stato, id, tipo, c.data);
+          registra(stato, id, tipo, c.data, (c.varianti || {})[tipo]);
           console.log(`Reel ${tipo} pubblicato${esitoTrial ? " come Reel di prova" : ""}:`, id);
           // Se è un Reel normale (non di prova) lo mettiamo anche nelle storie: lo vedono subito i follower
           if(!esitoTrial && tipo !== "reel-guida"){
@@ -1489,7 +1564,7 @@ async function statistiche(){
   let ok = 0, permesso = true;
   for(const p of elenco){
     if(st.contenuti[p.id] && st.contenuti[p.id].eliminato) continue;
-    const dati = { tipo:p.tipo, data:p.data };
+    const dati = { tipo:p.tipo, data:p.data, ora:p.ora, varianti:p.varianti };
     // dati di base (sempre disponibili): like, commenti, link
     try{
       const b = await chiamata("GET", `/${p.id}`, { fields:"like_count,comments_count,permalink,media_product_type" });
@@ -1520,6 +1595,7 @@ async function statistiche(){
   stato.statistiche = st.aggiornato;
   scrivi(STATO, stato);
   console.log(`Statistiche aggiornate per ${ok} contenuti`);
+  impara(st);
   await pulizia(st);
 }
 
