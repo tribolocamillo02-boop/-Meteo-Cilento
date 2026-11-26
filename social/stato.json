@@ -122,7 +122,20 @@
   "statistiche": "2026-11-26T20:38:47.866Z",
   "trialNo": "2026-11-25T14:49:12.629Z",
   "controllati": {
-    "data": "2026-11-26"
+    "data": "2026-11-27",
+    "varianti": {
+      "reel-giornata": {
+        "gancio": "numero",
+        "durata": "medio",
+        "orario": "pranzo"
+      },
+      "reel-radar": {
+        "gancio": "domanda"
+      },
+      "reel-weekend": {
+        "gancio": "domanda"
+      }
+    }
   },
   "mattina": "2026-11-26",
   "allerta": "20261126_1410:2026-11-26:gialla",
