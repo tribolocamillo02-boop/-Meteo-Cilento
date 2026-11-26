@@ -5,7 +5,7 @@
   "reel-weekend": "2026-11-24",
   "carosello": "2026-11-24",
   "reel-guida": "2026-11-24",
-  "notizia": "2026-11-25",
+  "notizia": "2026-11-26",
   "pubblicati": [
     {
       "id": "17911307373656784",
@@ -63,6 +63,12 @@
       "varianti": {
         "gancio": "domanda"
       }
+    },
+    {
+      "id": "17924581251462020",
+      "tipo": "notizia",
+      "data": "2026-11-26",
+      "ora": 13
     }
   ],
   "reel-giornata": "2026-11-25",
