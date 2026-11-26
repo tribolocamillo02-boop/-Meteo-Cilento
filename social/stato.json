@@ -54,6 +54,15 @@
       "tipo": "allerta",
       "data": "2026-11-26",
       "ora": 7
+    },
+    {
+      "id": "18136803298707280",
+      "tipo": "reel-radar",
+      "data": "2026-11-26",
+      "ora": 10,
+      "varianti": {
+        "gancio": "domanda"
+      }
     }
   ],
   "reel-giornata": "2026-11-25",
@@ -63,6 +72,6 @@
     "data": "2026-11-26"
   },
   "allerta": "20261125_1523:2026-11-26:arancione",
-  "reel-radar": "2026-11-25",
+  "reel-radar": "2026-11-26",
   "mattina": "2026-11-26"
 }
