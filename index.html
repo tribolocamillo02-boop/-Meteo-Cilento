@@ -3018,49 +3018,89 @@ function caricaImmagineRadar(url, tempo){
   return immaginiRadar.get(url).promessa;
 }
 
-function liberaImmaginiRadar(daTempo){
-  for(const [url, v] of immaginiRadar) if(v.tempo < daTempo) immaginiRadar.delete(url);
+// La stessa immagine, già colorata, in una tela 256×256: la si colora una volta sola e poi i riquadri
+// della mappa la copiano. Così sull'iPhone c'è una sola mappa in memoria, non una per fotogramma.
+function immagineColorata(url, tempo){
+  caricaImmagineRadar(url, tempo);
+  const v = immaginiRadar.get(url);
+  if(!v.colorata) v.colorata = v.promessa.then(img => {
+    if(!img) return null;
+    const c = document.createElement("canvas");
+    c.width = c.height = 256;
+    const ctx = c.getContext("2d", { willReadFrequently:true });
+    ctx.drawImage(img, 0, 0);
+    try{
+      const dati = ctx.getImageData(0, 0, 256, 256), px = dati.data;
+      for(let i = 0; i < px.length; i += 4){
+        const a = px[i + 3];
+        if(a < 8){ px[i + 3] = 0; continue; }
+        const k = px[i] * 4;
+        px[i] = TABELLA_COLORI[k];
+        px[i + 1] = TABELLA_COLORI[k + 1];
+        px[i + 2] = TABELLA_COLORI[k + 2];
+        px[i + 3] = TABELLA_COLORI[k + 3] * a / 255;
+      }
+      ctx.putImageData(dati, 0, 0);
+    }catch(e){ return null; }
+    return c;
+  });
+  return v.colorata;
 }
 
-// Strato Leaflet che scarica le immagini DPC e le colora
+function liberaImmaginiRadar(daTempo){
+  for(const [url, v] of immaginiRadar) if(v.tempo < daTempo){
+    // su iOS la memoria di una tela si libera subito solo riducendola a zero
+    if(v.colorata) v.colorata.then(c => { if(c){ c.width = c.height = 0; } });
+    immaginiRadar.delete(url);
+  }
+}
+
+// Strato Leaflet del radar DPC: UNO solo per tutti i fotogrammi. Cambiando fotogramma
+// i riquadri vengono ridisegnati copiando le immagini già colorate.
 let StratoRadarDPC = null;
 function creaStratoRadar(){ StratoRadarDPC = L.GridLayer.extend({
   initialize(tempo, opzioni){
     this.tempo = tempo;
     L.setOptions(this, opzioni);
+    this.on("tileunload", e => { e.tile.width = e.tile.height = 0; });
+  },
+  _sorgente(c, tempo){
+    const z = Math.min(c.z, RADAR_ZOOM_NATIVO), scala = Math.pow(2, c.z - z);
+    const x = Math.floor(c.x / scala), y = Math.floor(c.y / scala);
+    return { url:urlDPC(tempo, z, x, y), z, scala, x, y };
+  },
+  _disegna(tela, c){
+    const tempo = this.tempo, s = this._sorgente(c, tempo);
+    return immagineColorata(s.url, tempo).then(col => {
+      if(tempo !== this.tempo || !tela.width) return;      // nel frattempo è cambiato fotogramma
+      const ctx = tela.getContext("2d");
+      ctx.clearRect(0, 0, 256, 256);
+      if(!col) return;
+      const lato = 256 / s.scala;
+      ctx.imageSmoothingEnabled = true;
+      ctx.drawImage(col, (c.x - s.x * s.scala) * lato, (c.y - s.y * s.scala) * lato, lato, lato, 0, 0, 256, 256);
+    });
   },
   createTile(c, fatto){
     const tela = document.createElement("canvas");
     tela.width = tela.height = 256;
-    const z = Math.min(c.z, RADAR_ZOOM_NATIVO);
-    const scala = Math.pow(2, c.z - z);
-    const x = Math.floor(c.x / scala), y = Math.floor(c.y / scala);
-
-    caricaImmagineRadar(urlDPC(this.tempo, z, x, y), this.tempo).then(img => {
-      if(img){
-        const ctx = tela.getContext("2d", { willReadFrequently:true });
-        const lato = 256 / scala;
-        ctx.imageSmoothingEnabled = true;
-        ctx.drawImage(img, (c.x - x * scala) * lato, (c.y - y * scala) * lato, lato, lato, 0, 0, 256, 256);
-        try{
-          const dati = ctx.getImageData(0, 0, 256, 256), px = dati.data;
-          for(let i = 0; i < px.length; i += 4){
-            const a = px[i + 3];
-            if(a < 8){ px[i + 3] = 0; continue; }
-            const k = px[i] * 4;
-            px[i] = TABELLA_COLORI[k];
-            px[i + 1] = TABELLA_COLORI[k + 1];
-            px[i + 2] = TABELLA_COLORI[k + 2];
-            px[i + 3] = TABELLA_COLORI[k + 3] * a / 255;
-          }
-          ctx.putImageData(dati, 0, 0);
-        }catch(e){
-          ctx.clearRect(0, 0, 256, 256);
-        }
-      }
-      fatto(null, tela);
-    });
+    this._disegna(tela, c).then(() => fatto(null, tela));
     return tela;
+  },
+  impostaTempo(tempo){
+    if(tempo === this.tempo) return;
+    this.tempo = tempo;
+    for(const k in this._tiles){ const r = this._tiles[k]; if(r.el) this._disegna(r.el, r.coords); }
+  },
+  // prepara in anticipo le immagini di tutti i fotogrammi per i riquadri visibili
+  precarica(tempi){
+    const fatti = new Set();
+    for(const k in this._tiles){
+      for(const t of tempi){
+        const s = this._sorgente(this._tiles[k].coords, t);
+        if(!fatti.has(s.url)){ fatti.add(s.url); immagineColorata(s.url, t); }
+      }
+    }
   }
 }); }
 
@@ -3142,8 +3182,9 @@ const oraRadar = time => oraLocale(new Date(time * 1000));
 function mostraFotogramma(i){
   if(!radar.fotogrammi.length) return;
   radar.indice = (i + radar.fotogrammi.length) % radar.fotogrammi.length;
-  radar.fotogrammi.forEach((f, n) => f.layer.setOpacity(n === radar.indice ? f.opacita : 0));
   const f = radar.fotogrammi[radar.indice];
+  if(f.condiviso){ f.layer.impostaTempo(f.tempo); f.layer.setOpacity(1); }
+  else radar.fotogrammi.forEach((g, n) => g.layer.setOpacity(n === radar.indice ? g.opacita : 0));
   const ultimo = radar.indice === radar.fotogrammi.length - 1;
   $("radarOra").textContent = oraRadar(f.time) + (ultimo ? " · ora" : "");
   $("radarCursore").value = radar.indice;
@@ -3190,20 +3231,20 @@ async function radarProtezioneCivile(){
   radar.ultimoDPC = ultimo;
   liberaImmaginiRadar(ultimo - (DPC.fotogrammi + 1) * DPC.passoMs);
 
+  const strato = new StratoRadarDPC(ultimo, {
+    opacity:1,
+    maxZoom:12,
+    keepBuffer:1,
+    bounds:[[31.8, 5], [48.5, 20.5]],
+    attribution:DPC.attribuzione
+  });
   const fotogrammi = [];
   for(let k = DPC.fotogrammi - 1; k >= 0; k--){
     const t = ultimo - k * DPC.passoMs;
-    fotogrammi.push({
-      time: t / 1000,
-      opacita: 1,
-      layer: new StratoRadarDPC(t, {
-        opacity:0,
-        maxZoom:12,
-        bounds:[[31.8, 5], [48.5, 20.5]],
-        attribution:DPC.attribuzione
-      })
-    });
+    fotogrammi.push({ time: t / 1000, opacita: 1, tempo: t, condiviso: true, layer: strato });
   }
+  const tempi = fotogrammi.map(f => f.tempo);
+  strato.on("load", () => strato.precarica(tempi));
   sostituisciFotogrammi(fotogrammi);
 
   $("radarScala").style.background = "linear-gradient(90deg," +
