@@ -105,10 +105,10 @@ jobs:
       - name: Salva lo stato
         if: always() && env.PROVA != '1'
         run: |
-          if [ -n "$(git status --porcelain social/stato.json social/statistiche.json)" ]; then
+          if [ -n "$(git status --porcelain social/stato.json social/statistiche.json social/apprendimento.json)" ]; then
             git config user.name "github-actions[bot]"
             git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-            git add social/stato.json social/statistiche.json 2>/dev/null || git add social/stato.json
+            git add social/stato.json; for f in social/statistiche.json social/apprendimento.json; do [ -f "$f" ] && git add "$f"; done
             git commit -q -m "Stato delle pubblicazioni su Instagram"
             for i in 1 2 3; do git pull -q --rebase --autostash origin main && git push -q origin HEAD:main && break; sleep 5; done
           fi
