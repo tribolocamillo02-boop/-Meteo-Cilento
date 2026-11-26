@@ -1646,10 +1646,12 @@ async function controlla(){
     catch(e){
       if(!/does not exist|Unsupported get request|cannot be loaded|"code":100/i.test(e.message)) continue;
       p.eliminato = true; cambiato = true;
-      console.log(`Il contenuto ${p.tipo} del ${p.data} è stato eliminato: verrà rifatto alla prima occasione`);
-      // si rifà solo se è di oggi (le previsioni di ieri non servono più)
-      if(p.data === data && stato[p.tipo] === data) delete stato[p.tipo];
-      if(p.tipo === "allerta") delete stato.allerta;
+      // Si rifà solo se: è di oggi, non è un'allerta (l'avviso è già uscito) e non è già stato rifatto oggi.
+      // Così, se lo elimini tu perché non ti piace o è doppio, il robot non lo ripubblica all'infinito.
+      stato.rifatti = stato.rifatti && stato.rifatti.data === data ? stato.rifatti : { data };
+      const rifare = p.data === data && p.tipo !== "allerta" && !stato.rifatti[p.tipo] && stato[p.tipo] === data;
+      if(rifare){ delete stato[p.tipo]; stato.rifatti[p.tipo] = true; }
+      console.log(`Il contenuto ${p.tipo} del ${p.data} è stato eliminato: ${rifare ? "verrà rifatto alla prima occasione" : "non verrà rifatto"}`);
     }
   }
   if(cambiato) scrivi(STATO, stato);
