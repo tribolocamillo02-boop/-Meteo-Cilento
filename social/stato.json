@@ -54,7 +54,8 @@
       "id": "18224255332353219",
       "tipo": "allerta",
       "data": "2026-11-26",
-      "ora": 7
+      "ora": 7,
+      "eliminato": true
     },
     {
       "id": "18136803298707280",
@@ -63,7 +64,8 @@
       "ora": 10,
       "varianti": {
         "gancio": "domanda"
-      }
+      },
+      "eliminato": true
     },
     {
       "id": "17924581251462020",
@@ -76,6 +78,12 @@
       "tipo": "allerta",
       "data": "2026-11-26",
       "ora": 14
+    },
+    {
+      "id": "18100206458673905",
+      "tipo": "allerta",
+      "data": "2026-11-26",
+      "ora": 15
     }
   ],
   "reel-giornata": "2026-11-25",
@@ -84,7 +92,6 @@
   "controllati": {
     "data": "2026-11-26"
   },
-  "reel-radar": "2026-11-26",
   "mattina": "2026-11-26",
   "allerta": "20261125_1523:2026-11-26:arancione"
 }
