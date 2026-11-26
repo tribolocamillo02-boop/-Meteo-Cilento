@@ -1,5 +1,5 @@
 {
-  "aggiornato": "2026-11-26T13:53:14.629Z",
+  "aggiornato": "2026-11-26T20:38:47.866Z",
   "contenuti": {
     "17911307373656784": {
       "tipo": "reel-giornata",
@@ -11,7 +11,7 @@
     "18028193939936176": {
       "tipo": "notizia",
       "data": "2026-11-25",
-      "like": 0,
+      "like": 1,
       "commenti": 0,
       "link": "https://www.instagram.com/p/DgKjxeLl1j6/"
     },
@@ -40,7 +40,8 @@
       "data": "2026-11-25",
       "like": 0,
       "commenti": 0,
-      "link": "https://www.instagram.com/stories/cilentometeo/4038373496162623843"
+      "link": "https://www.instagram.com/stories/cilentometeo/4038373496162623843",
+      "eliminato": true
     },
     "18109719272354660": {
       "tipo": "reel-radar",
@@ -63,7 +64,8 @@
       "ora": 7,
       "like": 0,
       "commenti": 0,
-      "link": "https://www.instagram.com/p/DgMfHGvlwmV/"
+      "link": "https://www.instagram.com/p/DgMfHGvlwmV/",
+      "eliminato": true
     },
     "18136803298707280": {
       "tipo": "reel-radar",
@@ -74,7 +76,8 @@
       },
       "like": 0,
       "commenti": 0,
-      "link": "https://www.instagram.com/reel/DgMxC4mqTFM/"
+      "link": "https://www.instagram.com/reel/DgMxC4mqTFM/",
+      "eliminato": true
     },
     "17924581251462020": {
       "tipo": "notizia",
@@ -90,7 +93,51 @@
       "ora": 14,
       "like": 0,
       "commenti": 0,
-      "link": "https://www.instagram.com/p/DgNQYmNDVh3/"
+      "link": "https://www.instagram.com/p/DgNQYmNDVh3/",
+      "eliminato": true
+    },
+    "18100206458673905": {
+      "tipo": "allerta",
+      "data": "2026-11-26",
+      "ora": 15,
+      "eliminato": true
+    },
+    "17913769854668249": {
+      "tipo": "allerta",
+      "data": "2026-11-26",
+      "ora": 16,
+      "like": 0,
+      "commenti": 0,
+      "link": "https://www.instagram.com/p/DgNdajFlrZK/"
+    },
+    "18111266603622022": {
+      "tipo": "weekend",
+      "data": "2026-11-26",
+      "ora": 17,
+      "like": 0,
+      "commenti": 0,
+      "link": "https://www.instagram.com/p/DgNk1BUoyom/"
+    },
+    "17913727257582738": {
+      "tipo": "storia",
+      "data": "2026-11-26",
+      "ora": 19,
+      "like": 0,
+      "commenti": 0,
+      "link": "https://www.instagram.com/stories/cilentometeo/4039099112833862649"
+    },
+    "18005415230806852": {
+      "tipo": "reel-giornata",
+      "data": "2026-11-26",
+      "ora": 21,
+      "varianti": {
+        "gancio": "titolo",
+        "durata": "medio",
+        "orario": "sera"
+      },
+      "like": 0,
+      "commenti": 0,
+      "link": "https://www.instagram.com/reel/DgN-uEfB99H/"
     }
   },
   "permessoStatistiche": false

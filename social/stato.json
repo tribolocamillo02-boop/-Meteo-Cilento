@@ -105,10 +105,21 @@
       "tipo": "storia",
       "data": "2026-11-26",
       "ora": 19
+    },
+    {
+      "id": "18005415230806852",
+      "tipo": "reel-giornata",
+      "data": "2026-11-26",
+      "ora": 21,
+      "varianti": {
+        "gancio": "titolo",
+        "durata": "medio",
+        "orario": "sera"
+      }
     }
   ],
-  "reel-giornata": "2026-11-25",
-  "statistiche": "2026-11-26T13:53:14.629Z",
+  "reel-giornata": "2026-11-26",
+  "statistiche": "2026-11-26T20:38:47.866Z",
   "trialNo": "2026-11-25T14:49:12.629Z",
   "controllati": {
     "data": "2026-11-26"
