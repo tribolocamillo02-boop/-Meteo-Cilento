@@ -977,7 +977,8 @@ box-shadow:0 0 24px rgba(47,125,255,.25);
 .hour.adesso .hour-ora{color:#fff;}
 .hour svg{width:32px;height:32px;}
 .hour-temp{font-size:17px;font-weight:600;}
-.hour-pioggia{font-size:11px;color:var(--blu-chiaro);min-height:13px;}
+.hour-pioggia{font-size:11px;color:var(--blu-chiaro);min-height:13px;line-height:1.25;text-align:center;}
+.hour-pioggia small{display:block;font-size:10px;font-weight:700;color:#bfe0ff;}
 .hour-vento{font-size:10.5px;color:var(--testo-3);white-space:nowrap;}
 
 /* Previsioni 7 giorni */
@@ -986,7 +987,7 @@ box-shadow:0 0 24px rgba(47,125,255,.25);
 
 .giorno summary{
 display:grid;
-grid-template-columns:58px 32px 36px 30px 1fr 30px 14px;
+grid-template-columns:58px 32px 46px 30px 1fr 30px 14px;
 align-items:center;
 gap:8px;
 padding:12px 2px;
@@ -1001,7 +1002,8 @@ font-variant-numeric:tabular-nums;
 .giorno-nome{font-weight:600;font-size:15px;}
 .giorno-nome small{display:block;font-size:11px;font-weight:400;color:var(--testo-3);margin-top:2px;}
 .giorno summary svg.icona-meteo{width:30px;height:30px;}
-.giorno-pioggia{font-size:12px;color:var(--blu-chiaro);}
+.giorno-pioggia{font-size:12px;color:var(--blu-chiaro);line-height:1.2;}
+.giorno-pioggia small{display:block;font-size:10.5px;font-weight:700;color:#bfe0ff;white-space:nowrap;}
 .giorno-min{text-align:right;color:var(--testo-2);}
 .giorno-max{font-weight:600;}
 
@@ -1469,6 +1471,7 @@ html.leggero .temp{filter:none;}
       </summary>
       <div class="tendina-corpo">
         <p class="suggerimento">Tocca un giorno per vederlo ora per ora.</p>
+        <p class="suggerimento">💧 % = probabilità che piova · mm = quanta pioggia cade.</p>
         <div id="days"><div class="scheletro" style="height:44px;margin:10px 0"></div><div class="scheletro" style="height:44px;margin:10px 0"></div><div class="scheletro" style="height:44px;margin:10px 0"></div><div class="scheletro" style="height:44px;margin:10px 0"></div><div class="scheletro" style="height:44px;margin:10px 0"></div><div class="scheletro" style="height:44px;margin:10px 0"></div><div class="scheletro" style="height:44px;margin:10px 0"></div></div>
       </div>
     </details>
@@ -2388,13 +2391,21 @@ function frecciaDirezione(gradi){
   return `<span class="freccia-dir" style="transform:rotate(${(gradi + 180) % 360}deg)">${ui("freccia")}</span>`;
 }
 
+// Millimetri di pioggia in forma breve: «0,4 mm», «3 mm», «12 mm»
+function mmBreve(v){
+  if(!(v >= 0.1)) return "";
+  const n = v < 1 ? Math.round(v * 10) / 10 : v < 10 ? Math.round(v * 10) / 10 : Math.round(v);
+  return String(n).replace(".", ",") + " mm";
+}
+
 function schedaOraria(h, i, adesso = false){
   const p = h.precipitation_probability[i];
+  const mm = mmBreve(h.precipitation && h.precipitation[i]);
   return `<div class="hour${adesso ? " adesso" : ""}">
 <span class="hour-ora">${adesso ? "Ora" : h.time[i].slice(11, 16)}</span>
 ${iconaMeteo(infoMeteo(h.weather_code[i]).tipo, h.is_day[i] === 0)}
 <span class="hour-temp">${Math.round(h.temperature_2m[i])}°</span>
-<span class="hour-pioggia">${p > 0 ? p + "%" : ""}</span>
+<span class="hour-pioggia">${p > 0 ? p + "%" : ""}${mm ? `<small>${mm}</small>` : ""}</span>
 <span class="hour-vento">${Math.round(h.wind_speed_10m[i])} km/h</span>
 </div>`;
 }
@@ -2784,8 +2795,9 @@ async function loadWeather(){
     const piovosa = prossime.find(i => h.precipitation_probability[i] >= 50);
     const maxP = Math.max(...prossime.map(i => h.precipitation_probability[i]));
     const piuCalda = prossime.reduce((a, i) => h.temperature_2m[i] > h.temperature_2m[a] ? i : a, start);
+    const mm24 = prossime.reduce((s, i) => s + (h.precipitation[i] || 0), 0);
     const testoPioggia = piovosa != null
-      ? `Pioggia probabile dalle ${h.time[piovosa].slice(11, 16)} (${h.precipitation_probability[piovosa]}%)`
+      ? `Pioggia probabile dalle ${h.time[piovosa].slice(11, 16)} (${h.precipitation_probability[piovosa]}%${mm24 >= 0.5 ? ", " + mmBreve(mm24) + " in 24 ore" : ""})`
       : maxP >= 20 ? `Possibile qualche goccia (fino al ${maxP}%)` : "Niente pioggia prevista";
     $("antOre").textContent =
       `${testoPioggia} · max ${Math.round(h.temperature_2m[piuCalda])}° alle ${h.time[piuCalda].slice(11, 16)}`;
@@ -2801,6 +2813,7 @@ async function loadWeather(){
       const dataBreve = giorno.toLocaleDateString(LOCALE, { day:"numeric", month:"short" });
       const min = g.temperature_2m_min[i], max = g.temperature_2m_max[i];
       const p = g.precipitation_probability_max[i];
+      const mmG = mmBreve(g.precipitation_sum && g.precipitation_sum[i]);
 
       let ore = "";
       h.time.forEach((t, k) => {
@@ -2811,7 +2824,7 @@ async function loadWeather(){
 <summary>
 <span class="giorno-nome">${nomeGiorno.charAt(0).toUpperCase() + nomeGiorno.slice(1)}<small>${dataBreve}</small></span>
 ${iconaMeteo(infoMeteo(g.weather_code[i]).tipo)}
-<span class="giorno-pioggia">${p > 0 ? p + "%" : ""}</span>
+<span class="giorno-pioggia">${p > 0 ? p + "%" : ""}${mmG ? `<small>${mmG}</small>` : ""}</span>
 <span class="giorno-min">${Math.round(min)}°</span>
 <span class="barra"><i style="left:${pos(min)}%;right:${100 - pos(max)}%"></i></span>
 <span class="giorno-max">${Math.round(max)}°</span>

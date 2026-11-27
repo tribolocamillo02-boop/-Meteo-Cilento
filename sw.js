@@ -4,7 +4,7 @@
      gli ultimi scaricati.
    - Librerie, font e icone vengono salvati alla prima visita. */
 
-const VERSIONE = "cilento-meteo-v7";
+const VERSIONE = "cilento-meteo-v8";
 const GUSCIO = ["./", "index.html", "lingue.js", "manifest.webmanifest", "sponsor.json", "notifiche.json", "allerta.json", "balneazione.json", "privacy.html",
   "icone/icona-192.png", "icone/icona-512.png", "icone/apple-touch-icon.png", "icone/favicon-32.png"];
 
