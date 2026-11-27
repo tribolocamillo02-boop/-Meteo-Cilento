@@ -158,18 +158,18 @@
   "statistiche": "2026-11-27T22:27:27.675Z",
   "trialNo": "2026-11-25T14:49:12.629Z",
   "controllati": {
-    "data": "2026-11-27",
+    "data": "2026-11-28",
     "varianti": {
       "reel-giornata": {
-        "gancio": "numero",
-        "durata": "medio",
+        "gancio": "titolo",
+        "durata": "corto",
         "orario": "pranzo"
       },
       "reel-radar": {
-        "gancio": "domanda"
+        "gancio": "movimento"
       },
       "reel-weekend": {
-        "gancio": "domanda"
+        "gancio": "titolo"
       }
     }
   },
