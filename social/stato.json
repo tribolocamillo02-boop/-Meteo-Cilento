@@ -1,5 +1,5 @@
 {
-  "storia": "2026-11-26",
+  "storia": "2026-11-27",
   "promo": "2026-11-24",
   "promoIndice": 1,
   "reel-weekend": "2026-11-27",
@@ -145,6 +145,12 @@
       "varianti": {
         "gancio": "domanda"
       }
+    },
+    {
+      "id": "18139317073742165",
+      "tipo": "storia",
+      "data": "2026-11-27",
+      "ora": 19
     }
   ],
   "reel-giornata": "2026-11-26",
