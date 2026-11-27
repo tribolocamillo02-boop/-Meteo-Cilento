@@ -1,44 +1,44 @@
 {
- "id": "20261126_1410",
- "bollettino": "Bollettino del 26 novembre 2026 ore 14:10",
+ "id": "20261127_1417",
+ "bollettino": "Bollettino del 27 novembre 2026 ore 14:17",
  "fonte": "Dipartimento della Protezione Civile · Bollettino di criticità nazionale (CC BY 4.0)",
  "giorni": {
-  "2026-11-26": {
+  "2026-11-27": {
    "S": {
-    "livello": "giallo",
-    "idrogeologico": "giallo",
+    "livello": "verde",
+    "idrogeologico": "verde",
     "idraulico": "verde",
     "temporali": "verde"
    },
    "B": {
-    "livello": "giallo",
-    "idrogeologico": "giallo",
+    "livello": "verde",
+    "idrogeologico": "verde",
     "idraulico": "verde",
     "temporali": "verde"
    },
    "T": {
-    "livello": "giallo",
-    "idrogeologico": "giallo",
+    "livello": "verde",
+    "idrogeologico": "verde",
     "idraulico": "verde",
     "temporali": "verde"
    }
   },
-  "2026-11-27": {
+  "2026-11-28": {
    "S": {
-    "livello": "giallo",
-    "idrogeologico": "giallo",
+    "livello": "verde",
+    "idrogeologico": "verde",
     "idraulico": "verde",
     "temporali": "verde"
    },
    "B": {
-    "livello": "giallo",
-    "idrogeologico": "giallo",
+    "livello": "verde",
+    "idrogeologico": "verde",
     "idraulico": "verde",
     "temporali": "verde"
    },
    "T": {
-    "livello": "giallo",
-    "idrogeologico": "giallo",
+    "livello": "verde",
+    "idrogeologico": "verde",
     "idraulico": "verde",
     "temporali": "verde"
    }
