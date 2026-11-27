@@ -2,7 +2,7 @@
   "storia": "2026-11-26",
   "promo": "2026-11-24",
   "promoIndice": 1,
-  "reel-weekend": "2026-11-24",
+  "reel-weekend": "2026-11-27",
   "carosello": "2026-11-24",
   "reel-guida": "2026-11-24",
   "notizia": "2026-11-27",
@@ -136,6 +136,15 @@
       "tipo": "notizia",
       "data": "2026-11-27",
       "ora": 13
+    },
+    {
+      "id": "17917153122514744",
+      "tipo": "reel-weekend",
+      "data": "2026-11-27",
+      "ora": 18,
+      "varianti": {
+        "gancio": "domanda"
+      }
     }
   ],
   "reel-giornata": "2026-11-26",
