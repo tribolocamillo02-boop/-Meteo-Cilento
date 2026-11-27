@@ -1,10 +1,10 @@
 {
-  "aggiornato": "2026-11-27T09:28:21.173Z",
+  "aggiornato": "2026-11-27T15:40:33.552Z",
   "contenuti": {
     "17911307373656784": {
       "tipo": "reel-giornata",
       "data": "2026-11-24",
-      "like": 0,
+      "like": 1,
       "commenti": 0,
       "link": "https://www.instagram.com/reel/DgIw21UOo54/"
     },
@@ -109,7 +109,8 @@
       "ora": 16,
       "like": 0,
       "commenti": 0,
-      "link": "https://www.instagram.com/p/DgNdajFlrZK/"
+      "link": "https://www.instagram.com/p/DgNdajFlrZK/",
+      "eliminato": true
     },
     "18111266603622022": {
       "tipo": "weekend",
@@ -155,6 +156,14 @@
       "like": 0,
       "commenti": 0,
       "link": "https://www.instagram.com/p/DgPOh6xnxjz/"
+    },
+    "18114279056224111": {
+      "tipo": "notizia",
+      "data": "2026-11-27",
+      "ora": 13,
+      "like": 0,
+      "commenti": 0,
+      "link": "https://www.instagram.com/p/DgPrByvo-Wk/"
     }
   },
   "permessoStatistiche": false
