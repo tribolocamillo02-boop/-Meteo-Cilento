@@ -1,5 +1,5 @@
 {
-  "aggiornato": "2026-11-28T11:22:22.324Z",
+  "aggiornato": "2026-11-28T18:05:06.812Z",
   "contenuti": {
     "17911307373656784": {
       "tipo": "reel-giornata",
@@ -201,6 +201,22 @@
       "like": 0,
       "commenti": 0,
       "link": "https://www.instagram.com/p/DgSIs6YDYM0/"
+    },
+    "18041558637170504": {
+      "tipo": "notizia",
+      "data": "2026-11-28",
+      "ora": 15,
+      "like": 0,
+      "commenti": 0,
+      "link": "https://www.instagram.com/p/DgSbwIaDhpE/"
+    },
+    "18040377074899879": {
+      "tipo": "storia",
+      "data": "2026-11-28",
+      "ora": 19,
+      "like": 0,
+      "commenti": 0,
+      "link": "https://www.instagram.com/stories/cilentometeo/4040533043810774253"
     }
   },
   "permessoStatistiche": false

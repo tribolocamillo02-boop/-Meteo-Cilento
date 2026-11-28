@@ -1,5 +1,5 @@
 {
-  "storia": "2026-11-27",
+  "storia": "2026-11-28",
   "promo": "2026-11-28",
   "promoIndice": 2,
   "reel-weekend": "2026-11-27",
@@ -171,10 +171,16 @@
       "tipo": "notizia",
       "data": "2026-11-28",
       "ora": 15
+    },
+    {
+      "id": "18040377074899879",
+      "tipo": "storia",
+      "data": "2026-11-28",
+      "ora": 19
     }
   ],
   "reel-giornata": "2026-11-26",
-  "statistiche": "2026-11-28T11:22:22.324Z",
+  "statistiche": "2026-11-28T18:05:06.812Z",
   "trialNo": "2026-11-25T14:49:12.629Z",
   "controllati": {
     "data": "2026-11-28",
