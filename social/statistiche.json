@@ -1,5 +1,5 @@
 {
-  "aggiornato": "2026-11-28T04:37:09.558Z",
+  "aggiornato": "2026-11-28T11:22:22.324Z",
   "contenuti": {
     "17911307373656784": {
       "tipo": "reel-giornata",
@@ -148,7 +148,8 @@
       "ora": 9,
       "like": 0,
       "commenti": 0,
-      "link": "https://www.instagram.com/stories/cilentometeo/4039511222520849629"
+      "link": "https://www.instagram.com/stories/cilentometeo/4039511222520849629",
+      "eliminato": true
     },
     "18205302214379524": {
       "tipo": "allerta",
@@ -184,6 +185,22 @@
       "like": 0,
       "commenti": 0,
       "link": "https://www.instagram.com/stories/cilentometeo/4039822167398851266"
+    },
+    "17911371276329635": {
+      "tipo": "mattina",
+      "data": "2026-11-28",
+      "ora": 7,
+      "like": 0,
+      "commenti": 0,
+      "link": "https://www.instagram.com/stories/cilentometeo/4040186449126870893"
+    },
+    "17881440183567070": {
+      "tipo": "promo",
+      "data": "2026-11-28",
+      "ora": 12,
+      "like": 0,
+      "commenti": 0,
+      "link": "https://www.instagram.com/p/DgSIs6YDYM0/"
     }
   },
   "permessoStatistiche": false
